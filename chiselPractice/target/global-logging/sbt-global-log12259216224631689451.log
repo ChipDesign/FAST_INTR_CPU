@@ -1,0 +1,89 @@
+[debug] > Exec(early(addDefaultCommands), None, None)
+[debug] > Exec(addDefaultCommands, None, None)
+[debug] > Exec(early(initialize), None, None)
+[debug] > Exec(initialize, None, None)
+[debug] > Exec(boot, None, None)
+[debug] > Exec(writeSbtVersion, None, None)
+[debug] > Exec(reload, None, None)
+[debug] > Exec(sbtStashOnFailure, None, None)
+[debug] > Exec(onFailure loadFailed, None, None)
+[debug] > Exec(loadp, None, None)
+[info] welcome to sbt 1.7.2 (Ubuntu Java 11.0.14.1)
+[debug] Load.defaultLoad until apply took 103.669331ms
+[debug]           Load.loadUnit: plugins took 94.495716ms
+[debug]           Load.loadUnit: defsScala took 0.442221ms
+[debug] [Loading] Scanning directory /home/hemiaohong/IdeaProjects/chiselPractice/project
+[debug] [Loading] Found non-root projects 
+[debug] [Loading] Done in /home/hemiaohong/IdeaProjects/chiselPractice/project, returning: ()
+[debug] deducing auto plugins based on known facts Set(Atom(sbt.plugins.CorePlugin)) and clauses Clauses(Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(sbt.plugins.IvyPlugin)))
+[debug] Clause(Atom(sbt.ScriptedPlugin),Set(Atom(sbt.plugins.JvmPlugin)))
+[debug] Clause(Atom(sbt.plugins.SbtPlugin),Set(Atom(sbt.ScriptedPlugin)))
+[debug] Clause(Atom(sbt.plugins.SemanticdbPlugin),Set(Atom(sbt.plugins.JvmPlugin)))
+[debug] Clause(Atom(sbt.plugins.JUnitXmlReportPlugin),Set(Atom(sbt.plugins.JvmPlugin)))
+[debug] Clause(Atom(sbt.plugins.MiniDependencyTreePlugin),Set(Atom(sbt.plugins.JvmPlugin)))
+[debug] Clause(Atom(sbt.plugins.CorePlugin),Set(Atom(sbt.plugins.IvyPlugin)))
+[debug] Clause(Atom(sbt.plugins.IvyPlugin),Set(Atom(sbt.plugins.JvmPlugin)))
+[debug] Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(sbt.plugins.SemanticdbPlugin)))
+[debug] Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(sbt.plugins.JUnitXmlReportPlugin)))
+[debug] Clause(Atom(sbt.plugins.CorePlugin),Set(Atom(sbt.plugins.Giter8TemplatePlugin)))
+[debug] Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(sbt.plugins.MiniDependencyTreePlugin))))
+[debug]   :: deduced result: Matched(sbt.plugins.CorePlugin,sbt.plugins.Giter8TemplatePlugin,sbt.plugins.IvyPlugin,sbt.plugins.JvmPlugin,sbt.plugins.MiniDependencyTreePlugin,sbt.plugins.JUnitXmlReportPlugin,sbt.plugins.SemanticdbPlugin)
+[debug] Plugins.deducer#function took 29.758827 ms
+[debug]               Load.resolveProject(chiselpractice-build) took 75.611333ms
+[debug]             Load.loadTransitive: finalizeProject(Project(id chiselpractice-build, base: /home/hemiaohong/IdeaProjects/chiselPractice/project, plugins: List(<none>))) took 145.274858ms
+[debug] [Loading] Done in /home/hemiaohong/IdeaProjects/chiselPractice/project, returning: (chiselpractice-build)
+[debug]           Load.loadUnit: loadedProjectsRaw took 175.607982ms
+[debug]           Load.loadUnit: cleanEvalClasses took 0.41569ms
+[debug]         Load.loadUnit(file:/home/hemiaohong/IdeaProjects/chiselPractice/project/, ...) took 279.883449ms
+[debug]       Load.apply: load took 665.418871ms
+[debug]       Load.apply: resolveProjects took 27.480691ms
+[debug]       Load.apply: finalTransforms took 157.053324ms
+[debug]       Load.apply: config.delegates took 14.765066ms
+[debug]       Load.apply: Def.make(settings)... took 674.134419ms
+[debug]       Load.apply: structureIndex took 136.001778ms
+[debug]       Load.apply: mkStreams took 2.472199ms
+[info] loading project definition from /home/hemiaohong/IdeaProjects/chiselPractice/project
+[debug] Running task... Cancel: Signal, check cycles: false, forcegc: true
+[debug]     Load.loadUnit: plugins took 2679.225521ms
+[debug]     Load.loadUnit: defsScala took 0.006798ms
+[debug] [Loading] Scanning directory /home/hemiaohong/IdeaProjects/chiselPractice
+[debug]       Load.loadUnit: mkEval took 7.911935ms
+[debug] [Loading] Found non-root projects 
+[debug] [Loading] Done in /home/hemiaohong/IdeaProjects/chiselPractice, returning: ()
+[debug] deducing auto plugins based on known facts Set(Atom(sbt.plugins.CorePlugin)) and clauses Clauses(Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(sbt.plugins.IvyPlugin)))
+[debug] Clause(Atom(sbt.ScriptedPlugin),Set(Atom(sbt.plugins.JvmPlugin)))
+[debug] Clause(Atom(sbt.plugins.SbtPlugin),Set(Atom(sbt.ScriptedPlugin)))
+[debug] Clause(Atom(sbt.plugins.SemanticdbPlugin),Set(Atom(sbt.plugins.JvmPlugin)))
+[debug] Clause(Atom(sbt.plugins.JUnitXmlReportPlugin),Set(Atom(sbt.plugins.JvmPlugin)))
+[debug] Clause(Atom(sbt.plugins.MiniDependencyTreePlugin),Set(Atom(sbt.plugins.JvmPlugin)))
+[debug] Clause(Atom(sbt.plugins.CorePlugin),Set(Atom(sbt.plugins.IvyPlugin)))
+[debug] Clause(Atom(sbt.plugins.IvyPlugin),Set(Atom(sbt.plugins.JvmPlugin)))
+[debug] Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(sbt.plugins.SemanticdbPlugin)))
+[debug] Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(sbt.plugins.JUnitXmlReportPlugin)))
+[debug] Clause(Atom(sbt.plugins.CorePlugin),Set(Atom(sbt.plugins.Giter8TemplatePlugin)))
+[debug] Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(sbt.plugins.MiniDependencyTreePlugin))))
+[debug]   :: deduced result: Matched(sbt.plugins.CorePlugin,sbt.plugins.Giter8TemplatePlugin,sbt.plugins.IvyPlugin,sbt.plugins.JvmPlugin,sbt.plugins.MiniDependencyTreePlugin,sbt.plugins.JUnitXmlReportPlugin,sbt.plugins.SemanticdbPlugin)
+[debug] Plugins.deducer#function took 3.048102 ms
+[info] loading settings for project chiselpractice from build.sbt ...
+[debug]         Load.resolveProject(chiselpractice) took 4.202405ms
+[debug]       Load.loadTransitive: finalizeProject(Project(id chiselpractice, base: /home/hemiaohong/IdeaProjects/chiselPractice, plugins: List(<none>))) took 8.119143ms
+[debug] [Loading] Done in /home/hemiaohong/IdeaProjects/chiselPractice, returning: (chiselpractice)
+[debug]     Load.loadUnit: loadedProjectsRaw took 3282.420665ms
+[debug]     Load.loadUnit: cleanEvalClasses took 9.842818ms
+[debug]   Load.loadUnit(file:/home/hemiaohong/IdeaProjects/chiselPractice/, ...) took 5973.452905ms
+[debug] Load.apply: load took 5996.903788ms
+[debug] Load.apply: resolveProjects took 0.215812ms
+[debug] Load.apply: finalTransforms took 15.563035ms
+[debug] Load.apply: config.delegates took 0.485338ms
+[debug] Load.apply: Def.make(settings)... took 157.49279ms
+[debug] Load.apply: structureIndex took 50.930078ms
+[debug] Load.apply: mkStreams took 0.004648ms
+[info] set current project to chiselpractice (in build file:/home/hemiaohong/IdeaProjects/chiselPractice/)
+[debug] > Exec(sbtPopOnFailure, None, None)
+[debug] > Exec(resumeFromFailure, None, None)
+[debug] > Exec(notifyUsersAboutShell, None, None)
+[debug] > Exec(iflast shell, None, None)
+[debug] > Exec(shell, None, None)
+[info] sbt server started at local:///home/hemiaohong/.sbt/1.0/server/bb2e71f5160ca3208bf6/sock
+[debug] Writing bsp connection file
+[info] started sbt server
