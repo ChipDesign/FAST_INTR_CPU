@@ -147,6 +147,93 @@ class ChiselTest extends AnyFlatSpec with
     test(new DeviceUnderTest).withAnnotations(Seq(WriteVcdAnnotation))
     ```
 
+# Combination Logic
+## Decoder
+1. simple decoder: `switch/is`
+    ```Scala
+    class DecoderSimiple extends Module{
+        val io=IO(new Bundle{
+            val sel=Input(UInt(2.W))
+            val output=Output(UInt(4.W))
+        })
+
+        io.output:=0.U // RefNotInitializedException: Chisel need us to provide a default value
+
+        switch(io.sel){
+            is (0.U) {io.output:=1.U}
+            is (1.U) {io.output:=2.U}
+            is (2.U) {io.output:=4.U}
+            is (3.U) {io.output:=8.U}
+        }
+    }
+    ```
+2. binary decoder
+    ```Scala
+    class DecoderBinary extends Module{
+        val io=IO(new Bundle{
+            val sel=Input(UInt(2.W))
+            val output=Output(UInt(4.W))
+        })
+
+        io.output:=0.U // RefNotInitializedException: Chisel need us to provide a default value
+
+        switch(io.sel){
+            is ("b00".U) {io.output:="b0001".U}
+            is ("b01".U) {io.output:="b0010".U}
+            is ("b10".U) {io.output:="b0100".U}
+            is ("b11".U) {io.output:="b1000".U}
+        }
+    }
+    ```
+3. shift decoder
+    ```Scala
+    class DecoderShift extends Module{
+        val io=IO(new Bundle{
+            val sel=Input(UInt(2.W))
+            val output=Output(UInt(4.W))
+        })
+
+        // io.output:= 1.U<<io.sel
+        io.output:= "b0001".U<<io.sel
+    }
+    ```
+
+## Encoder
+1. inverse of simple decoder
+    ```Scala
+    class EncoderSimple extends Module {
+        val io = IO(new Bundle {
+            val hotIn = Input(UInt(4.W))
+            val code = Output(UInt(2.W))
+        })
+
+        io.code := 0.U
+        switch(io.hotIn) {
+            is("b0001".U) { io.code := "b00".U }
+            is("b0010".U) { io.code := "b01".U }
+            is("b0100".U) { io.code := "b10".U }
+            is("b1000".U) { io.code := "b11".U }
+        }
+    }
+    ```
+2. decoder generator
+    ```Scala
+    class EncoderGenerator extends Module {
+        val io = IO(new Bundle {
+            val hotIn = Input(UInt(4.W))
+            val code = Output(UInt(2.W))
+        })
+
+        val v = Wire(Vec(4, UInt(2.W)))
+
+        v(0) := 0.U
+        for (i <- 1 until 4) {
+            v(i) := Mux(io.hotIn(i), i.U, 0.U) | v(i - 1)
+        }
+        io.code := v(3)
+    }
+    ```
+
 
 # 声明
 本项目参考有:
