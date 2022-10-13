@@ -5,6 +5,8 @@
 */
 // package myPacket
 
+package hello
+
 import chisel3._
 // import chisel3.util._
 // import chisel3.tester._
