@@ -62,7 +62,7 @@
 ### Scala Test
 >  ChiselTest is an extension of ScalaTest. 所以我们先介绍Scala Test
 
-[介绍ScalaTest的文章](http://allaboutscala.com/scala-cheatsheet/#test-class-flatspec-matchers)
+[介绍ScalaTest的文章](https://blog.csdn.net/debang2014010/article/details/102327031?spm=1001.2101.3001.6650.8&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-8-102327031-blog-83315498.pc_relevant_aa_2&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-8-102327031-blog-83315498.pc_relevant_aa_2&utm_relevant_index=9)
 
 
 ```Scala
@@ -140,9 +140,16 @@ class ChiselTest extends AnyFlatSpec with
 }
 ```
 
+## Waveform
+1. `sbt "testOnly SimpleTest -- -DwriteVcd=1"`其中DwriteVcd表示输出波形，得到的vcd文件可以在波形软件中查看。
+2. 在test中指定生成波形：
+    ```Scala
+    test(new DeviceUnderTest).withAnnotations(Seq(WriteVcdAnnotation))
+    ```
 
 
 # 声明
 本项目参考有:
 1. [schoeberl/chisel-examples](https://github.com/schoeberl/chisel-examples)
 2. [Scala Cheetsheet](https://allaboutscala.com/scala-cheatsheet/)
+3. [scalaTest的初步使用](https://blog.csdn.net/debang2014010/article/details/102327031?spm=1001.2101.3001.6650.8&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-8-102327031-blog-83315498.pc_relevant_aa_2&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-8-102327031-blog-83315498.pc_relevant_aa_2&utm_relevant_index=9)
