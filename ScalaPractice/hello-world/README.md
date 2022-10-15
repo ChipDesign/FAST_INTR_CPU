@@ -216,12 +216,12 @@ class ChiselTest extends AnyFlatSpec with
         }
     }
     ```
-2. encoder generator: `Vec`,`log2Up`
+2. encoder generator: `Vec`, `log2Up`, `unsignedBitLength(n)`
     ```Scala
     class EncoderGenerator(n: Int) extends Module {
         val io = IO(new Bundle {
             val hotIn = Input(UInt(n.W))
-            val code = Output(UInt(log2Up(n).W))
+            val code = Output(UInt(log2Up(n).W)) // can use `unsignedBitLength(n)` instead
         })
 
         val v = Wire(Vec(n, UInt(2.W)))
@@ -276,6 +276,58 @@ class ChiselTest extends AnyFlatSpec with
     }
 ```
 
+# Sequential Logic
+## Slow Counter: use `tick` signal to slow a counter
+```Scala
+    class SlowCounter extends Module {
+    val io = IO(new Bundle {
+        val out = Output(UInt(2.W))
+    })
+
+        val tickCounter = RegInit(0.U(2.W))
+        val tick = tickCounter === 3.U
+        tickCounter := tickCounter + 1.U
+        when(tick) {
+            tickCounter := 0.U
+        }
+
+        val slowCount = RegInit(0.U(2.W))
+        when(tick) {
+            slowCount := slowCount + 1.U
+        }
+
+        io.out := slowCount
+
+    }
+```
+## Shift Register: `##`
+1. Delay Register: the output is 4 cycle delay of input
+    ```Scala
+    class DelayRegister extends Module {
+        val io = IO(new Bundle {
+            val din = Input(UInt(1.W))
+            val dout = Output(UInt(1.W))
+        })
+
+        val shiftReg = Reg(UInt(4.W))
+        shiftReg := shiftReg(2, 0) ## io.din
+
+        io.dout := shiftReg(3)
+    }
+    ```
+2. Parallel Register: change serial into parallel output
+    ```Scala
+    class ParallelRegister extends Module {
+        val io = IO(new Bundle {
+            val din = Input(UInt(1.W))
+            val dout = Output(UInt(4.W))
+        })
+
+        val parallelReg = RegInit(0.U(4.W))
+        parallelReg := io.din ## parallelReg(3, 1)
+        io.dout := parallelReg
+    }
+    ```
 # 声明
 本项目参考有:
 1. [schoeberl/chisel-examples](https://github.com/schoeberl/chisel-examples)
