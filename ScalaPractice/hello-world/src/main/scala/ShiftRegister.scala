@@ -3,6 +3,7 @@
   * ShiftRegister for delay, parallel output
   */
 
+package sequential
 import chisel3._
 
 /** output is 4 cycle delay of input
