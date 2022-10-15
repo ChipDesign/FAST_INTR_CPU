@@ -328,6 +328,51 @@ class ChiselTest extends AnyFlatSpec with
         io.dout := parallelReg
     }
     ```
+## Memory: `SyncReadMem`
+1. Simple Memory
+    ```Scala
+    class Memory extends Module {
+        val io = IO(new Bundle {
+            val rdAddr = Input(UInt(10.W))
+            val rdData = Output(UInt(8.W))
+            val wrAddr = Input(UInt(10.W))
+            val wrData = Input(UInt(8.W))
+            val wrEna = Input(Bool())
+        })
+
+        val mem = SyncReadMem(1024, UInt(8.W))
+
+        io.rdData := mem.read(io.rdAddr)
+
+        when(io.wrEna) {
+            mem.write(io.wrAddr, io.wrData)
+        }
+    }
+    ```
+2. Forwarding Memory: forwarding the write_data to read_data when read and write address are the same
+    ```Scala
+    class ForwardingMemory extends Module {
+        val io = IO(new Bundle {
+            val rdAddr = Input(UInt(10.W))
+            val rdData = Output(UInt(8.W))
+            val wrAddr = Input(UInt(10.W))
+            val wrData = Input(UInt(8.W))
+            val wrEna = Input(Bool())
+        })
+
+        val mem = SyncReadMem(1024, UInt(8.W))
+        val wrDataReg = RegNext(io.wrData)
+        val doForwardReg = RegNext(
+            io.wrAddr === io.rdAddr &&
+            io.wrEna
+        )
+        val memData = mem.read(io.rdAddr)
+        when(io.wrEna) {
+            mem.write(io.wrAddr, io.wrData)
+        }
+        io.rdData := Mux(doForwardReg, wrDataReg, memData)
+    }
+    ```
 # 声明
 本项目参考有:
 1. [schoeberl/chisel-examples](https://github.com/schoeberl/chisel-examples)
