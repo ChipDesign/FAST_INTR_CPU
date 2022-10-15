@@ -199,7 +199,7 @@ class ChiselTest extends AnyFlatSpec with
     ```
 
 ## Encoder
-1. inverse of simple decoder
+1. inverse of simple decoder: `switch/is`
     ```Scala
     class EncoderSimple extends Module {
         val io = IO(new Bundle {
@@ -216,7 +216,7 @@ class ChiselTest extends AnyFlatSpec with
         }
     }
     ```
-2. decoder generator
+2. decoder generator: `Vec`
     ```Scala
     class EncoderGenerator extends Module {
         val io = IO(new Bundle {
@@ -234,6 +234,26 @@ class ChiselTest extends AnyFlatSpec with
     }
     ```
 
+## Arbiter
+```Scala
+    class Arbiter(n: Int) extends Module { // n is same to `constructor param` in C++
+        val io = IO(new Bundle {
+            val request = Input(Vec(n, Bool())) // create an array Input
+            val output = Output(Vec(n, Bool()))
+        })
+
+        val grant = VecInit.fill(n)(false.B)
+        val notGranted = VecInit.fill(n)(false.B)
+        grant(0) := io.request(0)
+        notGranted(0) := !grant(0)
+        for (i <- 1 until n) {
+            grant(i) := io.request(i) && notGranted(i - 1)
+            notGranted(i) := !grant(i) && notGranted(i - 1)
+        }
+
+        io.output := grant
+    }
+```
 
 # 声明
 本项目参考有:
