@@ -147,6 +147,134 @@ class ChiselTest extends AnyFlatSpec with
     test(new DeviceUnderTest).withAnnotations(Seq(WriteVcdAnnotation))
     ```
 
+# Combination Logic
+## Decoder
+1. simple decoder: `switch/is`
+    ```Scala
+    class DecoderSimiple extends Module{
+        val io=IO(new Bundle{
+            val sel=Input(UInt(2.W))
+            val output=Output(UInt(4.W))
+        })
+
+        io.output:=0.U // RefNotInitializedException: Chisel need us to provide a default value
+
+        switch(io.sel){
+            is (0.U) {io.output:=1.U}
+            is (1.U) {io.output:=2.U}
+            is (2.U) {io.output:=4.U}
+            is (3.U) {io.output:=8.U}
+        }
+    }
+    ```
+2. binary decoder
+    ```Scala
+    class DecoderBinary extends Module{
+        val io=IO(new Bundle{
+            val sel=Input(UInt(2.W))
+            val output=Output(UInt(4.W))
+        })
+
+        io.output:=0.U // RefNotInitializedException: Chisel need us to provide a default value
+
+        switch(io.sel){
+            is ("b00".U) {io.output:="b0001".U}
+            is ("b01".U) {io.output:="b0010".U}
+            is ("b10".U) {io.output:="b0100".U}
+            is ("b11".U) {io.output:="b1000".U}
+        }
+    }
+    ```
+3. shift decoder
+    ```Scala
+    class DecoderShift extends Module{
+        val io=IO(new Bundle{
+            val sel=Input(UInt(2.W))
+            val output=Output(UInt(4.W))
+        })
+
+        // io.output:= 1.U<<io.sel
+        io.output:= "b0001".U<<io.sel
+    }
+    ```
+
+## Encoder
+1. inverse of simple decoder: `switch/is`
+    ```Scala
+    class EncoderSimple extends Module {
+        val io = IO(new Bundle {
+            val hotIn = Input(UInt(4.W))
+            val code = Output(UInt(2.W))
+        })
+
+        io.code := 0.U
+        switch(io.hotIn) {
+            is("b0001".U) { io.code := "b00".U }
+            is("b0010".U) { io.code := "b01".U }
+            is("b0100".U) { io.code := "b10".U }
+            is("b1000".U) { io.code := "b11".U }
+        }
+    }
+    ```
+2. encoder generator: `Vec`,`log2Up`
+    ```Scala
+    class EncoderGenerator(n: Int) extends Module {
+        val io = IO(new Bundle {
+            val hotIn = Input(UInt(n.W))
+            val code = Output(UInt(log2Up(n).W))
+        })
+
+        val v = Wire(Vec(n, UInt(2.W)))
+
+        v(0) := 0.U
+        for (i <- 1 until n) {
+            v(i) := Mux(io.hotIn(i), i.U, 0.U) | v(i - 1)
+        }
+        io.code := v(n - 1)
+    }
+    ```
+
+3. Priority Encoder
+    ```Scala
+        /** 之前的encoder只允许hotIn中最多有一位是1 PriorityEncoder允许hotIn中有多位是1，
+     * 通过一个Arbiter选择优先级最高的1
+     */
+    class PriorityEncoder(n: Int) extends Module {
+        val io = IO(new Bundle {
+            val hotIn = Input(UInt(4.W))
+            val code = Output(UInt(2.W))
+        })
+
+        val aw = Module(new ArbiterWrapper(4))
+        var eg = Module(new EncoderGenerator(4))
+
+        // connect all ports, using BULK Connection
+        aw.io.request := io.hotIn
+        eg.io.hotIn := aw.io.hotIn
+        io.code := eg.io.code
+    }
+    ```
+
+## Arbiter
+```Scala
+    class Arbiter(n: Int) extends Module { // n is same to `constructor param` in C++
+        val io = IO(new Bundle {
+            val request = Input(Vec(n, Bool())) // create an array Input
+            val output = Output(Vec(n, Bool()))
+        })
+
+        val grant = VecInit.fill(n)(false.B)
+        val notGranted = VecInit.fill(n)(false.B)
+        grant(0) := io.request(0)
+        notGranted(0) := !grant(0)
+        for (i <- 1 until n) {
+            grant(i) := io.request(i) && notGranted(i - 1)
+            notGranted(i) := !grant(i) && notGranted(i - 1)
+        }
+
+        io.output := grant
+    }
+```
 
 # 声明
 本项目参考有:
