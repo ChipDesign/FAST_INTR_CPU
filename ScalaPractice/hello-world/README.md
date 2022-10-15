@@ -216,21 +216,42 @@ class ChiselTest extends AnyFlatSpec with
         }
     }
     ```
-2. decoder generator: `Vec`
+2. encoder generator: `Vec`,`log2Up`
     ```Scala
-    class EncoderGenerator extends Module {
+    class EncoderGenerator(n: Int) extends Module {
+        val io = IO(new Bundle {
+            val hotIn = Input(UInt(n.W))
+            val code = Output(UInt(log2Up(n).W))
+        })
+
+        val v = Wire(Vec(n, UInt(2.W)))
+
+        v(0) := 0.U
+        for (i <- 1 until n) {
+            v(i) := Mux(io.hotIn(i), i.U, 0.U) | v(i - 1)
+        }
+        io.code := v(n - 1)
+    }
+    ```
+
+3. Priority Encoder
+    ```Scala
+        /** 之前的encoder只允许hotIn中最多有一位是1 PriorityEncoder允许hotIn中有多位是1，
+     * 通过一个Arbiter选择优先级最高的1
+     */
+    class PriorityEncoder(n: Int) extends Module {
         val io = IO(new Bundle {
             val hotIn = Input(UInt(4.W))
             val code = Output(UInt(2.W))
         })
 
-        val v = Wire(Vec(4, UInt(2.W)))
+        val aw = Module(new ArbiterWrapper(4))
+        var eg = Module(new EncoderGenerator(4))
 
-        v(0) := 0.U
-        for (i <- 1 until 4) {
-            v(i) := Mux(io.hotIn(i), i.U, 0.U) | v(i - 1)
-        }
-        io.code := v(3)
+        // connect all ports, using BULK Connection
+        aw.io.request := io.hotIn
+        eg.io.hotIn := aw.io.hotIn
+        io.code := eg.io.code
     }
     ```
 
