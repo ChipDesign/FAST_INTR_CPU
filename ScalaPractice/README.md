@@ -4,8 +4,13 @@
 因为项目比较简单，仅仅包含基本的Scala基础，所以本项目的源文件是使用jupyter notebook，该notebook采用Scala作为kernel。使用jupyter notebook是为了在记录代码的同时，很好的添加文档说明。
 
 本文档分为以下几部分：
-1. [Scala基础](https://github.com/timemeansalot/FAST_INTR_CPU/tree/main/ScalaPractice)：介绍了Scala的一些基础语法和进阶语法。
-2. [Chisel基础]()：根据Chisel-Book的内容，从零开始介绍了如何使用Chisel进行电路的设计、仿真。
+1. [Scala基础](https://github.com/ChipDesign/FAST_INTR_CPU/blob/main/ScalaPractice/ScalaBasicSyntax.ipynb)：在jupyter的notebook中，大致描述了Scala的基础语法知识
+2. [Chisel基础](https://github.com/ChipDesign/FAST_INTR_CPU/blob/main/ScalaPractice/ChiselBasic.ipynb)：在jupyter的notebook中，大致描述了Chisel的基础语法知识
+3. [Chisel项目](https://github.com/ChipDesign/FAST_INTR_CPU/tree/main/ScalaPractice/hello-world)：该项目包括以下内容
+    - 运行一个简单的chisel项目
+    - Chisel实现组合逻辑电路: decoder, encoder, arbiter, etc...
+    - Chisel实现时序逻辑电路：
+4. [Chisel ALU项目]()：通过Chisel实现一个有如下功能的ALU
 
 # 申明
 本项目的参考资料如下：
