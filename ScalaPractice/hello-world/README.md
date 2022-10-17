@@ -26,9 +26,9 @@
      * Chisele Hello World项目
      * 
     */
-
+    
     package myPacket
-
+    
     object Hello extends App {
     println("Hello World Chisel")
     }
@@ -156,9 +156,9 @@ class ChiselTest extends AnyFlatSpec with
             val sel=Input(UInt(2.W))
             val output=Output(UInt(4.W))
         })
-
+    
         io.output:=0.U // RefNotInitializedException: Chisel need us to provide a default value
-
+    
         switch(io.sel){
             is (0.U) {io.output:=1.U}
             is (1.U) {io.output:=2.U}
@@ -174,9 +174,9 @@ class ChiselTest extends AnyFlatSpec with
             val sel=Input(UInt(2.W))
             val output=Output(UInt(4.W))
         })
-
+    
         io.output:=0.U // RefNotInitializedException: Chisel need us to provide a default value
-
+    
         switch(io.sel){
             is ("b00".U) {io.output:="b0001".U}
             is ("b01".U) {io.output:="b0010".U}
@@ -192,7 +192,7 @@ class ChiselTest extends AnyFlatSpec with
             val sel=Input(UInt(2.W))
             val output=Output(UInt(4.W))
         })
-
+    
         // io.output:= 1.U<<io.sel
         io.output:= "b0001".U<<io.sel
     }
@@ -206,7 +206,7 @@ class ChiselTest extends AnyFlatSpec with
             val hotIn = Input(UInt(4.W))
             val code = Output(UInt(2.W))
         })
-
+    
         io.code := 0.U
         switch(io.hotIn) {
             is("b0001".U) { io.code := "b00".U }
@@ -223,9 +223,9 @@ class ChiselTest extends AnyFlatSpec with
             val hotIn = Input(UInt(n.W))
             val code = Output(UInt(log2Up(n).W)) // can use `unsignedBitLength(n)` instead
         })
-
+    
         val v = Wire(Vec(n, UInt(2.W)))
-
+    
         v(0) := 0.U
         for (i <- 1 until n) {
             v(i) := Mux(io.hotIn(i), i.U, 0.U) | v(i - 1)
@@ -244,10 +244,10 @@ class ChiselTest extends AnyFlatSpec with
             val hotIn = Input(UInt(4.W))
             val code = Output(UInt(2.W))
         })
-
+    
         val aw = Module(new ArbiterWrapper(4))
         var eg = Module(new EncoderGenerator(4))
-
+    
         // connect all ports, using BULK Connection
         aw.io.request := io.hotIn
         eg.io.hotIn := aw.io.hotIn
@@ -308,10 +308,10 @@ class ChiselTest extends AnyFlatSpec with
             val din = Input(UInt(1.W))
             val dout = Output(UInt(1.W))
         })
-
+    
         val shiftReg = Reg(UInt(4.W))
         shiftReg := shiftReg(2, 0) ## io.din
-
+    
         io.dout := shiftReg(3)
     }
     ```
@@ -322,7 +322,7 @@ class ChiselTest extends AnyFlatSpec with
             val din = Input(UInt(1.W))
             val dout = Output(UInt(4.W))
         })
-
+    
         val parallelReg = RegInit(0.U(4.W))
         parallelReg := io.din ## parallelReg(3, 1)
         io.dout := parallelReg
@@ -339,11 +339,11 @@ class ChiselTest extends AnyFlatSpec with
             val wrData = Input(UInt(8.W))
             val wrEna = Input(Bool())
         })
-
+    
         val mem = SyncReadMem(1024, UInt(8.W))
-
+    
         io.rdData := mem.read(io.rdAddr)
-
+    
         when(io.wrEna) {
             mem.write(io.wrAddr, io.wrData)
         }
@@ -359,7 +359,7 @@ class ChiselTest extends AnyFlatSpec with
             val wrData = Input(UInt(8.W))
             val wrEna = Input(Bool())
         })
-
+    
         val mem = SyncReadMem(1024, UInt(8.W))
         val wrDataReg = RegNext(io.wrData)
         val doForwardReg = RegNext(
@@ -472,8 +472,56 @@ Define a `trait TickerTestFunc`, 该trait定义了一个方法，来测试不同
 
 see file `IneritanceScala` and `IneritanceTest.scala`
 
+# Debug
+Chisel测试支持以下特性：
+1. 多线程测试: `fork`, `join`
+    ```Scala
+    it should "work with multiple threads" in {
+        test(new BubbleFifo(8, 4)) { dut =>
+        val enq = fork {
+        while (dut.io.enq.full.peek.litToBoolean)
+        dut.clock.step()
+        dut.io.enq.din.poke(42.U)
+        dut.io.enq.write.poke(true.B)
+        dut.clock.step()
+        dut.io.enq.write.poke(false.B)
+        }
+        while (dut.io.deq.empty.peek.litToBoolean)
+        dut.clock.step()
+        dut.io.deq.dout.expect(42.U)
+        dut.io.deq.read.poke(true.B)
+        dut.clock.step()
+        dut.io.deq.empty.expect(true.B)
+        enq.join
+        }
+    }
+    ```
+2. 默认*生成波形*的仿真工具是**Threadle**，支持使用第三方仿真工具：**Verilator**, **VCS**, **Iverilator**. 
+   
+    参考[chiseltest的介绍和实例 by 赵兄-RISCV in CSDN](https://blog.csdn.net/weixin_44134090/article/details/126837447)
+    - [treadle](https://github.com/chipsalliance/treadle): default, fast startup times, slow execution for larger circuits, supports only VCD
+    
+    - [verilator](https://www.veripool.org/wiki/verilato): enable with `VerilatorBackendAnnotation`, slow startup, fast execution, supports VCD and FST
+    
+        ```scala
+        test(new xxx)
+            .withAnnotations(Seq(VerilatorBackendAnnotation))
+        ```
+    
+        Verilator is a socalled *synchronous simulator*, 有如下的缺点：
+    
+        - *updates only at the rising edge* of the clock and thus 
+        - *does not support latches*. 
+        - Does not officially support *multiple clocks*
+    
+    - [iverilog](http://iverilog.icarus.com/): open-source, enable with `IcarusBackendAnnotation`, supports VCD, FST and LXT
+    
+    - [vcs](https://www.synopsys.com/verification/simulation/vcs.html): commercial, enable with `VcsBackendAnnotation`, supports VCD and FSDB
+    
+
 # 声明
 本项目参考有:
 1. [schoeberl/chisel-examples](https://github.com/schoeberl/chisel-examples)
 2. [Scala Cheetsheet](https://allaboutscala.com/scala-cheatsheet/)
 3. [scalaTest的初步使用](https://blog.csdn.net/debang2014010/article/details/102327031?spm=1001.2101.3001.6650.8&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-8-102327031-blog-83315498.pc_relevant_aa_2&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-8-102327031-blog-83315498.pc_relevant_aa_2&utm_relevant_index=9)
+4. [chiseltest的介绍和实例 by 赵兄-RISCV in CSDN](https://blog.csdn.net/weixin_44134090/article/details/126837447)
