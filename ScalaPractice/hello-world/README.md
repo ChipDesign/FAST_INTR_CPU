@@ -373,6 +373,100 @@ class ChiselTest extends AnyFlatSpec with
         io.rdData := Mux(doForwardReg, wrDataReg, memData)
     }
     ```
+
+
+# 硬件生成器Hardware Generator
+## 参数设置
+### 可变宽度
+使用Scala的UInt作为构造函数的参数，然后利用该参数指定数据的宽度
+```Scala
+class ParamAdder(n: Int) extends Module { // n可以指定任意宽度
+    val io = IO(new Bundle{
+    val a = Input(UInt(n.W))
+    val b = Input(UInt(n.W))
+    val c = Output(UInt(n.W))
+    })
+    io.c := io.a + io.b
+}
+```
+### 可变类型
+指定不同的参数类型:`T <: Data`. 
+
+- we used `WireDefault` to create a wire with
+the type T with a default value
+- If we need to create a wire just of the Chisel type
+without using a default value, we can use `cloneType` to get the Chisel type
+```Scala
+class NocRouter[T <: Data](dt: T, n: Int) extends Module {
+  val io = IO(new Bundle {
+    val inPort = Input(Vec(n, dt))
+    val address = Input(Vec(n, UInt(8.W)))
+    val outPort = Output(Vec(n, dt))
+  })
+  io.outPort := io.inPort
+}
+
+// data type
+class Payload extends Bundle {
+  val data = UInt(16.W) // set data width
+  val flag = Bool()
+}
+
+object GetVerilog extends App{
+    print("get verilog code\n")
+    (new chisel3.stage.ChiselStage).emitVerilog(new NocRouter(new Payload,2))
+}
+```
+得到的Verilog代码如下：
+```Verilog
+module NocRouter(
+  input         clock,
+  input         reset,
+  input  [15:0] io_inPort_0_data,
+  input         io_inPort_0_flag,
+  input  [15:0] io_inPort_1_data,
+  input         io_inPort_1_flag,
+  input  [7:0]  io_address_0,
+  input  [7:0]  io_address_1,
+  output [15:0] io_outPort_0_data, // 两组data_in和data_out
+  output        io_outPort_0_flag,
+  output [15:0] io_outPort_1_data,
+  output        io_outPort_1_flag
+);
+  assign io_outPort_0_data = io_inPort_0_data; // @[NocRouter.scala 15:14]
+  assign io_outPort_0_flag = io_inPort_0_flag; // @[NocRouter.scala 15:14]
+  assign io_outPort_1_data = io_inPort_1_data; // @[NocRouter.scala 15:14]
+  assign io_outPort_1_flag = io_inPort_1_flag; // @[NocRouter.scala 15:14]
+endmodule
+```
+### 读取文件`fromFile("data.txt")`
+
+```Scala
+import chisel3._
+import scala.io.Source
+
+class FileReader extends Module {
+  val io = IO(new Bundle {
+    val address = Input(UInt(8.W))
+    val data = Output(UInt(8.W))
+  })
+  val array = new Array[Int](256)
+  var idx = 0
+// read the data into a Scala array
+  val source = Source.fromFile("data.txt")
+  printf("I want to printf something")
+  for (line <- source.getLines()) {
+    array(idx) = line.toInt // get Scala Int
+    idx += 1
+  }
+// convert the Scala integer array
+// into a vector of Chisel UInt
+  val table = VecInit(array.map(_.U(8.W)))
+// use the table
+  io.data := table(io.address)
+}
+```
+
 # 声明
 本项目参考有:
 1. [schoeberl/chisel-examples](https://github.com/schoeberl/chisel-examples)
