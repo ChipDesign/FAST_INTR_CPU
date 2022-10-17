@@ -2,12 +2,11 @@
   *
   * test Arbiter and ArbiterWrapper
   */
-package component
+package combinational
 
 import chisel3._
 import chiseltest._
 import org.scalatest.flatspec.AnyFlatSpec
-import combinational.ArbiterWrapper
 
 class ArbiterTest extends AnyFlatSpec with ChiselScalatestTester {
   "ArbiterWrapper" should "2 request" in {
