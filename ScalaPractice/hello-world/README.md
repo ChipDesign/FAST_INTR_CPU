@@ -467,6 +467,11 @@ class FileReader extends Module {
 }
 ```
 
+## 继承和测试Inheritance and it's test
+Define a `trait TickerTestFunc`, 该trait定义了一个方法，来测试不同类型的Ticker，不同类型的Ticker继承了原始的Ticker（一个抽象的类，即接口）。
+
+see file `IneritanceScala` and `IneritanceTest.scala`
+
 # 声明
 本项目参考有:
 1. [schoeberl/chisel-examples](https://github.com/schoeberl/chisel-examples)
