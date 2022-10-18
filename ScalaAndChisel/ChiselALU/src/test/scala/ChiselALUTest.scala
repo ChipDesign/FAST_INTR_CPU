@@ -10,8 +10,12 @@ import chiseltest._
 import org.scalatest.flatspec.AnyFlatSpec
 import chiselProcessor.Types._
 
-class ChiselALUTest() extends AnyFlatSpec with ChiselScalatestTester {
+class ChiselALUTest extends AnyFlatSpec with ChiselScalatestTester {
   val width: Int = 32
+  
+  /**
+   * alu函数返回ALU计算的期待值，用于跟硬件电路的结果进行比较
+  */
   def alu(a: Int, b: Int, op: Int): Int = {
     val maxValue = scala.math.pow(2, width).toInt
     op match {
@@ -25,6 +29,9 @@ class ChiselALUTest() extends AnyFlatSpec with ChiselScalatestTester {
     }
   }
 
+  /**
+   * x should in y格式，用于测试：如果y中的内容满足，则x测试通过
+  */
   "ChiselALUTest" should "Pass" in {
     test(new ChiselALU(width))
       .withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
