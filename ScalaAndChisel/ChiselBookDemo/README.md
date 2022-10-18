@@ -505,7 +505,7 @@ Chisel测试支持以下特性：
     
         ```scala
         test(new xxx)
-            .withAnnotations(Seq(VerilatorBackendAnnotation))
+            .withAnnotations(Seq(VerilatorBackendAnnotation, WriteVcdAnnotation))
         ```
     
         Verilator is a socalled *synchronous simulator*, 有如下的缺点：
