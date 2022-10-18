@@ -9,7 +9,7 @@ through this practice, we will learn to describe a sequential circuit module and
  */
 
 import chisel3._
-import org.scalatest.flatspec.AnyFlatSpec
+
 
 class CondAcc extends Module{
   val io=IO(new Bundle{
