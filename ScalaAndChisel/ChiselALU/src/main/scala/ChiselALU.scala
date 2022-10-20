@@ -34,12 +34,14 @@ object Types {
   val add :: sub :: mul :: and :: or :: xor :: srl :: Nil = Enum(7)
 }
 
-class ChiselALU(width: Int = 32) extends Module {
+class ChiselALU(dataWidth: Int = 4, flagWidth: Int = 4) extends Module {
   val io = IO(new Bundle {
     val control = Input(UInt(3.W))
-    val srcA = Input(UInt(width.W))
-    val srcB = Input(UInt(width.W))
-    val result = Output(UInt(width.W))
+    val srcA = Input(UInt(dataWidth.W))
+    val srcB = Input(UInt(dataWidth.W))
+    val result = Output(UInt(dataWidth.W))
+    val flags = Output(UInt(flagWidth.W))
+
   })
 
   val control = io.control
@@ -47,6 +49,8 @@ class ChiselALU(width: Int = 32) extends Module {
   val b = io.srcB
   val res = WireDefault(io.srcA)
 
+  /** ALU Operations
+    */
   switch(control) {
     is(add) {
       res := a + b
@@ -72,9 +76,38 @@ class ChiselALU(width: Int = 32) extends Module {
     }
 
   }
+  printf("Hardware Simulation==> Operation=%d, srcA=%d, srcB=%d, ALUResult=%d, 0x%x\n",control, a, b,res,res)
 
+  /** Calculate Flags
+    */
+  val flagVec = VecInit(0.U(flagWidth.W).asBools)
+  val signA = WireInit(io.srcA(dataWidth - 1)) // A的符号
+  val signB = WireInit(io.srcB(dataWidth - 1)) // B的符号
+  val signRes = WireInit(res(dataWidth - 1))
+
+  // zero
+  flagVec(0) := res(dataWidth - 2, 0).orR
+
+  // overflow
+  flagVec(
+    1
+  ) := ((((~(signA ^ signB) && io.control === "b000".U) ||
+    (signA ^ signB) && (io.control === "b001".U)) && (signA ^ signRes)))
+  // // negative
+  flagVec(2) := res(dataWidth - 1)
+
+  // // parity
+  // // io.parity:=PopCount(res)
+  flagVec(3) := res.xorR()
+
+  // flagVec(1):=0.U;
+  // flagVec(2):=0.U;
+  // flagVec(3) := 0.U;
+
+  /** Get Output Signals
+    */
   io.result := res
-
+  io.flags := flagVec.asUInt
 }
 
 object GetChiselALUVerilog extends App {
