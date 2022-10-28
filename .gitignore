@@ -16,3 +16,4 @@ target/
 */ChiselALU/*.json
 */ChiselALU/*.fir
 */ChiselALU/
+.ipynb_checkpoints
