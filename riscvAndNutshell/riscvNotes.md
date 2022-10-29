@@ -123,6 +123,8 @@
    - PULPino Core and SoC: 苏黎世瑞士联邦理工学院（ ETH Zurich） 开发的一款开源的单核 MCU SoC平台
    - Andes Core: Andes 于 2017 年初发布最新一代的 AndeStar 处理器架构，开始使用 RISC-V 指令集，成为商用主流 CPU IP 公司中第一家采用 RISC-V 指令集架构的公司
 
+# 附录A：其他的一些ISA介绍
+
 ## Power
 
 1. 属于RISC
@@ -175,7 +177,7 @@
 
 
 
-# 国内的CPU芯片设计企业
+# 附录B：国内的CPU芯片设计企业
 
 
 
