@@ -17,3 +17,4 @@ target/
 */ChiselALU/*.fir
 */ChiselALU/
 .ipynb_checkpoints
+rocketChip/*
