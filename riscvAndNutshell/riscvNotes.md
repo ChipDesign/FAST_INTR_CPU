@@ -122,6 +122,8 @@
    - LowRISC SoC: 剑桥大学的开发者基于 Rocket Core 而开发
    - PULPino Core and SoC: 苏黎世瑞士联邦理工学院（ ETH Zurich） 开发的一款开源的单核 MCU SoC平台
    - Andes Core: Andes 于 2017 年初发布最新一代的 AndeStar 处理器架构，开始使用 RISC-V 指令集，成为商用主流 CPU IP 公司中第一家采用 RISC-V 指令集架构的公司
+3. **[openc910](https://github.com/T-head-Semi/openc910)**
+   - 玄铁C910，平头哥基于risc-v的芯片
 
 # 附录A：其他的一些ISA介绍
 
