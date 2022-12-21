@@ -8,9 +8,9 @@
 在具体做Chisel项目的时候，使用**sbt**作为项目build和test的工具。
 
 本文档分为以下几部分：
-1. [Scala基础](https://github.com/ChipDesign/FAST_INTR_CPU/blob/main/ScalaPractice/ScalaBasicSyntax.ipynb)：在jupyter的notebook中，大致描述了Scala的基础语法知识
-2. [Chisel基础](https://github.com/ChipDesign/FAST_INTR_CPU/blob/main/ScalaPractice/ChiselBasic.ipynb)：在jupyter的notebook中，大致描述了Chisel的基础语法知识
-3. [ChiselBookDemo](https://github.com/timemeansalot/FAST_INTR_CPU/tree/main/ScalaAndChisel/ChiselBookDemo)：Chisel Book是一本Chisel的入门书籍，从零开始介绍了如何使用Chisel构建硬件电路并且验证。此项目包含如下内容：
+1. [Scala基础](https://github.com/ChipDesign/FAST_INTR_CPU/blob/main/ScalaAndChisel/ScalaBasicSyntax.ipynb)：在jupyter的notebook中，大致描述了Scala的基础语法知识
+2. [Chisel基础](https://github.com/ChipDesign/FAST_INTR_CPU/blob/main/ScalaAndChisel/ChiselBasic.ipynb)：在jupyter的notebook中，大致描述了Chisel的基础语法知识
+3. [ChiselBookDemo](https://github.com/ChipDesign/FAST_INTR_CPU/tree/main/ScalaAndChisel/ChiselBookDemo)：Chisel Book是一本Chisel的入门书籍，从零开始介绍了如何使用Chisel构建硬件电路并且验证。此项目包含如下内容：
     - 运行一个简单的chisel项目
     - Chisel实现组合逻辑电路: decoder, encoder, arbiter, etc...
     - Chisel实现时序逻辑电路：counter, shiftRegister, memory
