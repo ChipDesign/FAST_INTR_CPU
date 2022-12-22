@@ -18,3 +18,8 @@ target/
 */ChiselALU/
 .ipynb_checkpoints
 rocketChip/*
+ScalaAndChisel/*.json
+ScalaAndChisel/*.v
+ScalaAndChisel/*.fir
+.DS_Store
+temp.*
