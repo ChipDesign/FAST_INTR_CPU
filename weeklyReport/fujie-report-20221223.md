@@ -27,7 +27,8 @@
 > 
 
 ```python
-												 +---------------------+  +---------------------+
+											
+  											 +---------------------+  +---------------------+
                          |     Super Mario     |  |    "Hello World"    |
                          +---------------------+  +---------------------+
                          |    Simulated NES    |  |      Simulated      |
@@ -248,7 +249,7 @@ AM = TRM + IOE + CTE + VME + MPE
 
 ![Untitled](https://s2.loli.net/2022/12/22/vUCS8cRJ9jk5qBY.png)
 
-## vcs
+## 
 
 # 软件驱动程序
 
@@ -305,8 +306,9 @@ AM = TRM + IOE + CTE + VME + MPE
 5. 目前只在服务器上，在编译得到的香山模拟器上跑了C workload、预编译的Linux kernel，还没有尝试过在FPGA上跑
 6. 如果需要流片的话，我们是否需要在现在考虑将来逻辑综合和后端物理设计的问题
 7. 对于MCU微架构的设计，需要综合考虑开源项目、论文、处理器调度进行设计、输出设计文档进行讨论
+8. 服务器可能需要联系IT配置相应的访问端口，供连接VPN时访问
 
-PS：在GitHub仓库里新建了一个`[weeklyReport](https://github.com/timemeansalot/FAST_INTR_CPU/tree/master/weeklyReport)`文件夹，以后可以用于记录每周的周报，方便追踪项目的进度，如下图所示：
+PS：在GitHub仓库里新建了一个[`weeklyReport`](https://github.com/timemeansalot/FAST_INTR_CPU/tree/master/weeklyReport)文件夹，以后可以用于记录每周的周报，方便追踪项目的进度，如下图所示：
 
 ![Untitled](https://s2.loli.net/2022/12/22/Fv4IXGL3tf6zDTY.png)
 
@@ -327,9 +329,9 @@ PS：在GitHub仓库里新建了一个`[weeklyReport](https://github.com/timemea
 
 本文的参考资料如下：
 
-[https://github.com/OSCPU/NutShell](https://github.com/OSCPU/NutShell)
+[果壳Github仓库](https://github.com/OSCPU/NutShell)
 
-[快速上手教程](https://oscpu.github.io/NutShell-doc/%E4%BB%8B%E7%BB%8D/NutShell-tutorial.html)
+[果壳快速上手教程](https://oscpu.github.io/NutShell-doc/%E4%BB%8B%E7%BB%8D/NutShell-tutorial.html)
 
 [程序, 运行时环境与AM](https://nju-projectn.github.io/ics-pa-gitbook/ics2019/2.3.html)
 
@@ -337,6 +339,6 @@ PS：在GitHub仓库里新建了一个`[weeklyReport](https://github.com/timemea
 
 [Linux Kernel for XiangShan in EMU](https://xiangshan-doc.readthedocs.io/zh_CN/latest/tools/linux-kernel-for-xs/)
 
-[](https://oscpu.github.io/ysyx/events/2021-07-17_Difftest/DiffTest-%E4%B8%80%E7%A7%8D%E9%AB%98%E6%95%88%E7%9A%84%E5%A4%84%E7%90%86%E5%99%A8%E9%AA%8C%E8%AF%81%E6%96%B9%E6%B3%95.pdf)
+[DiffTest 介绍](https://oscpu.github.io/ysyx/events/2021-07-17_Difftest/DiffTest-%E4%B8%80%E7%A7%8D%E9%AB%98%E6%95%88%E7%9A%84%E5%A4%84%E7%90%86%E5%99%A8%E9%AA%8C%E8%AF%81%E6%96%B9%E6%B3%95.pdf)
 
 [可执行文件（ELF）格式的理解_五山小新新的博客-CSDN博客](https://blog.csdn.net/Al_xin/article/details/38613367)
