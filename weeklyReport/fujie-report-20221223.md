@@ -45,12 +45,11 @@
 
 - (a)展示了"在GNU/Linux中运行Hello World"的情况. GNU/Linux操作系统直接运行在真实的计算机硬件上, 对计算机底层硬件进行了抽象, 同时向上层的用户程序提供接口和服务. Hello World程序输出信息的时候, 需要用到操作系统提供的接口, 因此Hello World程序并不是直接运行在真实的计算机硬件上, 而是运行在操作系统(在这里是GNU/Linux)上.
 - (b)展示了"在GNU/Linux中通过红白机模拟器玩超级玛丽"的情况. 在GNU/Linux看来, 运行在其上的红白机模拟器NES Emulator和上面提到的Hello World程序一样, 都只不过是一个用户程序而已. 神奇的是, 红白机模拟器的功能是负责模拟出一套完整的红白机硬件, 让超级玛丽可以在其上运行. 事实上, 对于超级玛丽来说, 它并不能区分自己是运行在真实的红白机硬件之上, 还是运行在模拟出来的红白机硬件之上, 这正是"模拟"的障眼法.
-- (c)展示了"在GNU/Linux中通过NEMU执行Hello World"的情况. 在GNU/Linux看来, 运行在其上的NEMU和上面提到的Hello World程序一样, 都只不过是一个用户程序而已. 但NEMU的功能是负责模拟出一套计算机硬件, 让程序可以在其上运行. 事实上, 上图只是给出了对NEMU的一个基本理解, 更多细节会在后续PA中逐渐补充.
+- (c)展示了"在GNU/Linux中通过NEMU执行Hello World"的情况. 在GNU/Linux看来, 运行在其上的NEMU和上面提到的Hello World程序一样, 都只不过是一个用户程序而已. 但NEMU的功能是负责模拟出一套计算机硬件, 让程序可以在其上运行. 
 
 ## AM(Abstract Machine)：把程序和架构解耦
 
 > [AM (Abstract Machine)](https://nju-projectn.github.io/ics-pa-gitbook/ics2019/2.3.html) 是一个向程序提供运行时环境的包装库, 它提供了一个面向金属的运行时环境, 把程序与体系结构进行了解耦. 我们只要在 AM 的框架下编写好程序, 就能方便地运行在 NEMU 和 Nutshel 之上. AM 在一生一芯项目中被用来包装一系列测试程序从而验证核心的正确性.
-> 
 
 应用程序的运行都需要[运行时环境](http://en.wikipedia.org/wiki/Runtime_system)的支持, 包括加载, 销毁程序, 以及提供程序运行时的各种动态链接库(你经常使用的库函数就是运行时环境提供的)等.
 **最简单的运行时环境**：只要把程序放在正确的内存位置, 然后让PC指向第一条指令, 计算机就会自动执行这个程序, 永不停止。此外，运行时环境需要向程序提供一种结束运行的方法，如neum中的`nemu_trap`指令。
@@ -76,7 +75,8 @@ AM = TRM + IOE + CTE + VME + MPE
 - MPE(Multi-Processor Extension) - 多处理器扩展, 为程序提供多处理器通信的能力
 
 <aside>
-💡 有了AM之后，我们可以编写测试程序时不用关心底层的硬件架构，此外我们还可以方便的讲Linux Kernel移植到硬件架构上。
+💡 有了AM之后，我们可以编写测试程序时不用关心底层的硬件架构，此外我们还可以方便的将Linux Kernel移植到硬件架构上。
+
 
 </aside>
 
@@ -247,13 +247,11 @@ AM = TRM + IOE + CTE + VME + MPE
 - 对于根据同一规范的两种实现, 给定相同的有定义的输入, 它们的行为应当一致。在我们验证硬件功能是否正确的时候，选择模拟器作为标准参考(golden model)，如果对于同样的输入，模拟器的输出和硬件设计的输出不同，则说明硬件设计有错；
 - 同时DiffTest可以将二者每条指令的输出都做比较，那么就可以迅速定位到出错的指令，方面debug
 
-![Untitled](https://s2.loli.net/2022/12/22/vUCS8cRJ9jk5qBY.png)
-
-## 
+![Untitled](https://s2.loli.net/2022/12/23/pg6MQcolOaf94Nm.png)
 
 # 软件驱动程序
 
-![Untitled](https://s2.loli.net/2022/12/22/8kJyrvIj1KS5Fou.png)
+![Untitled 1](https://s2.loli.net/2022/12/23/b1tdkmYSKiFfB7u.png)
 
 主要包括三部分：
 
