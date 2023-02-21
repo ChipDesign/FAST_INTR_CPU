@@ -1,0 +1,22 @@
+[
+  {
+    "class":"firrtl.transforms.DedupedResult",
+    "original":"~Priority_agent|By_ID_sel",
+    "duplicate":"~Priority_agent|Priority_agent/IntClaimSel:By_ID_sel",
+    "index":0.8888888888888888
+  },
+  {
+    "class":"firrtl.transforms.DedupedResult",
+    "original":"~Priority_agent|By_ID_sel_1",
+    "duplicate":"~Priority_agent|Priority_agent/IntOccSel:By_ID_sel",
+    "index":0.9444444444444444
+  },
+  {
+    "class":"firrtl.EmitCircuitAnnotation",
+    "emitter":"firrtl.VerilogEmitter"
+  },
+  {
+    "class":"firrtl.transforms.BlackBoxTargetDirAnno",
+    "targetDir":"."
+  }
+]
