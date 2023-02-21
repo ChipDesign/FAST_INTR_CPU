@@ -1,0 +1,19 @@
+code standard
+
+class(module, bundle and etc.) name: capitalize first letter, connect words with '_'
+
+wire/reg name: capitalize first letter of every word(camel)
+
+io name: connect words with '_', no capital letter
+
+abbreviation: follow universal rules like ID, SoC or FIFO, DO NOT FOLLOW RULES ABOVE
+
+module structure:
+
+1.statement( including io)
+
+2.io connection
+
+3.reg&submodule connection(update)
+
+4.wire connection
