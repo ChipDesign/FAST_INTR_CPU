@@ -16,3 +16,10 @@ target/
 */ChiselALU/*.json
 */ChiselALU/*.fir
 */ChiselALU/
+.ipynb_checkpoints
+rocketChip/*
+ScalaAndChisel/*.json
+ScalaAndChisel/*.v
+ScalaAndChisel/*.fir
+.DS_Store
+temp.*

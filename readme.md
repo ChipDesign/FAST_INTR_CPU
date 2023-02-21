@@ -8,7 +8,7 @@ The detail description of the practice and the document of CPU is provided in /d
 
 # 项目进度
 
-- [x] 对Scala和Chisel进行学习，使用Chisel完成一个简单的CPU，[项目地址](https://github.com/timemeansalot/FAST_INTR_CPU/tree/main/ScalaAndChisel)
-- [ ] 阅读理解果壳的代码
+- [x] 对Scala和Chisel进行学习，使用Chisel完成一个简单的CPU，[项目地址](/ScalaAndChisel)
+- [ ] 阅读理解果壳的代码, doing
 - [ ] 设计Fast Interrupt CPU
 - [ ] 实现Fast Interrupt CPU并且验证

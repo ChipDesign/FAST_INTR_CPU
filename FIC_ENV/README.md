@@ -7,6 +7,7 @@ So in order to use Chisel to write code for Digital Circuits, we have to install
     ```bash
     sudo apt install openjdk-11-jdk
     ```
+    
 2. Install sbt, sbt is a build tool for Scala. SBT can be used to
     - Compile Scala projects
     - Download libraries for Scala, for example sbt can download Chisel jars automatically.
@@ -22,6 +23,7 @@ So in order to use Chisel to write code for Digital Circuits, we have to install
     sudo apt-get update
     sudo apt-get install sbt
     ```
+    
 3. Check if your enviroment is OK
     ```bash
     javac --version # should output some info about java
@@ -39,5 +41,12 @@ So in order to use Chisel to write code for Digital Circuits, we have to install
     sbt test
     ```
     
+4. Install Mill, Mill is another tool for building chisel projects like sbt
+
+    ```bash
+    sudo sh -c "curl -L https://github.com/com-lihaoyi/mill/releases/download/0.10.8/0.10.8 > /usr/local/bin/mill && chmod +x /usr/local/bin/mill"
+    
+    mill
+    ```
 # Acknowledgements
 1. [The chisel-examples](https://github.com/schoeberl/chisel-examples) is provided by schoeberl, this repository is a collection of code examples for Chisel. He  also provides a Chisel guide book in [chisel-book](https://github.com/schoeberl/chisel-book).
