@@ -23,3 +23,9 @@ ScalaAndChisel/*.v
 ScalaAndChisel/*.fir
 .DS_Store
 temp.*
+src/rtl/obj_dir/
+*.vcd
+*.log
+.stamp.verilate
+*.bak
+test*
