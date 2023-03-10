@@ -288,7 +288,7 @@ object sim_main {
     var ans = 0
     var srtans = 0
     var i = 0
-    val flag = trues
+    val flag = true
     if (flag) {
       while (ans == srtans && i < 100) {
         dividend = util.Random.nextInt(4094 + 1)
