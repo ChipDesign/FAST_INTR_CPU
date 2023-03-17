@@ -5,6 +5,8 @@ To do so, we will prepare a few practice to help learning chisel and provide cod
 The detail description of the practice and the document of CPU is provided in /doc. 
 
 
+![5StagePipeline-with-Hazard-Control](./pictures/5StagePipeline-with-Hazard-Control.svg)
+this is picture
 
 # 项目进度
 
