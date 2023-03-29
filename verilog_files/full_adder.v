@@ -1,20 +1,15 @@
 module full_adder(
-ain,bin,cin,sout,cout,xorout,orout,andout);
+ain,bin,cin,sout,cout);
 
 input ain,bin,cin;
-output sout,cout,xorout,orout,andout;
+output sout,cout;
 
-wire axorb,aorb,aandb;
-
-assign axorb= ain ^ bin;
-assign aorb=  ain | bin;
-assign aandb= ain & bin;
+wire axorb;
 
 
-assign xorout= axorb;
-assign orout=aorb;
-assign andout=aandb;
+assign axorb=ain^bin;
+
 assign sout=axorb ^ cin;
-assign cout=(cin & aorb) | aandb;
+assign cout=(cin&axorb)|(ain&bin);
 
 endmodule
