@@ -29,3 +29,6 @@ src/rtl/obj_dir/
 .stamp.verilate
 *.bak
 test*
+*.vvp
+demo/
+*.gtkw
