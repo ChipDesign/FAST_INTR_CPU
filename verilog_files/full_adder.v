@@ -1,3 +1,5 @@
+`ifndef FULL_ADDER
+`define FULL_ADDER
 module full_adder(
 ain,bin,cin,sout,cout);
 
@@ -13,3 +15,4 @@ assign sout=axorb ^ cin;
 assign cout=(cin&axorb)|(ain&bin);
 
 endmodule
+`endif
