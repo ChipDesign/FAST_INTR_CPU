@@ -1,3 +1,5 @@
+`ifndef __SRAM_32x816__
+`define __SRAM_32x816__
 module sram_1p_32x816 (
                CLK, CEB, WEB, A, D, Q      
                 );
@@ -24,3 +26,4 @@ always @(posedge CLK) begin
 end 
 
 endmodule
+`endif

@@ -6,17 +6,17 @@ module pipelineMEM_tb();
 
 reg clk;
 reg resetn;
-reg regWriteEnM;
-reg [1:0] resultSrcM;
-reg memWriteEnM;
-reg [3:0] memOpTypeM;
-reg [31:0] aluResultM;
-reg [31:0] memWriteDataM;
+reg regWriteEnE;
+reg [1:0] resultSrcE;
+reg memWriteEnE;
+reg [3:0] memOpTypeE;
+reg [31:0] aluResultE;
+reg [31:0] memWriteDataE;
 
-wire regWriteEnW;
-wire [1:0] resultSrcW;
-wire [31:0] aluResultW;
-wire [31:0] memReadDataW; 
+wire regWriteEnM;
+wire [1:0] resultSrcM;
+wire [31:0] aluResultM;
+wire [31:0] memReadDataM; 
 
 // ***** set clock *****
 initial begin 
@@ -36,30 +36,30 @@ always@(posedge clk) begin
   if(counter==1)
     resetn=1;
   if(counter==2)begin
-    memWriteEnM <= 1;
-    memOpTypeM <= `MEM_SW;
-    memWriteDataM <= 32'hffffffff;
-    aluResultM <= 32'h80000000;
+    memWriteEnE <= 1;
+    memOpTypeE <= `MEM_SW;
+    memWriteDataE <= 32'hffffffff;
+    aluResultE <= 32'h80000000;
   end
   if(counter==3)begin
-    memWriteEnM <= 1;
-    memOpTypeM <= `MEM_SW;
-    memWriteDataM <= 32'haaaaaaaa;
-    aluResultM <= 32'h80000004;
+    memWriteEnE <= 1;
+    memOpTypeE <= `MEM_SW;
+    memWriteDataE <= 32'haaaaaaaa;
+    aluResultE <= 32'h80000004;
   end
   if(counter==4)begin
-    memWriteEnM <= 0;
-    memOpTypeM <= `NO_MEM;
+    memWriteEnE <= 0;
+    memOpTypeE <= `NO_MEM;
   end
   if(counter==5)begin
-    memWriteEnM <= 0;
-    memOpTypeM <= `MEM_LW;
-    aluResultM <= 32'h80000000;
+    memWriteEnE <= 0;
+    memOpTypeE <= `MEM_LW;
+    aluResultE <= 32'h80000000;
   end
   if(counter==6)begin
-    memWriteEnM <= 0;
-    memOpTypeM <= `MEM_LW;
-    aluResultM <= 32'h80000004;
+    memWriteEnE <= 0;
+    memOpTypeE <= `MEM_LW;
+    aluResultE <= 32'h80000004;
   end
   if(counter==10)
     $finish();
@@ -71,16 +71,16 @@ end
 pipelineMEM pipelineMEM_instance(
   .clk(clk),
   .resetn(resetn),
+  .regWriteEnE(regWriteEnE),
+  .resultSrcE(resultSrcE),
+  .memWriteEnE(memWriteEnE),
+  .memOpTypeE(memOpTypeE),
+  .aluResultE(aluResultE),
+  .memWriteDataE(memWriteDataE),
   .regWriteEnM(regWriteEnM),
   .resultSrcM(resultSrcM),
-  .memWriteEnM(memWriteEnM),
-  .memOpTypeM(memOpTypeM),
   .aluResultM(aluResultM),
-  .memWriteDataM(memWriteDataM),
-  .regWriteEnW(regWriteEnW),
-  .resultSrcW(resultSrcW),
-  .aluResultW(aluResultW),
-  .memReadDataW(memReadDataW)
+  .memReadDataM(memReadDataM)
 );
 
 integer index;
