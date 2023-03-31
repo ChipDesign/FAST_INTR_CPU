@@ -1,99 +1,90 @@
 `include "CSA32.v"
+module long_div (
+          clk, 
+          dividend, divisor, unsign, 
+          d_init, e_advance, e_last, 
+          quot, remd
+          );
 
-module long_div(dividend,divisor,clk,rstn,en,rem,quot,uns,fin);
-
-input[31:0] dividend,divisor;
-input uns,clk,en,rstn;
-output[31:0] rem,quot;
-output reg fin;
-
-reg[63:0] ans_temp;
-reg[3:0] state;
-reg[31:0] dvs;
-reg negdvd;
-
-wire[4:0] next_state;
-wire[32:0] rem1;
-wire[33:0] rem2;
-wire[34:0] rem3;
-wire[33:0] div3;
-wire[34:0] csas,csac;
-wire[1:0] qi;
+input clk;
+input [31:0] dividend, divisor;
+input unsign;
+input d_init, e_advance, e_last; 
+output[31:0] quot, remd;
+//-------------------------
+wire sign_divisor, sign_dividend;
+reg [31:0] dvs;
+reg sign_dvs, sign_dvd, sign_quot;
+reg [31:0] dvd;
+wire [31:0] quot;
 wire sub;
-wire[32:0] dvs_comp;
-wire[31:0] uquot,urem;
+wire [34:0] dvs_ivt, rem_sub1, rem_sub2;
+wire [34:0] sub3_ps, sub3_pc, rem_sub3;
+wire sign_rem1, sign_rem2, sign_rem3;
+wire quot_1, quot_0;
+reg [34:0] rem;  
+wire [31:0] remd;
+//###########################
+// took 16+1 cycles to finish 32-bit division
+// last cycle is to convert negative quotient from 1's complement to 2's complement
+assign sign_divisor  = divisor[31] & ~unsign;
+assign sign_dividend = dividend[31] & ~unsign;
 
-always@(posedge clk)
-begin
-	if(~rstn)
-	begin
-		state<=4'b0;
-		fin<=1'b0;
-		ans_temp<=63'b0;
-		negdvd<=0;
-	end
-	else if((state==4'b0)&en)
-	begin
-		negdvd<=(~uns)&dividend[31];
-		dvs<=divisor;
-		ans_temp<={30'b0,{32{(~uns)&dividend[31]}}^dividend,2'b0}
-					+{61'b0,(~uns)&dividend[31],2'b0};
-		state<=5'b1;
-		fin<=1'b0;
-	end
-	else if((state!=4'd0)&(state!=4'd15))
-	begin
-		state<=next_state;
-		ans_temp<={
-			({30{qi==0}}&ans_temp[61:32])|
-			({30{qi==1}}&rem1[29:0])|
-			({30{qi==2}}&rem2[29:0])|
-			({30{qi==3}}&rem3[29:0]),
-			ans_temp[31:0],qi
-			};
-		fin<=1'b0;
-	end
-	else if(state==4'd15)
-	begin
-		state<=next_state;
-		fin<=1'b1;
-		ans_temp<={
-			({30{qi==0}}&ans_temp[61:32])|
-			({30{qi==1}}&rem1[29:0])|
-			({30{qi==2}}&rem2[29:0])|
-			({30{qi==3}}&rem3[29:0]),
-			ans_temp[31:0],qi
-			};
-	end
-end
+always@(posedge clk) begin
+  if(d_init) begin 
+  	dvs       <= divisor;
+		sign_dvs  <= sign_divisor;
+		sign_dvd  <= sign_dividend;
+		sign_quot <= sign_dvd ^ sign_dvs;
+	end 
+end 
 
+always@(posedge clk) begin
+  if(d_init) 
+		dvd <= dividend;
+	else if (e_advance)
+    dvd <= {dvd[29:0], quot_1, quot_0}; // store quotient here
+  else if (e_last & sign_quot)                     
+    dvd <= dvd + 1; // to convert negative quotent from 1's complement to 2's complement   
+end 
 
-assign next_state=state+1'b1;
-assign dvs_comp={33{sub}}^{(~uns)&dvs[31],dvs};
-assign sub=(~(dvs[31]))|uns;
+assign quot = dvd; 
+// restoring divison
+// keep remainder sign same as dividend,  
+// in case remainder = 0, and dividend is negative; still keep same sub/add as previous. 
+assign sub      = sign_quot; // not use "sign_rem" ^ sign_dvs, use "sign_dvd" ^ sign_dvs 
+assign dvs_ivt  = {35{sub}} ^ {{3{sign_dvs}}, dvs};
+assign rem_sub1 = {rem[34:2], dvd[31:30]} + dvs_ivt + sub; 
+assign rem_sub2 = {rem[34:2], dvd[31:30]} + {dvs_ivt[33:0], sub} + sub;
 
-assign rem1={1'b0,ans_temp[63:32]}+dvs_comp+{32'b0,sub};
-assign rem2={2'b0,ans_temp[63:32]}+{dvs_comp,sub}+{33'b0,sub};
-assign rem3=csas+{csac[33:0],sub}+{34'b0,sub};
-assign qi={~rem2[33],~(rem1[32]^rem2[33]^rem3[34])};
-	
-assign uquot={ans_temp[29:0],qi};
-assign urem=	({32{qi==0}}&ans_temp[63:32])|
-			({32{qi==1}}&rem1[31:0])|
-			({32{qi==2}}&rem2[31:0])|
-			({32{qi==3}}&rem3[31:0]);
-assign quot=({32{(~uns)&(negdvd^dvs[31])}}^uquot)+{31'b0,(~uns)&(negdvd^dvs[31])};
-assign rem=({32{(~uns)&negdvd}}^urem)+{31'b0,(~uns)&negdvd};
+CSA35 csa_35 (
+	.ain   ({rem[34:2], dvd[31:30]}),
+	.bin   ({dvs_ivt[33:0], sub}),
+	.cin   (dvs_ivt),
+	.sout (sub3_ps),
+	.cout (sub3_pc)
+);
 
-CSA35 csa(
-	.ain({3'b0,ans_temp[63:32]}),
-	.bin({{2{dvs_comp[32]}},dvs_comp}),
-	.cin({dvs_comp[32],dvs_comp,sub}),
-	.sout(csas),
-	.cout(csac));
+assign rem_sub3 = sub3_ps + {sub3_pc[33:0], sub} + sub;
+//remainder sign conversion for quotient evaluation
+assign sign_rem1 = (rem_sub1[34] ^ sign_dvd) & ~(rem_sub1 == 35'h0);
+assign sign_rem2 = (rem_sub2[34] ^ sign_dvd) & ~(rem_sub2 == 35'h0);
+assign sign_rem3 = (rem_sub3[34] ^ sign_dvd) & ~(rem_sub3 == 35'h0);
+// quotient evaluation
+assign quot_1 = ~sign_rem2 ^ sign_quot; // 1's complement for negative quotient
+assign quot_0 = ((~sign_rem1 & sign_rem2) | ~sign_rem3) ^ sign_quot; 
 
+always@(posedge clk) begin
+  if(d_init) 
+		rem <= {35{sign_dividend}};
+  else if (e_advance)
+    rem <= ({35{sign_rem1             }} & {rem[34:2], dvd[31:30]}) |
+		       ({35{~sign_rem1 & sign_rem2}} & rem_sub1) |
+			     ({35{~sign_rem2 & sign_rem3}} & rem_sub2) |
+			     ({35{~sign_rem3            }} & rem_sub3);
+end  
 
-
-
+assign remd = rem[31:0];
 
 endmodule
+
