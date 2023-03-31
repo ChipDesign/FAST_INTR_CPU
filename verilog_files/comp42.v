@@ -8,18 +8,18 @@ output sout,cout,ct;
 wire w1,w2,w3;
 
 assign w1=ain^bin;
-assign w2=cin^w1;
-assign w3=cr^din;
-assign sout=w2^w3;
+assign w2=cin^din;
+assign w3=w2^w1;
+assign sout=w3^cr;
 
 cgen cgen0(
-	.ain(ain),
-	.bin(bin),
+	.ain(w1),
+	.bin(ain),
 	.cin(cin),
 	.cout(ct)	);
 	
 cgen cgen1(
-	.ain(w2),
+	.ain(w3),
 	.bin(din),
 	.cin(cr),
 	.cout(cout)	);
