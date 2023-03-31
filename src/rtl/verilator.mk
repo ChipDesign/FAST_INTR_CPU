@@ -1,12 +1,9 @@
 # Verilator example makefile
 # Norbertas Kremeris 2021
-MODULE=shifter32
+MODULE=pipelineMEM
 
 .PHONY:sim
-sim:
-	@echo
-	@echo "### SIMULATING ###"
-	./obj_dir/V$(MODULE) +verilator+rand+reset+2 > simulation.log
+sim: getWaveform
 
 .PHONY:verilate
 verilate: .stamp.verilate
@@ -15,25 +12,22 @@ verilate: .stamp.verilate
 build: obj_dir/V$(MODULE)
 
 .PHONY:waves
-waves: waveform.vcd
-	@echo
+waves: getWaveform
 	@echo "### WAVES ###"
-	gtkwave waveform.vcd -a gtkwave_setup.gtkw
+	gtkwave $(MODULE)_tb.vcd
 
-waveform.vcd: ./obj_dir/V$(MODULE)
-	@echo
+getWaveform: ./obj_dir/V$(MODULE)
 	@echo "### SIMULATING ###"
-	./obj_dir/V$(MODULE) +verilator+rand+reset+2 > simulation.log #run the target app and get waveform
+	./obj_dir/V$(MODULE) +verilator+rand+reset+2 
 
 ./obj_dir/V$(MODULE): .stamp.verilate
-	@echo
 	@echo "### BUILDING SIM ###"
-	make -C obj_dir -f V$(MODULE).mk V$(MODULE) # make the target app according to Makefile
+	make -C obj_dir -f V$(MODULE).mk V$(MODULE)
 
-.stamp.verilate: $(MODULE).v tb_$(MODULE).cpp
-	@echo
+.stamp.verilate: $(MODULE).v $(MODULE)_tb.cpp
 	@echo "### VERILATING ###"
-	verilator -Wall --trace --x-assign unique --x-initial unique -cc $(MODULE).v --exe tb_$(MODULE).cpp # get Makefile for dut, testbench, enable waveform generation
+	# verilator -Wall --trace --x-assign unique --x-initial unique -cc $(MODULE).v --exe $(MODULE)_tb.cpp
+	verilator -Wno-fatal --trace --x-assign unique --x-initial unique -cc $(MODULE).v --exe $(MODULE)_tb.cpp
 	@touch .stamp.verilate
 
 .PHONY:lint
@@ -44,4 +38,4 @@ lint: $(MODULE).v
 clean:
 	rm -rf .stamp.*;
 	rm -rf ./obj_dir
-	rm -rf waveform.vcd
+	rm -rf getWaveform
