@@ -8,7 +8,7 @@ run: all
 	vvp ${src}_tb.vvp
 
 waveform: run
-	@gtkwave ${src}_tb.vcd
+	@gtkwave ${src}_tb.vcd -a gtkwave_setup.gtkw
 
 clean:
 	-rm *vcd *vvp
