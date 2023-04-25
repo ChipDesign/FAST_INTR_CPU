@@ -3,7 +3,7 @@
 # src = pipelineMEM
 # src = pipelineEXE
 # src = pipelineWB
-src = top
+src = compressDecoder
 include iverilog.mk
 # src = sram_1p_32x816
 

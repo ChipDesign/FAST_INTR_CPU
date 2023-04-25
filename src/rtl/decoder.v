@@ -1,3 +1,5 @@
+`ifndef __DECODER__
+`define __DECODER__
 `include "definitions.vh"
 module decoder(
   input wire [31:0] instructionD,
@@ -49,3 +51,4 @@ module decoder(
   end
 
 endmodule
+`endif
