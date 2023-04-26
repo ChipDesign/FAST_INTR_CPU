@@ -1,12 +1,12 @@
-`ifndef __COMPRESSDECODER__
-`define __COMPRESSDECODER__
-
-`include "definitions.vh"
 /*
 file: Convert RISC-V compress instruction into RISC-V 32I instruction
 author: fujie 
 date: 2023-04-23 11:02
 */
+`ifndef __COMPRESSDECODER__
+`define __COMPRESSDECODER__
+
+`include "definitions.vh"
 module compressDecoder (
     input [15:0] instr_i,       // 16 bits compressed instruction
     output reg [31:0] instr_o,  // 32 bits RV-32I instruction
