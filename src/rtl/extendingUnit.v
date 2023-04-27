@@ -47,7 +47,6 @@ module extendingUnit(
                 imm_o={{19{instr_i[31]}}, instr_i[31], instr_i[7], instr_i[30:25], instr_i[11:8], 1'b0};
             end
             `IMM_S: begin
-                // imm_o={instr_i[31:12], 12'h000};
                 imm_o={{20{instr_i[31]}}, instr_i[31:25], instr_i[11:7]};
             end
             default: imm_o = 32'h00000000;
