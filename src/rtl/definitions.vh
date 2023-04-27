@@ -1,10 +1,5 @@
 `ifndef __DEFINITIONS__
 `define __DEFINITIONS__
-    // Instruction Opcode Types
-    `define Error_Type        3'b000
-    `define R_Type            3'b001
-    `define I_IMM_Type        3'b010
-
     // ALU Operations
     `define ALU_ADD           5'b00000
     `define ALU_ADDI          5'b00001
@@ -32,6 +27,7 @@
     `define OPCODE_BRANCH   7'b1100011
     `define OPCODE_JALR     7'b1100111
     `define OPCODE_JAL      7'b1101111
+    `define OPCODE_ERROR    7'b1111111
 
     // Immdiate type in Instruction
     `define IMM_U           3'b000
