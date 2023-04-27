@@ -118,25 +118,25 @@ module compressDecoder (
                                     // c.sub -> sub rd', rd', rs2'
                                     // $display("C.sub find");
                                     instr_o = {2'b01, 5'b0, 2'b01, instr_i[4:2], 2'b01, instr_i[9:7],
-                                    3'b000, 2'b01, instr_i[9:7], {`OPCODE_OP}};
+                                    3'b000, 2'b01, instr_i[9:7], {`OPCODE_RTYPE}};
                                     end
                                     3'b001: begin
                                     // c.xor -> xor rd', rd', rs2'
                                     // $display("C.xor find");
                                     instr_o = {7'b0, 2'b01, instr_i[4:2], 2'b01, instr_i[9:7], 3'b100,
-                                    2'b01, instr_i[9:7], {`OPCODE_OP}};
+                                    2'b01, instr_i[9:7], {`OPCODE_RTYPE}};
                                     end
                                     3'b010: begin
                                     // c.or  -> or  rd', rd', rs2'
                                     // $display("C.or find");
                                     instr_o = {7'b0, 2'b01, instr_i[4:2], 2'b01, instr_i[9:7], 3'b110,
-                                    2'b01, instr_i[9:7], {`OPCODE_OP}};
+                                    2'b01, instr_i[9:7], {`OPCODE_RTYPE}};
                                     end
                                     3'b011: begin
                                     // c.and -> and rd', rd', rs2'
                                     // $display("C.and find");
                                     instr_o = {7'b0, 2'b01, instr_i[4:2], 2'b01, instr_i[9:7], 3'b111,
-                                    2'b01, instr_i[9:7], {`OPCODE_OP}};
+                                    2'b01, instr_i[9:7], {`OPCODE_RTYPE}};
                                     end
                                     default: illegal_instr_o = 1'b1;
                                 endcase
@@ -178,7 +178,7 @@ module compressDecoder (
                                 // c.mv -> add rd/rs1, x0, rs2
                                 // $display("C.mv find");
                                 // (c.mv hints are translated into an add hint)
-                                instr_o = {7'b0, instr_i[6:2], 5'b0, 3'b0, instr_i[11:7], {`OPCODE_OP}};
+                                instr_o = {7'b0, instr_i[6:2], 5'b0, 3'b0, instr_i[11:7], {`OPCODE_RTYPE}};
                             end 
                             else begin
                                 // c.jr -> jalr x0, rd/rs1, 0
@@ -192,7 +192,7 @@ module compressDecoder (
                                 // c.add -> add rd, rd, rs2
                                 // (c.add hints are translated into an add hint)
                                 // $display("C.add find");
-                                instr_o = {7'b0, instr_i[6:2], instr_i[11:7], 3'b0, instr_i[11:7], {`OPCODE_OP}};
+                                instr_o = {7'b0, instr_i[6:2], instr_i[11:7], 3'b0, instr_i[11:7], {`OPCODE_RTYPE}};
                             end 
                             else begin
                                 if (instr_i[11:7] == 5'b0) begin
