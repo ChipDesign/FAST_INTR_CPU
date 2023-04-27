@@ -21,23 +21,26 @@ time: 2023年 4月27日 星期四 09时09分22秒 CST
 `define __DECODER__
 `include "definitions.vh"
 module decoder(
-  input wire [31:0] instructionD, // instruction from IF stage
-  // ========= alu calculation signals =========
-  output reg [4:0] aluOperation,
-  output reg rd1Sel, // alu operand a selection
-  output reg rd2Sel, // alu operand b selection
+    input wire [31:0] instructionD, // instruction from IF stage
+    // ========= alu related signals =========
+    output reg [4:0] aluOperation,
+    output reg rd1Sel, // alu operand a selection
+    output reg rd2Sel, // alu operand b selection
+    // addtional signals for branch control 
+    output reg beq,  // used by `beq`
+    output reg blt,  // used by `blt`, `bge`
 
-  // ========= branch signals used by extending unit and pass to ALU =========
-  output reg branchBType,
-  output reg branchJAL,
-  output reg branchJALR,
-  // ========= load store signals =========
-  // ========= immediate types =========
-  output reg [2:0] immType,
-  // =========  =========
-  output reg regWriteEnD,
-  // ========= illegal instruction =========
-  output reg instrIllegal
+    // ========= branch signals used by extending unit and pass to ALU =========
+    output reg branchBType, // to show the instruction is BType instruction
+    output reg branchJAL,
+    output reg branchJALR,
+    // ========= load store signals =========
+    // ========= immediate types =========
+    output reg [2:0] immType,
+    // =========  =========
+    output reg regWriteEnD,
+    // ========= illegal instruction =========
+    output reg instrIllegal
 );
 
     wire [6:0] opcode;
@@ -64,6 +67,8 @@ module decoder(
         branchBType = 1'b0;
         branchJAL = 1'b0;
         branchJALR = 1'b0;
+        beq = 1'b0;
+        blt = 1'b0;
         case(opcode) 
             `OPCODE_LOAD  : begin
                 immType = `IMM_I;
@@ -76,9 +81,10 @@ module decoder(
             end
             `OPCODE_STORE : begin
                 immType = `IMM_S;
+                aluOperation = `ALUOP_ADD;
             end
             `OPCODE_RTYPE : begin
-                immType = `IMM_NO;
+                immType = `IMM_NO; // rType instructions don't have imm
             end
             `OPCODE_LUI   : begin
                 immType = `IMM_U;
@@ -86,14 +92,40 @@ module decoder(
             `OPCODE_BRANCH: begin
                 immType = `IMM_B;
                 branchBType = 1'b1;
+                case(funct3) 
+                    000: begin
+                        aluOperation = `ALUOP_SUB;
+                        beq = 1'b1;
+                    end
+                    001: begin
+                        aluOperation = `ALUOP_SUB;
+                    end
+                    100: begin
+                        aluOperation = `ALUOP_SLT;
+                        blt = 1'b1;
+                    end
+                    101: begin
+                        aluOperation = `ALUOP_SLT;
+                    end
+                    110: begin
+                        aluOperation = `ALUOP_SLTU;
+                        blt = 1'b1;
+                    end
+                    111: begin
+                        aluOperation = `ALUOP_SLTU;
+                    end
+                    default: instrIllegal = 1'b1;
+                endcase
             end
             `OPCODE_JALR  : begin
                 immType = `IMM_I;
                 branchJALR = 1'b1;
+                aluOperation = `ALUOP_ADD;
             end
             `OPCODE_JAL   : begin
                 immType = `IMM_J;
                 branchJAL = 1'b1;
+                aluOperation = `ALUOP_ADD;
             end
         
             default: instrIllegal = 1'b1;
@@ -101,4 +133,5 @@ module decoder(
     end
     
 endmodule
+
 `endif
