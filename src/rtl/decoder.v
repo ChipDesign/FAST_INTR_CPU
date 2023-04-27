@@ -1,54 +1,94 @@
+/*
+file: Decoder in ID Stage, used to decode all 32 bits instructions, 
+    generate control signals for other components
+
+    // 32 bits Instruction OP code type 
+    `define OPCODE_LOAD     7'b0000011
+    `define OPCODE_OP_IMM   7'b0010011
+    `define OPCODE_AUIPC    7'b0010111
+    `define OPCODE_STORE    7'b0100011
+    `define OPCODE_RTYPE    7'b0110011
+    `define OPCODE_LUI      7'b0110111
+    `define OPCODE_BRANCH   7'b1100011
+    `define OPCODE_JALR     7'b1100111
+    `define OPCODE_JAL      7'b1101111
+
+author: fujie 
+time: 2023年 4月27日 星期四 09时09分22秒 CST
+*/
+
 `ifndef __DECODER__
 `define __DECODER__
 `include "definitions.vh"
 module decoder(
-  input wire [31:0] instructionD,
+  input wire [31:0] instructionD, // instruction from IF stage
+  // ========= alu calculation signals =========
   output reg [4:0] aluOperation,
-  output reg regWriteEnD
+  output reg rd1Sel, // alu operand a selection
+  output reg rd2Sel, // alu operand b selection
+
+  // ========= branch signals =========
+  // ========= load store signals =========
+  // ========= immediate types =========
+  output reg [2:0] immType,
+  // =========  =========
+  output reg regWriteEnD,
+  // ========= illegal instruction =========
+  output reg instrIllegal
 );
 
-  wire [4:0] opcode;
-  wire [2:0] funct3;
-  wire funct7;
+    wire [6:0] opcode;
+    wire [2:0] funct3;
+    wire funct7;
 
-  reg [2:0] instructionType;
+    reg [2:0] instructionType;
 
-  assign opcode = instructionD[6:2];
-  assign funct3 = instructionD[14:12];
-  assign funct7 = instructionD[30];
+     
+// =========================================================================
+// ============================ implementation =============================
+// =========================================================================
+    assign opcode = instructionD[6:0];
+    assign funct3 = instructionD[14:12];
+    assign funct7 = instructionD[30];
 
-  always@(*)begin
-    case(opcode)
-      5'b01100: instructionType = `R_Type;
-      5'b00100: instructionType = `I_Type;
-      default: instructionType = `Error_Type;
-    endcase
-    case(instructionType)
-      `R_Type: begin
-        case(funct3)
-          3'b000: begin
-              case(funct7)
-                1'b0: aluOperation = `ALU_ADD;
-                1'b1: aluOperation = `ALU_SUB;
-              endcase
+
+    
+    // ================== immType ==================
+    always @(*) begin 
+        instrIllegal = 1'b0; // suppose instruction is legal by default.
+        immType = `IMM_NO;   // suppose instruction immType is IMM_NO by default.
+        case(opcode) 
+            `OPCODE_LOAD  : begin
+                immType = `IMM_I;
             end
-          default: aluOperation = `ALU_Op_Error;
+            `OPCODE_OP_IMM: begin
+                immType = `IMM_I;
+            end
+            `OPCODE_AUIPC : begin
+                immType = `IMM_U;
+            end
+            `OPCODE_STORE : begin
+                immType = `IMM_S;
+            end
+            `OPCODE_RTYPE : begin
+                immType = `IMM_NO;
+            end
+            `OPCODE_LUI   : begin
+                immType = `IMM_U;
+            end
+            `OPCODE_BRANCH: begin
+                immType = `IMM_B;
+            end
+            `OPCODE_JALR  : begin
+                immType = `IMM_I;
+            end
+            `OPCODE_JAL   : begin
+                immType = `IMM_J;
+            end
+        
+            default: instrIllegal = 1'b1;
         endcase
-        regWriteEnD = 1'b1;
-      end
-      `I_Type: begin
-        case(funct3)
-          3'b000: aluOperation = `ALU_ADDI;
-          default : aluOperation = `ALU_Op_Error;
-        endcase
-        regWriteEnD = 1'b1;
-      end
-      default: begin
-        aluOperation = `ALU_Op_Error;
-        regWriteEnD = 1'b0;
-      end
-    endcase
-  end
-
+    end
+    
 endmodule
 `endif
