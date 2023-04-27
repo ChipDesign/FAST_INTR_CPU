@@ -8,9 +8,9 @@ time: 2023年 4月26日 星期三 19时04分59秒 CST
 
 // `include "definitions.vh"
 module staticBranchPredictor(
-    input wire bType,  // 6 bType instruction is: beq, bne, bge, geu, glt, gltu => BTFN(bacwarding taken, forwarding not taken)
-    input wire isJAL,  // jal instruction  => 100% taken, pc = pc+offset
-    input wire isJALR, // jalr instruction => if rs1 is x0, x1, then suppose jalr is taken; or suppose jalr is not taken
+    input wire branchBType,  // 6 branchBType instruction is: beq, bne, bge, geu, glt, gltu => BTFN(bacwarding taken, forwarding not taken)
+    input wire branchJAL,  // jal instruction  => 100% taken, pc = pc+offset
+    input wire branchJALR, // jalr instruction => if rs1 is x0, x1, then suppose jalr is taken; or suppose jalr is not taken
     input wire [31:0] rd1, // register data, used by jalr instruction
     input wire [31:0] offset, // branch offset, passed from Extending Unit
     input wire [31:0] pc,     // pc value, passed from IF stage 
@@ -25,11 +25,11 @@ module staticBranchPredictor(
     always @(*) begin 
         taken = 1'b0;                 // suppose not taken by default
         redirectionPC = 32'h00000000; // suppose redirectionPC = 0x00000000 by default
-        if(isJAL) begin 
+        if(branchJAL) begin 
             taken = 1'b1;    
             redirectionPC = pc+offset; // pc += sext(offset)
         end
-        if(isJALR) begin
+        if(branchJALR) begin
             if(rs1Depended) begin
                 taken = 1'b0; // if rs1 has data dependency, we suppose jalr is not taken in branch predictor    
             end
@@ -39,7 +39,7 @@ module staticBranchPredictor(
                 redirectionPC = (rd1+offset)&32'hfffffffe; // pc=(x[rs1]+sext(offset))&∼1
             end
         end
-        if(bType) begin
+        if(branchBType) begin
             if(offset[31]) begin
                 taken = 1'b1; // offset[31]=1 => offset less than 0 => backwarding taken
                 redirectionPC = pc+offset; // pc += sext(offset)
