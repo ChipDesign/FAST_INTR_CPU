@@ -27,7 +27,10 @@ module decoder(
   output reg rd1Sel, // alu operand a selection
   output reg rd2Sel, // alu operand b selection
 
-  // ========= branch signals =========
+  // ========= branch signals used by extending unit and pass to ALU =========
+  output reg branchBType,
+  output reg branchJAL,
+  output reg branchJALR,
   // ========= load store signals =========
   // ========= immediate types =========
   output reg [2:0] immType,
@@ -57,6 +60,10 @@ module decoder(
     always @(*) begin 
         instrIllegal = 1'b0; // suppose instruction is legal by default.
         immType = `IMM_NO;   // suppose instruction immType is IMM_NO by default.
+        // suppose branch instruction is not asserted by default
+        branchBType = 1'b0;
+        branchJAL = 1'b0;
+        branchJALR = 1'b0;
         case(opcode) 
             `OPCODE_LOAD  : begin
                 immType = `IMM_I;
@@ -78,12 +85,15 @@ module decoder(
             end
             `OPCODE_BRANCH: begin
                 immType = `IMM_B;
+                branchBType = 1'b1;
             end
             `OPCODE_JALR  : begin
                 immType = `IMM_I;
+                branchJALR = 1'b1;
             end
             `OPCODE_JAL   : begin
                 immType = `IMM_J;
+                branchJAL = 1'b1;
             end
         
             default: instrIllegal = 1'b1;
