@@ -1,3 +1,5 @@
+`ifndef __DECODER__
+`define __DECODER__
 /*
 file: Decoder in ID Stage, used to decode all 32 bits instructions, 
     generate control signals for other components
@@ -19,29 +21,29 @@ time: 2023年 4月27日 星期四 09时09分22秒 CST
 
 `include "definitions.vh"
 module decoder(
-    input wire [31:0] instructionD, // instruction from IF stage
+    input wire [31:0] instruction_i, // instruction from IF stage
     // ========= alu related signals =========
-    output reg [4:0] aluOperation,
-    output reg rd1Sel, // alu operand a selection, 0 for rd1, 1 for pc
-    output reg rd2Sel, // alu operand b selection, 0 for rd2, 1 for imm
+    output reg [4:0] aluOperation_o,
+    output reg rd1Sel_o, // alu operand a selection, 0 for rd1, 1 for pc
+    output reg rd2Sel_o, // alu operand b selection, 0 for rd2, 1 for imm
     // ========= immediate types =========
-    output reg [2:0] immType,
+    output reg [2:0] immType_o,
 
     // addtional signals for branch control 
     output reg beq,  // used by `beq`
-    output reg blt,  // used by `blt`, `bge`
+    output reg blt_o,  // used by `blt`, `bge`
     // ========= branch signals used by extending unit and pass to ALU =========
-    output reg branchBType, // to show the instruction is BType instruction
-    output reg branchJAL,
-    output reg branchJALR,
+    output reg branchBType_o, // to show the instruction is BType instruction
+    output reg branchJAL_o,
+    output reg branchJALR_o,
     // ========= load store signals =========
-    output reg [2:0] dMemType, // data memory type
+    output reg [2:0] dMemType_o, // data memory type
     // =========  =========
     // output reg regWriteEnD,
-    output reg [1:0] wbSrc, // write back select
-    output reg wbEn,  // write back enable
+    output reg [1:0] wbSrc_o, // write back select
+    output reg wbEn_o,  // write back enable
     // ========= illegal instruction =========
-    output reg instrIllegal
+    output reg instrIllegal_o
 );
 
 // =========================================================================
@@ -54,235 +56,233 @@ module decoder(
 // =========================================================================
 // ============================ implementation =============================
 // =========================================================================
-    assign opcode = instructionD[6:0];
-    assign funct3 = instructionD[14:12];
-    assign funct7 = instructionD[30];
+    assign opcode = instruction_i[6:0];
+    assign funct3 = instruction_i[14:12];
+    assign funct7 = instruction_i[30];
 
-
-    
-    // ================== immType ==================
     always @(*) begin 
         // suppose branch instruction is not asserted by default
-        aluOperation = `ALUOP_ERROR; // suppose alu opcode = error by default
-        rd1Sel = `RD1SEL_RF;
-        rd2Sel = `RD2SEL_IMM;
-        immType = `IMM_NO;   // suppose instruction immType is IMM_NO by default.
+        aluOperation_o = `ALUOP_ERROR; // suppose alu opcode = error by default
+        rd1Sel_o = `RD1SEL_RF;
+        rd2Sel_o = `RD2SEL_IMM;
+        immType_o = `IMM_NO;   // suppose instruction immType_o is IMM_NO by default.
         beq = 1'b0; // suppose branch instruction is not asserted by default
-        blt = 1'b0;
-        branchBType = 1'b0;  
-        branchJAL = 1'b0;
-        branchJALR = 1'b0;
-        instrIllegal = 1'b0; // suppose instruction is legal by default.
-        wbSrc = `WBSRC_ALU;  // suppose write back source is from ALU 
-        wbEn = 1'b1; // suppose write back is enabled
+        blt_o = 1'b0;
+        branchBType_o = 1'b0;  
+        branchJAL_o = 1'b0;
+        branchJALR_o = 1'b0;
+        instrIllegal_o = 1'b0; // suppose instruction is legal by default.
+        wbSrc_o = `WBSRC_ALU;  // suppose write back source is from ALU 
+        wbEn_o = 1'b1; // suppose write back is enabled
         case(opcode) 
             `OPCODE_LOAD  : begin
-                immType = `IMM_I;
-                aluOperation = `ALUOP_ADD;
-                wbSrc = `WBSRC_MEM;
-                wbEn = 1'b1;
+                immType_o = `IMM_I;
+                aluOperation_o = `ALUOP_ADD;
+                wbSrc_o = `WBSRC_MEM;
+                wbEn_o = 1'b1;
                 case(funct3) 
-                    000: begin
-                        dMemType = `DMEM_LB;
+                    3'b000: begin
+                        dMemType_o = `DMEM_LB;
                     end
-                    001: begin
-                        dMemType = `DMEM_LH;
+                    3'b001: begin
+                        dMemType_o = `DMEM_LH;
                     end
-                    010: begin
-                        dMemType = `DMEM_LW;
+                    3'b010: begin
+                        dMemType_o = `DMEM_LW;
                     end
-                    100: begin
-                        dMemType = `DMEM_LBU;
+                    3'b100: begin
+                        dMemType_o = `DMEM_LBU;
                     end
-                    101: begin
-                        dMemType = `DMEM_LHU;
+                    3'b101: begin
+                        dMemType_o = `DMEM_LHU;
                     end
-                    default: instrIllegal = 1'b1;
+                    default: instrIllegal_o = 1'b1;
                 endcase
             end
             `OPCODE_OP_IMM: begin
-                immType = `IMM_I;
-                wbSrc = `WBSRC_ALU;
-                wbEn = 1'b1;
+                immType_o = `IMM_I;
+                wbSrc_o = `WBSRC_ALU;
+                wbEn_o = 1'b1;
                 case(funct3) 
-                    000: begin
-                        aluOperation = `ALUOP_ADD; // addi
+                    3'b000: begin
+                        aluOperation_o = `ALUOP_ADD; // addi
                     end
-                    001: begin
-                        aluOperation = `ALUOP_SLL; // slli
+                    3'b001: begin
+                        aluOperation_o = `ALUOP_SLL; // slli
                     end
-                    010: begin
-                        aluOperation = `ALUOP_SLT; // slti
+                    3'b010: begin
+                        aluOperation_o = `ALUOP_SLT; // slti
                     end
-                    011: begin
-                        aluOperation = `ALUOP_SLTU; // sluti
+                    3'b011: begin
+                        aluOperation_o = `ALUOP_SLTU; // sluti
                     end
-                    100: begin
-                        aluOperation = `ALUOP_XOR; // xori
+                    3'b100: begin
+                        aluOperation_o = `ALUOP_XOR; // xori
                     end
-                    101: begin
+                    3'b101: begin
                         case(funct7) 
-                            0: aluOperation = `ALUOP_SRL; // srli
-                            default: aluOperation = `ALUOP_SRA; // srai
+                            0: aluOperation_o = `ALUOP_SRL; // srli
+                            default: aluOperation_o = `ALUOP_SRA; // srai
                         endcase
                     end
-                    110: begin
-                        aluOperation = `ALUOP_OR; // ori
+                    3'b110: begin
+                        aluOperation_o = `ALUOP_OR; // ori
                     end
-                    111: begin
-                        aluOperation = `ALUOP_AND; // andi
+                    3'b111: begin
+                        aluOperation_o = `ALUOP_AND; // andi
                     end
-                    default: instrIllegal = 1'b1;
+                    default: instrIllegal_o = 1'b1;
                 endcase
             end
             `OPCODE_AUIPC : begin
-                immType = `IMM_U;
-                aluOperation = `ALUOP_ADD;
-                rd1Sel = `RD1SEL_PC;
-                wbSrc = `WBSRC_ALU;
-                wbEn = 1'b1;
+                immType_o = `IMM_U;
+                aluOperation_o = `ALUOP_ADD;
+                rd1Sel_o = `RD1SEL_PC;
+                wbSrc_o = `WBSRC_ALU;
+                wbEn_o = 1'b1;
             end
             `OPCODE_STORE : begin
-                immType = `IMM_S;
-                aluOperation = `ALUOP_ADD;
-                wbEn = 1'b0;
+                immType_o = `IMM_S;
+                aluOperation_o = `ALUOP_ADD;
+                wbEn_o = 1'b0;
                 case(funct3) 
-                    000: begin
-                        dMemType = `DMEM_SB;
+                    3'b000: begin
+                        dMemType_o = `DMEM_SB;
                     end
-                    001: begin
-                        dMemType = `DMEM_SH;
+                    3'b001: begin
+                        dMemType_o = `DMEM_SH;
                     end
-                    010: begin
-                        dMemType = `DMEM_SW;
+                    3'b010: begin
+                        dMemType_o = `DMEM_SW;
                     end
-                    default: instrIllegal = 1'b1;
+                    default: instrIllegal_o = 1'b1;
                 endcase
 
             end
             `OPCODE_RTYPE : begin
-                immType = `IMM_NO; // rType instructions don't have imm
-                rd2Sel = `RD2SEL_RF;
-                wbSrc = `WBSRC_ALU;
-                wbEn = 1'b1;
-                if(instructionD[25]) begin // R type instruction
+                immType_o = `IMM_NO; // rType instructions don't have imm
+                rd2Sel_o = `RD2SEL_RF;
+                wbSrc_o = `WBSRC_ALU;
+                wbEn_o = 1'b1;
+                if(instruction_i[25]) begin // R type instruction
                     case(funct3) 
-                        000: begin
+                        3'b000: begin
                             case(funct7) 
-                                0: aluOperation = `ALUOP_ADD; // add
-                                default: aluOperation = `ALUOP_SUB; // sub
+                                0: aluOperation_o = `ALUOP_ADD; // add
+                                default: aluOperation_o = `ALUOP_SUB; // sub
                             endcase
                         end
-                        001: begin
-                            aluOperation = `ALUOP_SLL; // sll
+                        3'b001: begin
+                            aluOperation_o = `ALUOP_SLL; // sll
                         end
-                        010: begin
-                            aluOperation = `ALUOP_SLT; // slt
+                        3'b010: begin
+                            aluOperation_o = `ALUOP_SLT; // slt
                         end
-                        011: begin
-                            aluOperation = `ALUOP_SLTU; // sltu
+                        3'b011: begin
+                            aluOperation_o = `ALUOP_SLTU; // sltu
                         end
-                        100: begin
-                            aluOperation = `ALUOP_XOR; // xor
+                        3'b100: begin
+                            aluOperation_o = `ALUOP_XOR; // xor
                         end
-                        101: begin
+                        3'b101: begin
                             case(funct7) 
-                                0: aluOperation = `ALUOP_SRL; // srl
-                                default: aluOperation = `ALUOP_SRA; // sra
+                                0: aluOperation_o = `ALUOP_SRL; // srl
+                                default: aluOperation_o = `ALUOP_SRA; // sra
                             endcase
                         end
-                        110: begin
-                            aluOperation = `ALUOP_OR; // or
+                        3'b110: begin
+                            aluOperation_o = `ALUOP_OR; // or
                         end
-                        111: begin
-                            aluOperation = `ALUOP_AND; // and
+                        3'b111: begin
+                            aluOperation_o = `ALUOP_AND; // and
                         end
-                        default: instrIllegal = 1'b1;
+                        default: instrIllegal_o = 1'b1;
                     endcase    
                 end
                 else begin // RISC-V 32M instruction
                     case(funct3) 
-                        000: begin
-                            aluOperation = `ALUOP_MUL; // mul
+                        3'b000: begin
+                            aluOperation_o = `ALUOP_MUL; // mul
                         end
-                        001: begin
-                            aluOperation = `ALUOP_MULH; // mulh
+                        3'b001: begin
+                            aluOperation_o = `ALUOP_MULH; // mulh
                         end
-                        010: begin
-                            aluOperation = `ALUOP_MULHSU; // mulhsu
+                        3'b010: begin
+                            aluOperation_o = `ALUOP_MULHSU; // mulhsu
                         end
-                        011: begin
-                            aluOperation = `ALUOP_MULHU; // mulhu
+                        3'b011: begin
+                            aluOperation_o = `ALUOP_MULHU; // mulhu
                         end
-                        100: begin
-                            aluOperation = `ALUOP_DIV; // div
+                        3'b100: begin
+                            aluOperation_o = `ALUOP_DIV; // div
                         end
-                        101: begin
-                            aluOperation = `ALUOP_DIVU; // divu
+                        3'b101: begin
+                            aluOperation_o = `ALUOP_DIVU; // divu
                         end
-                        110: begin
-                            aluOperation = `ALUOP_REM; // rem
+                        3'b110: begin
+                            aluOperation_o = `ALUOP_REM; // rem
                         end
-                        111: begin
-                            aluOperation = `ALUOP_REMU; // remu
+                        3'b111: begin
+                            aluOperation_o = `ALUOP_REMU; // remu
                         end
-                        default:  instrIllegal = 1'b1;
+                        default:  instrIllegal_o = 1'b1;
                     endcase
                 end
             end
             `OPCODE_LUI   : begin
-                immType = `IMM_U;
-                aluOperation = `ALUOP_ADD;
-                wbSrc = `WBSRC_IMM;
-                wbEn = 1'b1;
+                immType_o = `IMM_U;
+                aluOperation_o = `ALUOP_ADD;
+                wbSrc_o = `WBSRC_IMM;
+                wbEn_o = 1'b1;
             end
             `OPCODE_BRANCH: begin
-                immType = `IMM_B;
-                branchBType = 1'b1;
-                rd1Sel = `RD1SEL_PC;
-                wbEn = 1'b0;
+                immType_o = `IMM_B;
+                branchBType_o = 1'b1;
+                rd1Sel_o = `RD1SEL_PC;
+                wbEn_o = 1'b0;
                 case(funct3) 
-                    000: begin
-                        aluOperation = `ALUOP_SUB;
+                    3'b000: begin
+                        aluOperation_o = `ALUOP_SUB; // beq
                         beq = 1'b1;
                     end
-                    001: begin
-                        aluOperation = `ALUOP_SUB;
+                    3'b001: begin
+                        aluOperation_o = `ALUOP_SUB; // bne
                     end
-                    100: begin
-                        aluOperation = `ALUOP_SLT;
-                        blt = 1'b1;
+                    3'b100: begin
+                        aluOperation_o = `ALUOP_SLT; // blt_o
+                        blt_o = 1'b1;
                     end
-                    101: begin
-                        aluOperation = `ALUOP_SLT;
+                    3'b101: begin
+                        aluOperation_o = `ALUOP_SLT; // bge
                     end
-                    110: begin
-                        aluOperation = `ALUOP_SLTU;
-                        blt = 1'b1;
+                    3'b110: begin
+                        aluOperation_o = `ALUOP_SLTU; // blt_ou
+                        blt_o = 1'b1;
                     end
-                    111: begin
-                        aluOperation = `ALUOP_SLTU;
+                    3'b111: begin
+                        aluOperation_o = `ALUOP_SLTU; // bgeu
                     end
-                    default: instrIllegal = 1'b1;
+                    default: instrIllegal_o = 1'b1;
                 endcase
             end
             `OPCODE_JALR  : begin
-                immType = `IMM_I;
-                branchJALR = 1'b1;
-                aluOperation = `ALUOP_ADD;
-                wbSrc = `WBSRC_IMM;
-                wbEn = 1'b1;
+                immType_o = `IMM_I;
+                branchJALR_o = 1'b1;
+                aluOperation_o = `ALUOP_ADD;
+                wbSrc_o = `WBSRC_IMM;
+                wbEn_o = 1'b1;
             end
             `OPCODE_JAL   : begin
-                immType = `IMM_J;
-                branchJAL = 1'b1;
-                aluOperation = `ALUOP_ADD;
-                rd1Sel = `RD1SEL_PC;
-                wbSrc = `WBSRC_IMM;
-                wbEn = 1'b1;
+                immType_o = `IMM_J;
+                branchJAL_o = 1'b1;
+                aluOperation_o = `ALUOP_ADD;
+                rd1Sel_o = `RD1SEL_PC;
+                wbSrc_o = `WBSRC_IMM;
+                wbEn_o = 1'b1;
             end
-            default: instrIllegal = 1'b1;
+            default: instrIllegal_o = 1'b1;
         endcase
     end
     
 endmodule
+`endif

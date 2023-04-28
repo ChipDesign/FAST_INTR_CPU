@@ -1,75 +1,34 @@
 `ifndef __PIPELINEID__
 `define __PIPELINEID__
+/*
+* file: ID stage in 5 stage pipeline 
+    1. get input from IF stage 
+    2. decode the instruction, generate control signals for other components
+    3. pass output to EXE stage
+main components: 
+    1. decoder: decode the instruction 
+    2. extending unit: extend imm into 32 bits
+    3. static branch predictor: do the static prediction for jump and branch instructions 
+    4. compressDecoder: extend the 16 bits compress instruction into 32 bits instruction
+author: fujie
+time: 2023年 4月28日 星期五 15时52分49秒 CST
+*/
 `include "definitions.vh"
 `include "decoder.v"
-module pipelineID(
-  input wire clk,
-  input wire resetn,
-  input wire [31:0] instructionD,
-  input wire regWriteEnW,
-  input wire [4:0] rdW,
-  input wire [31:0] writeBackDataW,
+`include "staticBranchPredictor.v"
+`include "compressDecoder.v"
+`include "extendingUnit.v"
 
-  output reg [4:0] aluOperationD,
-  output reg [31:0] rs1D,
-  output reg [31:0] rs2D,
-  output reg regWriteEnD,
-  output reg [4:0] rdD
+module pipelineID(
+    input wire clk,
+    input wire resetn, // reset signal for ID stage, used for pipeline flush
+    input wire enable, // enable signal for ID stage, used for pipeline stall
+    input wire [31:0] instructionD, // instruction passed from IF stage
 );
 
-  reg [31:0] registerFile[31:0];
-  wire [4:0] rs1_idx, rs2_idx;
-  wire [4:0] aluOperation;
-  wire regWriteEn;
-  integer i;
+// =========================================================================
+// ============================ implementation =============================
+// =========================================================================
 
-  //**********************************************************
-  //         Implementations  
-  //**********************************************************
-
-  assign rs1_idx = instructionD[19:15];
-  assign rs2_idx = instructionD[24:20];
-  /* assign registerFile[0] = 32'h00000000;  // x0 is hardwired to 0 */
-  /* initial begin */
-  /*   for(i=0;i<32;i++)begin */
-  /*     registerFile[i]=0; // init RF when start */
-  /*   end */
-  /* end */
-
-
-  always@(posedge clk) begin 
-    if(~resetn)begin
-      rs1D<=0;
-      rs2D<=0;
-      rdD <=0;
-      /* for(i=0;i<32;i++)begin */
-      /*   registerFile[i]<=0; // init RF when start */
-      /* end */
-    end
-    else begin 
-      // read from RF
-      rs1D <= registerFile[rs1_idx];
-      rs2D <= registerFile[rs2_idx];
-      /* rdD  <= instructionD[11:7]; */
-      rdD  <= instructionD[11:7];
-      /* rdD  <= 5'b11111; */
-      // write to RF
-      if(regWriteEnW)begin
-        registerFile[rdW]<=writeBackDataW;
-      end
-      aluOperationD <= aluOperation;
-      regWriteEnD   <= regWriteEn;
-    end
-  end
-
-  // initialize decoder
-  decoder decoderInstance(
-    .instructionD(instructionD),
-    .aluOperation(aluOperation),
-    .regWriteEnD(regWriteEn)
-  );
-
-
-  //TODO: make RF a dut
 endmodule
 `endif
