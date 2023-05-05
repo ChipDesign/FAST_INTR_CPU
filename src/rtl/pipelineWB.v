@@ -16,8 +16,8 @@ module pipelineWB (
     input wire [1:0] resultSrcM_i,    // select signal to choose one of the four inputs
     input wire [31:0] aluResultM_i,   // alu calculation result
     input wire [31:0] memReadDataM_i, // delared as wire, becased the D-memory has 1 cycle delay when reading
-    input wire [31:0] pcPlus4_i,      // rd=pc+4, for `jal` instruction
-    input wire [31:0] extendedImm_i,  // extended imm, for 'lui' instruction
+    input wire [31:0] pcPlus4M_i,      // rd=pc+4, for `jal` instruction
+    input wire [31:0] extendedImmM_i,  // extended imm, for 'lui' instruction
     input wire [4:0] rdM_i,  // RF write back register index, passed from MEM stage
 
     output reg regWriteEnW_o, // write back to RF enable
@@ -43,13 +43,13 @@ always@(posedge clk)begin
                 writeBackDataW_o <= aluResultM_i; // choose alu result to write back
             end
             `WBSRC_IMM: begin
-                writeBackDataW_o <= extendedImm_i; // choose extended immdiate to write back
+                writeBackDataW_o <= extendedImmM_i; // choose extended immdiate to write back
             end
             `WBSRC_MEM: begin
                 writeBackDataW_o <= memReadDataM_i;// choose data memory output to write back
             end
             `WBSRC_PC: begin
-                writeBackDataW_o <= pcPlus4_i;// choose pc+4 to write back
+                writeBackDataW_o <= pcPlus4M_i;// choose pc+4 to write back
             end
             default: writeBackDataW_o <= aluResultM_i;
         endcase
