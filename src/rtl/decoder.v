@@ -24,13 +24,13 @@ module decoder(
     input wire [31:0] instruction_i, // instruction from IF stage
     // ========= alu related signals =========
     output reg [4:0] aluOperation_o,
-    output reg rd1Sel_o, // alu operand a selection, 0 for rd1, 1 for pc
-    output reg rd2Sel_o, // alu operand b selection, 0 for rd2, 1 for imm
+    output reg rs1Sel_o, // alu operand a selection, 0 for rd1, 1 for pc
+    output reg rs2Sel_o, // alu operand b selection, 0 for rd2, 1 for imm
     // ========= immediate types =========
     output reg [2:0] immType_o,
 
     // addtional signals for branch control 
-    output reg beq,  // used by `beq`
+    output reg beq_o,  // used by `beq`
     output reg blt_o,  // used by `blt`, `bge`
     // ========= branch signals used by extending unit and pass to ALU =========
     output reg branchBType_o, // to show the instruction is BType instruction
@@ -63,10 +63,10 @@ module decoder(
     always @(*) begin 
         // suppose branch instruction is not asserted by default
         aluOperation_o = `ALUOP_ERROR; // suppose alu opcode = error by default
-        rd1Sel_o = `RD1SEL_RF;
-        rd2Sel_o = `RD2SEL_IMM;
+        rs1Sel_o = `RD1SEL_RF;
+        rs2Sel_o = `RD2SEL_IMM;
         immType_o = `IMM_NO;   // suppose instruction immType_o is IMM_NO by default.
-        beq = 1'b0; // suppose branch instruction is not asserted by default
+        beq_o = 1'b0; // suppose branch instruction is not asserted by default
         blt_o = 1'b0;
         branchBType_o = 1'b0;  
         branchJAL_o = 1'b0;
@@ -137,7 +137,7 @@ module decoder(
             `OPCODE_AUIPC : begin
                 immType_o = `IMM_U;
                 aluOperation_o = `ALUOP_ADD;
-                rd1Sel_o = `RD1SEL_PC;
+                rs1Sel_o = `RD1SEL_PC;
                 wbSrc_o = `WBSRC_ALU;
                 wbEn_o = 1'b1;
             end
@@ -161,7 +161,7 @@ module decoder(
             end
             `OPCODE_RTYPE : begin
                 immType_o = `IMM_NO; // rType instructions don't have imm
-                rd2Sel_o = `RD2SEL_RF;
+                rs2Sel_o = `RD2SEL_RF;
                 wbSrc_o = `WBSRC_ALU;
                 wbEn_o = 1'b1;
                 if(instruction_i[25]) begin // R type instruction
@@ -238,12 +238,12 @@ module decoder(
             `OPCODE_BRANCH: begin
                 immType_o = `IMM_B;
                 branchBType_o = 1'b1;
-                rd1Sel_o = `RD1SEL_PC;
+                rs1Sel_o = `RD1SEL_PC;
                 wbEn_o = 1'b0;
                 case(funct3) 
                     3'b000: begin
                         aluOperation_o = `ALUOP_SUB; // beq
-                        beq = 1'b1;
+                        beq_o = 1'b1;
                     end
                     3'b001: begin
                         aluOperation_o = `ALUOP_SUB; // bne
@@ -276,7 +276,7 @@ module decoder(
                 immType_o = `IMM_J;
                 branchJAL_o = 1'b1;
                 aluOperation_o = `ALUOP_ADD;
-                rd1Sel_o = `RD1SEL_PC;
+                rs1Sel_o = `RD1SEL_PC;
                 wbSrc_o = `WBSRC_IMM;
                 wbEn_o = 1'b1;
             end

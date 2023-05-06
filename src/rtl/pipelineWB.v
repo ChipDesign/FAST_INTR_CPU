@@ -12,14 +12,16 @@ module pipelineWB (
     input wire clk,
     input wire resetn,
 
-    input wire regWriteEnM_i,
-    input wire [1:0] resultSrcM_i,    // select signal to choose one of the four inputs
+    /* input data passed from MEM stage */
     input wire [31:0] aluResultM_i,   // alu calculation result
     input wire [31:0] memReadDataM_i, // delared as wire, becased the D-memory has 1 cycle delay when reading
-    input wire [31:0] pcPlus4M_i,      // rd=pc+4, for `jal` instruction
     input wire [31:0] extendedImmM_i,  // extended imm, for 'lui' instruction
+    input wire [31:0] pcPlus4M_i,      // rd=pc+4, for `jal` instruction
+    input wire regWriteEnM_i,
     input wire [4:0] rdM_i,  // RF write back register index, passed from MEM stage
+    input wire [1:0] resultSrcM_i,    // select signal to choose one of the four inputs
 
+    /* write back data to ID stage */
     output reg regWriteEnW_o, // write back to RF enable
     output reg [4:0] rdW_o,   // RF write register index
     output reg [31:0] writeBackDataW_o // data write to RF in ID 

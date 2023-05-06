@@ -3,17 +3,18 @@
 `include "sram_1p_32x816.v"
 module pipelineIF
 (
-  input wire clk,
-  input wire resetn,
-  /* input wire [32-1:0] redirectionPC, */ // pc redirection
-  output reg [32-1:0] instructionF
+    input wire clk,
+    input wire resetn,
+    input wire enable,
+    /* input wire [32-1:0] redirectionPC, */ // pc redirection
+    output reg [32-1:0] instructionF
 );
 
-  // sram signals
-  wire [9:0] SramAddr; // Address to access 32x816 sram
-  wire CEB, WEB;
-  wire [31:0] SramOutput;
-  reg [31:0] pc_register;
+    // sram signals
+    wire [9:0] SramAddr; // Address to access 32x816 sram
+    wire CEB, WEB;
+    wire [31:0] SramOutput;
+    reg [31:0] pc_register;
 
 
   //**********************************************************

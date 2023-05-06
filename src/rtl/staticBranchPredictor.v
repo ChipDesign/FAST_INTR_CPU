@@ -11,7 +11,7 @@ module staticBranchPredictor(
     input wire branchBType,  // 6 branchBType instruction is: beq, bne, bge, geu, glt, gltu => BTFN(bacwarding taken, forwarding not taken)
     input wire branchJAL,  // jal instruction  => 100% taken, pc = pc+offset
     input wire branchJALR, // jalr instruction => if rs1 is x0, x1, then suppose jalr is taken; or suppose jalr is not taken
-    input wire [31:0] rd1, // register data, used by jalr instruction
+    input wire [31:0] rs1, // register data, used by jalr instruction
     input wire [31:0] offset, // branch offset, passed from Extending Unit
     input wire [31:0] pc,     // pc value, passed from IF stage 
     input wire rs1Depended, // used by jalr instruction, to detect rs1 dependency, passed from Hazard Unit
@@ -36,7 +36,7 @@ module staticBranchPredictor(
             
             else begin // only jalr instruction need access register file, so it has to deal with data dependency problem
                 taken = 1'b1; // if rs1 doesn't have data dependency, we suppose jalr is taken in branch predictor    
-                redirectionPC = (rd1+offset)&32'hfffffffe; // pc=(x[rs1]+sext(offset))&∼1
+                redirectionPC = (rs1+offset)&32'hfffffffe; // pc=(x[rs1]+sext(offset))&∼1
             end
         end
         if(branchBType) begin
