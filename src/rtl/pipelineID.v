@@ -28,7 +28,7 @@ module pipelineID(
     input wire [31:0] pcPlus4F_i,      
     // 2. signals passed from WB stage
     input wire        regWriteEnW_i, // write back to RF enable
-    input wire [ 4:0] rdW_i,   // RF write register index
+    input wire [ 4:0] rdIdxW_i,   // RF write register index
     input wire [31:0] writeBackDataW_i, // data write to RF in ID 
     // 3. signals passed from Hazard Unit
     input wire        rs1DependedH_i, // used by `jalr`
@@ -191,7 +191,7 @@ module pipelineID(
         .rs2_data_o   		( rs2_data_o   		),
         .rs1_addr_i   		( rs1Index          ),
         .rs2_addr_i   		( rs2Index          ),
-        .rd_addr_i    		( rdW_i    		    ),
+        .rd_addr_i    		( rdIdxW_i  	    ),
         .rd_wr_data_i 		( writeBackDataW_i 	),
         .rd_wr_en_i   		( regWriteEnW_i   	)
     );

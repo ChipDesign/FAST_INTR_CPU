@@ -17,13 +17,14 @@ module pipelineMEM (
     /* signals passed from EXE stage */
     // MEM stage signals
     input wire [31:0] aluResultE_i,   
+    input wire [ 2:0] dMemTypeE_i,      // load/store types
     // WB stage signals
     input wire [31:0] extendedImmE_i,  
     input wire [31:0] pcPlus4E_i,      
     input wire        regWriteEnE_i,         
     input wire [ 4:0] rdIdxE_i,          
     input wire [ 1:0] resultSrcE_i,   
-    // input wire        instrIllegalE_i, // instruction illegal, used by CSR unit
+    input wire        instrIllegalE_i, // instruction illegal, used by CSR unit
 
     /* signals to passed to WB stage */
     output reg [31:0] memReadDataM_o,  // data read from D-memory 
