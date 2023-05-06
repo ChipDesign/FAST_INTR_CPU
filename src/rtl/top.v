@@ -1,9 +1,9 @@
 `ifndef __TOP__
 `define __TOP__
 /*
-file: MCU Core
+file: MCU Core top, five stage pipeline MCU core
 author: fujie
-time
+time: 2023年 5月 6日 星期六 16时03分58秒 CST
 */
 `include "definitions.vh"
 `include "pipelineIF.v"
