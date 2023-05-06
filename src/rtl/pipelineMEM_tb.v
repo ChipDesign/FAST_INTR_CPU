@@ -72,7 +72,7 @@ pipelineMEM pipelineMEM_instance(
   .clk(clk),
   .resetn(resetn),
   .regWriteEnE(regWriteEnE),
-  .resultSrcE(resultSrcE),
+  //.resultSrcE(resultSrcE),
   .memWriteEnE(memWriteEnE),
   .memOpTypeE(memOpTypeE),
   .aluResultE(aluResultE),

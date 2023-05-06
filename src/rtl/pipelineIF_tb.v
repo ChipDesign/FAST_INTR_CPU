@@ -17,6 +17,7 @@ module pipelineIF_tb();
 
   // initial I_Memory
   initial begin
+    // 给内部数组m_array赋值，赋值范围为m_array第0行到第15行
     $readmemh("i-memory.txt", pipelineIFInstance.sramInstance.m_array,0,15);
     /* for(i=0;i<16;i++)begin */
     /*   $display("dut line %d data is %h",i,pipelineIFInstance.sramInstance.m_array[i]); */
