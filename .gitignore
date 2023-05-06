@@ -33,3 +33,5 @@ test*
 demo/
 *.gtkw
 .nvim/*
+*.elf
+*.bin
