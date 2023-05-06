@@ -38,19 +38,15 @@ module pipelineIF
         else if(enable) begin 
             instructionF_o <= SramOutput; // read instruction from I-Memory
             pcPlus4F_o     <= currentPC + 32'h4;
+            // calculate next pc, pc will stall if not enable
+            if(takenD_i) begin
+                currentPC <= redirectionD_i;    
+            end
+            else begin
+                currentPC <= currentPC + 32'h4;    
+            end
         end
-
-        // calculate next pc
-        if(takenD_i) begin
-            currentPC <= redirectionD_i;    
-        end
-        else begin
-            currentPC <= currentPC + 32'h4;    
-        end
-        
-        
     end
-
 
     // instruction memory instance
     assign WEB = 1; // only read from I-Memory
