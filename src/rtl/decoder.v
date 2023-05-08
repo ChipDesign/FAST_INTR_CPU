@@ -269,7 +269,7 @@ module decoder(
                 imm_type_o = `IMM_I;
                 branchJALR_o = 1'b1;
                 aluOperation_o = `ALUOP_ADD;
-                wb_src_o = `WBSRC_ALU;
+                wb_src_o = `WBSRC_PC;
                 wb_en_o = 1'b1;
             end
             `OPCODE_JAL   : begin
@@ -277,7 +277,7 @@ module decoder(
                 branchJAL_o = 1'b1;
                 aluOperation_o = `ALUOP_ADD;
                 rs1_sel_o = `RD1SEL_PC;
-                wb_src_o = `WBSRC_ALU;
+                wb_src_o = `WBSRC_PC;
                 wb_en_o = 1'b1;
             end
             default: instr_illegal_o = 1'b1;
