@@ -41,8 +41,17 @@ module regfile
     // set all registers to 0 on initialization
     initial begin
         for(i=0; i<REGFILE_DEPTH-1; i=i+1) begin
-            regfile_data[i] <= 0;
+            regfile_data[i] = 0;
         end      
+    end
+    // if resetn_i is asserted, reset all registers
+    always @(posedge clk_i) begin 
+        if(~resetn_i) begin
+            for(i=0; i<REGFILE_DEPTH-1; i=i+1) begin
+                regfile_data[i] <= 0;
+            end      
+        end
+        
     end
     
     // If a register address is about to be written to and the data is needed
