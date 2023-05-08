@@ -25,7 +25,7 @@ time: 2023年 4月27日 星期四 09时20分23秒 CST
 `include "definitions.vh"
 module extendingUnit(
     input wire [31:0] instr_i, // 32 bits instruction
-    input wire [2:0] immType_i, // which immediate type
+    input wire [2:0] imm_type_i, // which immediate type
     output reg [31:0] imm_o // 32 bits extended immediate
 );
 
@@ -33,7 +33,7 @@ module extendingUnit(
 // ============================ implementation =============================
 // =========================================================================
     always @(*) begin 
-        case(immType_i) 
+        case(imm_type_i) 
             `IMM_U: begin
                 imm_o={instr_i[31:12], 12'h000};
             end

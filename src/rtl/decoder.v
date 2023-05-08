@@ -24,10 +24,10 @@ module decoder(
     input wire [31:0] instruction_i, // instruction from IF stage
     // ========= alu related signals =========
     output reg [4:0] aluOperation_o,
-    output reg rs1Sel_o, // alu operand a selection, 0 for rd1, 1 for pc
-    output reg rs2Sel_o, // alu operand b selection, 0 for rd2, 1 for imm
+    output reg rs1_sel_o, // alu operand a selection, 0 for rd1, 1 for pc
+    output reg rs2_sel_o, // alu operand b selection, 0 for rd2, 1 for imm
     // ========= immediate types =========
-    output reg [2:0] immType_o,
+    output reg [2:0] imm_type_o,
 
     // addtional signals for branch control 
     output reg beq_o,  // used by `beq`
@@ -37,13 +37,13 @@ module decoder(
     output reg branchJAL_o,
     output reg branchJALR_o,
     // ========= load store signals =========
-    output reg [2:0] dMemType_o, // data memory type
+    output reg [2:0] dmem_type_o, // data memory type
     // =========  =========
     // output reg regWriteEnD,
-    output reg [1:0] wbSrc_o, // write back select
-    output reg wbEn_o,  // write back enable
+    output reg [1:0] wb_src_o, // write back select
+    output reg wb_en_o,  // write back enable
     // ========= illegal instruction =========
-    output reg instrIllegal_o
+    output reg instr_illegal_o
 );
 
 // =========================================================================
@@ -63,46 +63,46 @@ module decoder(
     always @(*) begin 
         // suppose branch instruction is not asserted by default
         aluOperation_o = `ALUOP_ERROR; // suppose alu opcode = error by default
-        rs1Sel_o = `RD1SEL_RF;
-        rs2Sel_o = `RD2SEL_IMM;
-        immType_o = `IMM_NO;   // suppose instruction immType_o is IMM_NO by default.
+        rs1_sel_o = `RD1SEL_RF;
+        rs2_sel_o = `RD2SEL_IMM;
+        imm_type_o = `IMM_NO;   // suppose instruction imm_type_o is IMM_NO by default.
         beq_o = 1'b0; // suppose branch instruction is not asserted by default
         blt_o = 1'b0;
         branchBType_o = 1'b0;  
         branchJAL_o = 1'b0;
         branchJALR_o = 1'b0;
-        instrIllegal_o = 1'b0; // suppose instruction is legal by default.
-        wbSrc_o = `WBSRC_ALU;  // suppose write back source is from ALU 
-        wbEn_o = 1'b1; // suppose write back is enabled
+        instr_illegal_o = 1'b0; // suppose instruction is legal by default.
+        wb_src_o = `WBSRC_ALU;  // suppose write back source is from ALU 
+        wb_en_o = 1'b1; // suppose write back is enabled
         case(opcode) 
             `OPCODE_LOAD  : begin
-                immType_o = `IMM_I;
+                imm_type_o = `IMM_I;
                 aluOperation_o = `ALUOP_ADD;
-                wbSrc_o = `WBSRC_MEM;
-                wbEn_o = 1'b1;
+                wb_src_o = `WBSRC_MEM;
+                wb_en_o = 1'b1;
                 case(funct3) 
                     3'b000: begin
-                        dMemType_o = `DMEM_LB;
+                        dmem_type_o = `DMEM_LB;
                     end
                     3'b001: begin
-                        dMemType_o = `DMEM_LH;
+                        dmem_type_o = `DMEM_LH;
                     end
                     3'b010: begin
-                        dMemType_o = `DMEM_LW;
+                        dmem_type_o = `DMEM_LW;
                     end
                     3'b100: begin
-                        dMemType_o = `DMEM_LBU;
+                        dmem_type_o = `DMEM_LBU;
                     end
                     3'b101: begin
-                        dMemType_o = `DMEM_LHU;
+                        dmem_type_o = `DMEM_LHU;
                     end
-                    default: instrIllegal_o = 1'b1;
+                    default: instr_illegal_o = 1'b1;
                 endcase
             end
             `OPCODE_OP_IMM: begin
-                immType_o = `IMM_I;
-                wbSrc_o = `WBSRC_ALU;
-                wbEn_o = 1'b1;
+                imm_type_o = `IMM_I;
+                wb_src_o = `WBSRC_ALU;
+                wb_en_o = 1'b1;
                 case(funct3) 
                     3'b000: begin
                         aluOperation_o = `ALUOP_ADD; // addi
@@ -131,39 +131,39 @@ module decoder(
                     3'b111: begin
                         aluOperation_o = `ALUOP_AND; // andi
                     end
-                    default: instrIllegal_o = 1'b1;
+                    default: instr_illegal_o = 1'b1;
                 endcase
             end
             `OPCODE_AUIPC : begin
-                immType_o = `IMM_U;
+                imm_type_o = `IMM_U;
                 aluOperation_o = `ALUOP_ADD;
-                rs1Sel_o = `RD1SEL_PC;
-                wbSrc_o = `WBSRC_ALU;
-                wbEn_o = 1'b1;
+                rs1_sel_o = `RD1SEL_PC;
+                wb_src_o = `WBSRC_ALU;
+                wb_en_o = 1'b1;
             end
             `OPCODE_STORE : begin
-                immType_o = `IMM_S;
+                imm_type_o = `IMM_S;
                 aluOperation_o = `ALUOP_ADD;
-                wbEn_o = 1'b0;
+                wb_en_o = 1'b0;
                 case(funct3) 
                     3'b000: begin
-                        dMemType_o = `DMEM_SB;
+                        dmem_type_o = `DMEM_SB;
                     end
                     3'b001: begin
-                        dMemType_o = `DMEM_SH;
+                        dmem_type_o = `DMEM_SH;
                     end
                     3'b010: begin
-                        dMemType_o = `DMEM_SW;
+                        dmem_type_o = `DMEM_SW;
                     end
-                    default: instrIllegal_o = 1'b1;
+                    default: instr_illegal_o = 1'b1;
                 endcase
 
             end
             `OPCODE_RTYPE : begin
-                immType_o = `IMM_NO; // rType instructions don't have imm
-                rs2Sel_o = `RD2SEL_RF;
-                wbSrc_o = `WBSRC_ALU;
-                wbEn_o = 1'b1;
+                imm_type_o = `IMM_NO; // rType instructions don't have imm
+                rs2_sel_o = `RD2SEL_RF;
+                wb_src_o = `WBSRC_ALU;
+                wb_en_o = 1'b1;
                 if(instruction_i[25]) begin // R type instruction
                     case(funct3) 
                         3'b000: begin
@@ -196,7 +196,7 @@ module decoder(
                         3'b111: begin
                             aluOperation_o = `ALUOP_AND; // and
                         end
-                        default: instrIllegal_o = 1'b1;
+                        default: instr_illegal_o = 1'b1;
                     endcase    
                 end
                 else begin // RISC-V 32M instruction
@@ -225,21 +225,21 @@ module decoder(
                         3'b111: begin
                             aluOperation_o = `ALUOP_REMU; // remu
                         end
-                        default:  instrIllegal_o = 1'b1;
+                        default:  instr_illegal_o = 1'b1;
                     endcase
                 end
             end
             `OPCODE_LUI   : begin
-                immType_o = `IMM_U;
+                imm_type_o = `IMM_U;
                 aluOperation_o = `ALUOP_ADD;
-                wbSrc_o = `WBSRC_IMM;
-                wbEn_o = 1'b1;
+                wb_src_o = `WBSRC_IMM;
+                wb_en_o = 1'b1;
             end
             `OPCODE_BRANCH: begin
-                immType_o = `IMM_B;
+                imm_type_o = `IMM_B;
                 branchBType_o = 1'b1;
-                rs1Sel_o = `RD1SEL_PC;
-                wbEn_o = 1'b0;
+                rs1_sel_o = `RD1SEL_PC;
+                wb_en_o = 1'b0;
                 case(funct3) 
                     3'b000: begin
                         aluOperation_o = `ALUOP_SUB; // beq
@@ -262,25 +262,25 @@ module decoder(
                     3'b111: begin
                         aluOperation_o = `ALUOP_SLTU; // bgeu
                     end
-                    default: instrIllegal_o = 1'b1;
+                    default: instr_illegal_o = 1'b1;
                 endcase
             end
             `OPCODE_JALR  : begin
-                immType_o = `IMM_I;
+                imm_type_o = `IMM_I;
                 branchJALR_o = 1'b1;
                 aluOperation_o = `ALUOP_ADD;
-                wbSrc_o = `WBSRC_IMM;
-                wbEn_o = 1'b1;
+                wb_src_o = `WBSRC_IMM;
+                wb_en_o = 1'b1;
             end
             `OPCODE_JAL   : begin
-                immType_o = `IMM_J;
+                imm_type_o = `IMM_J;
                 branchJAL_o = 1'b1;
                 aluOperation_o = `ALUOP_ADD;
-                rs1Sel_o = `RD1SEL_PC;
-                wbSrc_o = `WBSRC_IMM;
-                wbEn_o = 1'b1;
+                rs1_sel_o = `RD1SEL_PC;
+                wb_src_o = `WBSRC_IMM;
+                wb_en_o = 1'b1;
             end
-            default: instrIllegal_o = 1'b1;
+            default: instr_illegal_o = 1'b1;
         endcase
     end
     
