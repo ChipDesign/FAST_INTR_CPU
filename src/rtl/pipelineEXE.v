@@ -64,6 +64,7 @@ module pipelineEXE (
             default: aluResult = rs1_d_i + rs2_d_i;
         endcase
     end
+    // TODO: `jalr` rd = (pc+offset)&~1
     
     // pass through data to next stage
     always @(posedge clk ) begin 

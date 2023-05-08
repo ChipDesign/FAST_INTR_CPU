@@ -39,7 +39,7 @@ all:
 
 # get pure machine code of asm file
 machine: all 
-	@${OBJDUMP} -D --section .text ${asmSrc}.elf | grep '[0-9a-f]:'|grep -v 'file' | cut -d: -f2| cut -d" " -f1 | sed 's/^\t *//g'> i-memory.txt
+	@${OBJDUMP} -D --section .text ${asmSrc}.elf | grep '[0-9a-f]:'|grep -v 'file' | cut -d: -f2| cut -d" " -f1 | sed 's/^\t *//g' > i-memory.txt
 	@echo "Finish generating pure machine code to i-memory.txt"
 	
 run: all
