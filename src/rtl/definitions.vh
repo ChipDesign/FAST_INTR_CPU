@@ -59,10 +59,10 @@
     `define ALUOP_ERROR       5'b10010 
 
     // alu source seletct
-    `define RD1SEL_RF       1'b0 
-    `define RD1SEL_PC       1'b1 
-    `define RD2SEL_RF       1'b0 
-    `define RD2SEL_IMM      1'b1 
+    `define RS1SEL_RF       1'b0 
+    `define RS1SEL_PC       1'b1 
+    `define RS2SEL_RF       1'b0 
+    `define RS2SEL_IMM      1'b1 
 
     // write back source
     `define WBSRC_ALU      2'b00 

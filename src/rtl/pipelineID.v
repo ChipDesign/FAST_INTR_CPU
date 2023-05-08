@@ -42,8 +42,6 @@ module pipelineID(
     output reg [ 4:0] alu_op_d_o,         // ALU Operation
     output reg [31:0] rs1_d_o,           // ALU operand 1
     output reg [31:0] rs2_d_o,           // ALU operand 2
-    output reg        rs1_sel_d_o,        // ALU operand select
-    output reg        rs2_sel_d_o,        // ALU operand select
     output reg        beq_d_o,           // additional control for ALU
     output reg        blt_d_o,           // additional control for ALU
     // MEM stage signals
@@ -55,7 +53,7 @@ module pipelineID(
     output reg [ 4:0] rd_idx_d_o,          
     output reg [ 1:0] result_src_d_o,   
     output reg        instr_illegal_d_o   // instruction illegal
-
+    // TODO: bypass at ID, add bypass logic
 );
 // =========================================================================
 // =============================   variables   =============================
@@ -104,38 +102,43 @@ module pipelineID(
     // ID stage pipeline register output
     always @(posedge clk ) begin 
         if(~resetn) begin
-            reg_write_en_d_o   <= 1'b0; 
+            reg_write_en_d_o  <= 1'b0; 
             result_src_d_o    <= 2'b0;  
             pc_plus4_d_o      <= 32'h0;    
             extended_imm_d_o  <= 32'h0;
             rd_idx_d_o        <= 5'b0;         
             alu_op_d_o        <= `ALUOP_ADD;      
-            rs1_d_o          <= 32'h0;        
-            rs2_d_o          <= 32'h0;        
-            // redirection_d_o  <= 32'h0;
-            // taken_d_o        <= 1'b0;
-            rs1_sel_d_o       <= 1'b0;
-            rs2_sel_d_o       <= 1'b0;
-            beq_d_o          <= 1'b0;        
-            blt_d_o          <= 1'b0;        
+            rs1_d_o           <= 32'h0;        
+            rs2_d_o           <= 32'h0;        
+            beq_d_o           <= 1'b0;        
+            blt_d_o           <= 1'b0;        
             dmem_type_d_o     <= 3'b0;   
             instr_illegal_d_o <= 1'b0;
         end
         else if(enable) begin
-            reg_write_en_d_o   <= wb_en_o; 
+            reg_write_en_d_o  <= wb_en_o; 
             result_src_d_o    <= wb_src_o;  
             pc_plus4_d_o      <= pc_plus4_f_i;    
             extended_imm_d_o  <= imm_o;
             rd_idx_d_o        <= rd_index; 
             alu_op_d_o        <= aluOperation_o;      
-            rs1_d_o          <= rs1_data_o;        
-            rs2_d_o          <= rs2_data_o;        
-            // redirection_d_o  <= redirection_pc;
-            // taken_d_o        <= taken;
-            rs1_sel_d_o       <= rs1_sel_o;
-            rs2_sel_d_o       <= rs2_sel_o;
-            beq_d_o          <= beq_o;        
-            blt_d_o          <= blt_o;        
+            rs1_d_o           <= rs1_data_o;        
+            rs2_d_o           <= rs2_data_o;        
+            // choose alu operand source
+            if(rs1_sel_o == `RS1SEL_RF) begin
+                rs1_d_o <= rs1_data_o;  // alu operand1 from RF
+            end
+            else begin
+                rs1_d_o <= pc_plus4_f_i; // alu source from pc+4
+            end
+            if(rs2_sel_o == `RS2SEL_RF) begin
+                rs2_d_o <= rs2_data_o; // alu operand2 from RF
+            end
+            else begin
+                rs2_d_o <= imm_o;  // alu operand2 from extended_imm 
+            end
+            beq_d_o           <= beq_o;        
+            blt_d_o           <= blt_o;        
             dmem_type_d_o     <= dmem_type_o;   
             instr_illegal_d_o <= instr_illegal;
         end
