@@ -24,6 +24,7 @@ module pipelineIF
     wire CEB, WEB;
     wire [31:0] sram_output;
     reg  [31:0] current_pc;
+    wire [31:0] select_pc;
 
 
     // =========================================================================
@@ -38,24 +39,19 @@ module pipelineIF
         end
         else if(enable) begin 
             // instruction_f_o <= sram_output; // read instruction from I-Memory
-            pc_plus4_f_o   <= current_pc + 32'h4;
-            pc_f_o         <= current_pc;
-            // calculate next pc, pc will stall if not enable
-            if(taken_d_i) begin
-                current_pc <= redirection_d_i;    
-            end
-            else begin
-                current_pc <= current_pc + 32'h4;    
-            end
+            pc_plus4_f_o <= current_pc + 32'h4;
+            pc_f_o       <= current_pc;
+            current_pc   <= select_pc + 32'h4;
         end
     end
+    assign select_pc = (taken_d_i == 1'b1) ? redirection_d_i : current_pc; 
 
     assign instruction_f_o = sram_output; // I-Memory has 1 cycle delay already
 
     // instruction memory instance
     assign WEB = 1; // only read from I-Memory
     assign CEB = 0;
-    assign sram_addr = current_pc[11:2];
+    assign sram_addr = select_pc[11:2];
 
     sram_1p_32x816 sramInstance(
         .CLK(clk),
