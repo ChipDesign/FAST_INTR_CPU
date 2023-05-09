@@ -61,7 +61,7 @@ module pipelineEXE (
             `ALUOP_ADD: begin
                 alu_calculation = rs1_d_i + rs2_d_i;
             end
-            default: alu_calculation = rs1_d_i + rs2_d_i;
+            default: alu_calculation = rs1_d_i - rs2_d_i;
         endcase
     end
     // TODO: `jalr` newPC = (pc+offset)&~1
