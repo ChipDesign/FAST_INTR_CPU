@@ -73,7 +73,7 @@ module decoder(
         branchJALR_o = 1'b0;
         instr_illegal_o = 1'b0; // suppose instruction is legal by default.
         wb_src_o = `WBSRC_ALU;  // suppose write back source is from ALU 
-        wb_en_o = 1'b1; // suppose write back is enabled
+        wb_en_o = 1'b0; // suppose write back is not enable 
         case(opcode) 
             `OPCODE_LOAD  : begin
                 imm_type_o = `IMM_I;
@@ -238,7 +238,7 @@ module decoder(
             `OPCODE_BRANCH: begin
                 imm_type_o = `IMM_B;
                 branchBType_o = 1'b1;
-                rs1_sel_o = `RS1SEL_PC;
+                rs2_sel_o = `RS2SEL_RF;
                 wb_en_o = 1'b0;
                 case(funct3) 
                     3'b000: begin
@@ -276,7 +276,6 @@ module decoder(
                 imm_type_o = `IMM_J;
                 branchJAL_o = 1'b1;
                 aluOperation_o = `ALUOP_ADD;
-                rs1_sel_o = `RS1SEL_PC;
                 wb_src_o = `WBSRC_PC;
                 wb_en_o = 1'b1;
             end
