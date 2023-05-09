@@ -51,7 +51,7 @@ module pipelineID(
     output reg [31:0] pc_plus4_d_o,      
     output reg        reg_write_en_d_o,         
     output reg [ 4:0] rd_idx_d_o,          
-    output reg [ 1:0] result_src_d_o,   
+    output reg [ 3:0] result_src_d_o,   
     output reg        instr_illegal_d_o   // instruction illegal
     // TODO: bypass at ID, add bypass logic
 );
@@ -124,8 +124,6 @@ module pipelineID(
             extended_imm_d_o  <= imm_o;
             rd_idx_d_o        <= rd_index; 
             alu_op_d_o        <= aluOperation_o;      
-            rs1_d_o           <= rs1_data_o;        
-            rs2_d_o           <= rs2_data_o;        
             redirection_d_o   <= redirection_pc;
             taken_d_o         <= taken;
             // choose alu operand source
@@ -194,13 +192,13 @@ module pipelineID(
         .REGFILE_DEPTH      		( 32 		))
     u_regfile(
         //ports
-        .clk_i        		( clk        		),
-        .resetn_i     		( resetn     		),
-        .rs1_data_o   		( rs1_data_o   		),
-        .rs2_data_o   		( rs2_data_o   		),
-        .rs1_addr_i   		( rs1_index          ),
-        .rs2_addr_i   		( rs2_index          ),
-        .rd_addr_i    		( rd_idx_w_i  	    ),
+        .clk_i        		( clk        		    ),
+        .resetn_i     		( resetn     		    ),
+        .rs1_data_o   		( rs1_data_o   		    ),
+        .rs2_data_o   		( rs2_data_o   		    ),
+        .rs1_addr_i   		( rs1_index             ),
+        .rs2_addr_i   		( rs2_index             ),
+        .rd_addr_i    		( rd_idx_w_i  	        ),
         .rd_wr_data_i 		( write_back_data_w_i 	),
         .rd_wr_en_i   		( reg_write_en_w_i   	)
     );

@@ -31,7 +31,7 @@ module pipelineEXE (
     // WB stage signals 
     input wire        reg_write_en_d_i,         
     input wire [ 4:0] rd_idx_d_i,          
-    input wire [ 1:0] result_src_d_i,   
+    input wire [ 3:0] result_src_d_i,   
     input wire        instr_illegal_d_i,  // instruction illegal
 
     /* signals passed to MEM stage */
@@ -42,7 +42,7 @@ module pipelineEXE (
     output reg [31:0] pc_plus4_e_o,     // rd=pc+4, for `jal` instruction                                       
     output reg        reg_write_en_e_o,  // RF write enable                                                      
     output reg [ 4:0] rd_idx_e_o,          
-    output reg [ 1:0] result_src_e_o,   // select signal to choose one of the four inputs
+    output reg [ 3:0] result_src_e_o,   // select signal to choose one of the four inputs
     output reg        instr_illegal_e_o // instruction illegal
 );
 
@@ -50,7 +50,7 @@ module pipelineEXE (
 // =========================================================================
 // ============================ internal variables =========================
 // =========================================================================
-    reg [31:0] aluResult;
+    reg [31:0] alu_calculation;
 // =========================================================================
 // ============================ implementation =============================
 // =========================================================================
@@ -59,18 +59,18 @@ module pipelineEXE (
     always @(*) begin 
         case(alu_op_d_i) 
             `ALUOP_ADD: begin
-                aluResult = rs1_d_i + rs2_d_i;
+                alu_calculation = rs1_d_i + rs2_d_i;
             end
-            default: aluResult = rs1_d_i + rs2_d_i;
+            default: alu_calculation = rs1_d_i + rs2_d_i;
         endcase
     end
     // TODO: `jalr` newPC = (pc+offset)&~1
     
     // pass through data to next stage
     always @(posedge clk ) begin 
-        reg_write_en_e_o   <= reg_write_en_d_i;
+        reg_write_en_e_o  <= reg_write_en_d_i;
         result_src_e_o    <= result_src_d_i;
-        alu_result_e_o    <= aluResult;
+        alu_result_e_o    <= alu_calculation;
         pc_plus4_e_o      <= pc_plus4_d_i;
         extended_imm_e_o  <= extended_imm_d_i;
         rd_idx_e_o        <= rd_idx_d_i;      
