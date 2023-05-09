@@ -23,7 +23,7 @@ module pipelineIF
     wire [9:0] sram_addr; // Address to access 32x816 sram
     wire CEB, WEB;
     wire [31:0] sram_output;
-    reg  [31:0] current_pc;
+    reg  [31:0] pc_register;
     wire [31:0] select_pc;
 
 
@@ -32,24 +32,25 @@ module pipelineIF
     // =========================================================================
     // init IF output to avoid x 
     initial begin
-        current_pc    = 32'h0; // init pc to start at 0x00000000
+        pc_register    = 32'h0; // init pc to start at 0x00000000
         pc_plus4_f_o  = 32'h0;
     end
+    // output IF stage to ID stage
     always@(posedge clk)begin
         // IF pipeline register output 
         if(~resetn)begin
-            current_pc    <= 32'h0; // init pc to start at 0x00000000
+            pc_register    <= 32'h0; // init pc to start at 0x00000000
             // instruction_f_o <= 32'h0;
             pc_plus4_f_o  <= 32'h0;
         end
         else if(enable) begin 
             // instruction_f_o <= sram_output; // read instruction from I-Memory
-            pc_plus4_f_o <= current_pc + 32'h4;
-            pc_f_o       <= current_pc;
-            current_pc   <= select_pc + 32'h4;
+            pc_plus4_f_o <= select_pc + 32'h4;
+            pc_f_o       <= select_pc;
+            pc_register   <= select_pc + 32'h4;
         end
     end
-    assign select_pc = (taken_d_i == 1'b1) ? redirection_d_i : current_pc; 
+    assign select_pc = (taken_d_i == 1'b1) ? redirection_d_i : pc_register; 
 
     assign instruction_f_o = sram_output; // I-Memory has 1 cycle delay already
 
