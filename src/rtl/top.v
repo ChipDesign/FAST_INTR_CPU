@@ -41,7 +41,7 @@ module top (
     wire [31:0]	pc_plus4_d_o;
     wire 	reg_write_en_d_o;
     wire [4:0]	rd_idx_d_o;
-    wire [1:0]	resultSrc_d_o;
+    wire [3:0]	resultSrc_d_o;
     wire 	instrIllegal_d_o;
     reg     rs1_depended_h_o;
     // EXE instance
@@ -51,7 +51,7 @@ module top (
     wire [31:0]	pcPlus4_e_o;
     wire 	regWriteEn_e_o;
     wire [4:0]	rdIdx_e_o;
-    wire [1:0]	resultSrc_e_o;
+    wire [3:0]	resultSrc_e_o;
     wire 	instrIllegal_e_o;
     // MEM stage instance signals
     wire [31:0]	mem_read_data_m_o;
@@ -60,7 +60,7 @@ module top (
     wire [31:0]	pc_plus4_m_o;
     wire 	reg_write_nen_m_o;
     wire [4:0]	rd_idx_m_o;
-    wire [1:0]	result_src_m_o;
+    wire [3:0]	result_src_m_o;
     // WB stage instance signals
     wire 	reg_write_en_w_o;
     wire [4:0]	rd_idx_w_o;
@@ -166,7 +166,6 @@ module top (
     // WB stage instance
     pipelineWB u_pipelineWB(
         //ports
-        .clk              		( clk              		),
         .alu_result_m_i     	( alu_result_m_o     	),
         .mem_read_data_m_i  	( mem_read_data_m_o   	),
         .extended_imm_m_i   	( extended_imm_m_o   	),

@@ -36,15 +36,15 @@ module top_tb ();
     initial begin
         $dumpfile("top_tb.vcd");
         $dumpvars(0, top_tb);
-        // for(index=0;index<32;index++)begin
-        //     $dumpvars(0, u_top.pipelineIDInstance.registerFile[index]);
-        // end
+        for(index=0;index<32;index++)begin
+            $dumpvars(0, u_top.u_pipelineID.u_regfile.regfile_data[index]);
+        end
     end
 
   // initial I_Memory
     initial begin
         $readmemh("i-memory.txt", u_top.u_pipelineIF.sramInstance.m_array);
-        $readmemh("registerFile.txt", u_top.u_pipelineID.u_regfile.regfile_data,0,15);
+        // $readmemh("registerFile.txt", u_top.u_pipelineID.u_regfile.regfile_data,0,15);
     end
 
     // MCU top instance
