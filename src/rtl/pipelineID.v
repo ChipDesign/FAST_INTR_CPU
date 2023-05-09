@@ -35,8 +35,8 @@ module pipelineID(
     input wire        rs1_depended_h_i, // used by `jalr`
     
     /* redirection info passed back to IF stage */
-    output wire [31:0] redirection_d_o,
-    output wire        taken_d_o,
+    output reg [31:0] redirection_d_o,
+    output reg        taken_d_o,
     /* signals passed to EXE stage */
     // EXE stage signals
     output reg [ 4:0] alu_op_d_o,         // ALU Operation
@@ -114,6 +114,8 @@ module pipelineID(
             blt_d_o           <= 1'b0;        
             dmem_type_d_o     <= 3'b0;   
             instr_illegal_d_o <= 1'b0;
+            redirection_d_o   <= 32'h0;
+            taken_d_o         <= 1'b0;
         end
         else if(enable) begin
             reg_write_en_d_o  <= wb_en_o; 
@@ -124,6 +126,8 @@ module pipelineID(
             alu_op_d_o        <= aluOperation_o;      
             rs1_d_o           <= rs1_data_o;        
             rs2_d_o           <= rs2_data_o;        
+            redirection_d_o   <= redirection_pc;
+            taken_d_o         <= taken;
             // choose alu operand source
             if(rs1_sel_o == `RS1SEL_RF) begin
                 rs1_d_o <= rs1_data_o;  // alu operand1 from RF
@@ -144,8 +148,6 @@ module pipelineID(
         end
     end
 
-    assign redirection_d_o = redirection_pc;
-    assign taken_d_o       = taken;
 
 
     // decode instance
