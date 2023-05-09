@@ -69,6 +69,7 @@ asmClean:
 # compile rtl source code to get executable file vpp target
 vvp: ${rtlFiles} 
 	@iverilog -o ${rtlTop}_tb.vvp ${rtlTop}_tb.v # @ means don't echo this command to terminal, just rtlRun it.
+	@echo "Finish compiling RTL source codes"
 
 # rtl simulation
 sim: vvp machine
