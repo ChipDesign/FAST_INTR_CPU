@@ -30,6 +30,11 @@ module pipelineIF
     // =========================================================================
     // ============================ implementation =============================
     // =========================================================================
+    // init IF output to avoid x 
+    initial begin
+        current_pc    = 32'h0; // init pc to start at 0x00000000
+        pc_plus4_f_o  = 32'h0;
+    end
     always@(posedge clk)begin
         // IF pipeline register output 
         if(~resetn)begin

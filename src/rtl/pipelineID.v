@@ -58,20 +58,20 @@ module pipelineID(
 // =========================================================================
 // =============================   variables   =============================
 // =========================================================================
-    wire [4:0] rs1_index, rs2_index, rd_index;
+    wire [ 4:0] rs1_index, rs2_index, rd_index;
     wire       instr_illegal;
     // decoder instance signals
-    wire [4:0]	aluOperation_o;
+    wire [17:0]	aluOperation_o;
     wire 	    rs1_sel_o;
     wire 	    rs2_sel_o;
-    wire [2:0]	imm_type_o;
+    wire [ 2:0]	imm_type_o;
     wire 	    beq_o;
     wire 	    blt_o;
     wire 	    branchBType_o;
     wire 	    branchJAL_o;
     wire 	    branchJALR_o;
-    wire [2:0]	dmem_type_o;
-    wire [1:0]	wb_src_o;
+    wire [ 2:0]	dmem_type_o;
+    wire [ 3:0]	wb_src_o;
     wire 	    wb_en_o;
     wire 	    decoder_instr_illegal;
     // compress decoder instance signals 
@@ -92,6 +92,24 @@ module pipelineID(
 // ============================ implementation =============================
 // =========================================================================
 
+    // initial ID output to avoid x value 
+    initial begin
+        reg_write_en_d_o  = 1'b0; 
+        result_src_d_o    = 4'b0;  
+        pc_plus4_d_o      = 32'h0;    
+        extended_imm_d_o  = 32'h0;
+        rd_idx_d_o        = 5'b0;         
+        alu_op_d_o        = `ALUOP_ADD;      
+        rs1_d_o           = 32'h0;        
+        rs2_d_o           = 32'h0;        
+        beq_d_o           = 1'b0;        
+        blt_d_o           = 1'b0;        
+        dmem_type_d_o     = 3'b0;   
+        instr_illegal_d_o = 1'b0;
+        redirection_d_o   = 32'h0;
+        taken_d_o         = 1'b0;
+    end
+
     // index for rd, rs1, rs2
     assign rd_index  = instruction32Bits[11: 7];
     assign rs1_index = instruction32Bits[19:15];
@@ -103,7 +121,7 @@ module pipelineID(
     always @(posedge clk ) begin 
         if(~resetn) begin
             reg_write_en_d_o  <= 1'b0; 
-            result_src_d_o    <= 2'b0;  
+            result_src_d_o    <= 4'b0;  
             pc_plus4_d_o      <= 32'h0;    
             extended_imm_d_o  <= 32'h0;
             rd_idx_d_o        <= 5'b0;         
