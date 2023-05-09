@@ -8,7 +8,7 @@ time: 2023年 5月 5日 星期五 14时48分40秒 CST
 `include "definitions.vh"
 module pipelineEXE (
     input wire clk,
-    // input wire resetn, // no reset need in EXE stage
+    input wire resetn, // no reset need in EXE stage
 
     /* signals passed from ID stage*/
     // EXE stage signals
@@ -68,14 +68,26 @@ module pipelineEXE (
     
     // pass through data to next stage
     always @(posedge clk ) begin 
-        reg_write_en_e_o  <= reg_write_en_d_i;
-        result_src_e_o    <= result_src_d_i;
-        alu_result_e_o    <= alu_calculation;
-        pc_plus4_e_o      <= pc_plus4_d_i;
-        extended_imm_e_o  <= extended_imm_d_i;
-        rd_idx_e_o        <= rd_idx_d_i;      
-        dmem_type_e_o     <= dmem_type_d_i;   
-        instr_illegal_e_o <= instr_illegal_d_i;
+        if(~resetn) begin
+            reg_write_en_e_o  <= 1'b0;
+            result_src_e_o    <= 4'h0000;
+            alu_result_e_o    <= 32'h0;
+            pc_plus4_e_o      <= 32'h0;
+            extended_imm_e_o  <= 32'h0;
+            rd_idx_e_o        <= 5'h0;
+            dmem_type_e_o     <= 3'h0;
+            instr_illegal_e_o <= 1'h0;
+        end
+        else begin
+            reg_write_en_e_o  <= reg_write_en_d_i;
+            result_src_e_o    <= result_src_d_i;
+            alu_result_e_o    <= alu_calculation;
+            pc_plus4_e_o      <= pc_plus4_d_i;
+            extended_imm_e_o  <= extended_imm_d_i;
+            rd_idx_e_o        <= rd_idx_d_i;      
+            dmem_type_e_o     <= dmem_type_d_i;   
+            instr_illegal_e_o <= instr_illegal_d_i;
+        end
     end
     
 endmodule
