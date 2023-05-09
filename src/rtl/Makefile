@@ -67,7 +67,7 @@ asmClean:
 	@-rm -rf *.o *.bin *.elf
 
 # compile rtl source code to get executable file vpp target
-vvp: ${rtlFiles} 
+vvp:
 	@iverilog -o ${rtlTop}_tb.vvp ${rtlTop}_tb.v # @ means don't echo this command to terminal, just rtlRun it.
 	@echo "Finish compiling RTL source codes"
 
