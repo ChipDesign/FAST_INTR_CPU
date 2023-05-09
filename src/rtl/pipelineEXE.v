@@ -12,7 +12,7 @@ module pipelineEXE (
 
     /* signals passed from ID stage*/
     // EXE stage signals
-    input wire [ 4:0] alu_op_d_i,          // ALU Operation
+    input wire [17:0] alu_op_d_i,          // ALU Operation
     input wire [31:0] rs1_d_i,            // ALU operand 1
     input wire [31:0] rs2_d_i,            // ALU operand 2
     input wire [31:0] extended_imm_d_i,  
@@ -70,7 +70,7 @@ module pipelineEXE (
     always @(posedge clk ) begin 
         if(~resetn) begin
             reg_write_en_e_o  <= 1'b0;
-            result_src_e_o    <= 4'h0000;
+            result_src_e_o    <= 4'b0000;
             alu_result_e_o    <= 32'h0;
             pc_plus4_e_o      <= 32'h0;
             extended_imm_e_o  <= 32'h0;

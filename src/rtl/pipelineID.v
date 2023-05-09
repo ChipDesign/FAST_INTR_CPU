@@ -39,7 +39,7 @@ module pipelineID(
     output reg        taken_d_o,
     /* signals passed to EXE stage */
     // EXE stage signals
-    output reg [ 4:0] alu_op_d_o,         // ALU Operation
+    output reg [17:0] alu_op_d_o,         // ALU Operation
     output reg [31:0] rs1_d_o,           // ALU operand 1
     output reg [31:0] rs2_d_o,           // ALU operand 2
     output reg        beq_d_o,           // additional control for ALU

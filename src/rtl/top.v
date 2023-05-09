@@ -29,29 +29,29 @@ module top (
     // ID stage instance signals
     wire [31:0]	redirection_d_o;
     wire 	taken_d_o;
-    wire [4:0]	alu_op_d_o;
+    wire [17:0]	alu_op_d_o;
     wire [31:0]	rs1_d_o;
     wire [31:0]	rs2_d_o;
     wire 	rs1_sel_d_o;
     wire 	rs2_sel_d_o;
     wire 	beq_d_o;
     wire 	blt_d_o;
-    wire [2:0]	dmem_type_d_o;
+    wire [ 2:0]	dmem_type_d_o;
     wire [31:0]	extended_imm_d_o;
     wire [31:0]	pc_plus4_d_o;
     wire 	reg_write_en_d_o;
-    wire [4:0]	rd_idx_d_o;
-    wire [3:0]	resultSrc_d_o;
+    wire [ 4:0]	rd_idx_d_o;
+    wire [ 3:0]	resultSrc_d_o;
     wire 	instrIllegal_d_o;
     reg     rs1_depended_h_o;
     // EXE instance
     wire [31:0]	aluResult_e_o;
-    wire [2:0]	dMemType_e_o;
+    wire [ 2:0]	dMemType_e_o;
     wire [31:0]	extendedImm_e_o;
     wire [31:0]	pcPlus4_e_o;
     wire 	regWriteEn_e_o;
-    wire [4:0]	rdIdx_e_o;
-    wire [3:0]	resultSrc_e_o;
+    wire [ 4:0]	rdIdx_e_o;
+    wire [ 3:0]	resultSrc_e_o;
     wire 	instrIllegal_e_o;
     // MEM stage instance signals
     wire [31:0]	mem_read_data_m_o;
@@ -59,11 +59,11 @@ module top (
     wire [31:0]	extended_imm_m_o;
     wire [31:0]	pc_plus4_m_o;
     wire 	reg_write_en_m_o;
-    wire [4:0]	rd_idx_m_o;
-    wire [3:0]	result_src_m_o;
+    wire [ 4:0]	rd_idx_m_o;
+    wire [ 3:0]	result_src_m_o;
     // WB stage instance signals
     wire 	reg_write_en_w_o;
-    wire [4:0]	rd_idx_w_o;
+    wire [ 4:0]	rd_idx_w_o;
     wire [31:0]	write_back_data_w_o;
 
     // =========================================================================
