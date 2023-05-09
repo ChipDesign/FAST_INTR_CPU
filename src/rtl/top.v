@@ -32,8 +32,6 @@ module top (
     wire [17:0]	alu_op_d_o;
     wire [31:0]	rs1_d_o;
     wire [31:0]	rs2_d_o;
-    wire 	rs1_sel_d_o;
-    wire 	rs2_sel_d_o;
     wire 	beq_d_o;
     wire 	blt_d_o;
     wire [ 2:0]	dmem_type_d_o;
@@ -106,8 +104,6 @@ module top (
         .alu_op_d_o         	( alu_op_d_o         	),
         .rs1_d_o           		( rs1_d_o           	),
         .rs2_d_o           		( rs2_d_o           	),
-        // .rs1_sel_d_o        	( rs1_sel_d_o        	),
-        // .rs2_sel_d_o        	( rs2_sel_d_o        	),
         .beq_d_o           		( beq_d_o           	),
         .blt_d_o           		( blt_d_o           	),
         .dmem_type_d_o      	( dmem_type_d_o      	),
