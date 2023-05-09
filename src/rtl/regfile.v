@@ -40,7 +40,7 @@ module regfile
     integer i;
     // set all registers to 0 on initialization
     initial begin
-        for(i=0; i<REGFILE_DEPTH-1; i=i+1) begin
+        for(i=0; i<REGFILE_DEPTH; i=i+1) begin
             regfile_data[i] = 0;
         end      
     end
