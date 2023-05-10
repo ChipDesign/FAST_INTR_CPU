@@ -27,7 +27,7 @@ module top_tb ();
     if(counter===2)begin
         /* $readmemh("registerFile.txt", u_top.pipelineIDInstance.registerFile,0,15); */
     end
-    if(counter===20)begin
+    if(counter===40)begin
         $finish();
     end
     counter+=1;
