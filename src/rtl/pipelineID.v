@@ -92,24 +92,6 @@ module pipelineID(
 // ============================ implementation =============================
 // =========================================================================
 
-    // initial ID output to avoid x value 
-    initial begin
-        reg_write_en_d_o  = 1'b0; 
-        result_src_d_o    = 4'b0;  
-        pc_plus4_d_o      = 32'h0;    
-        extended_imm_d_o  = 32'h0;
-        rd_idx_d_o        = 5'b0;         
-        alu_op_d_o        = `ALUOP_ADD;      
-        rs1_d_o           = 32'h0;        
-        rs2_d_o           = 32'h0;        
-        beq_d_o           = 1'b0;        
-        blt_d_o           = 1'b0;        
-        dmem_type_d_o     = 3'b0;   
-        instr_illegal_d_o = 1'b0;
-        redirection_d_o   = 32'h0;
-        taken_d_o         = 1'b0;
-    end
-
     // index for rd, rs1, rs2
     assign rd_index  = instruction32Bits[11: 7];
     assign rs1_index = instruction32Bits[19:15];

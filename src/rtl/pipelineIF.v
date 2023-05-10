@@ -12,9 +12,9 @@ module pipelineIF
     // TODO: add redirectionPC from EXE stage
 
     /* output signals to ID stage */
-    output wire [31:0] instruction_f_o,
-    output reg  [31:0] pc_plus4_f_o,
-    output reg  [31:0] pc_f_o
+    output reg [31:0] instruction_f_o,
+    output reg [31:0] pc_plus4_f_o,
+    output reg [31:0] pc_f_o
 );
 
     // =========================================================================
@@ -24,40 +24,39 @@ module pipelineIF
     wire CEB, WEB;
     wire [31:0] sram_output;
     reg  [31:0] pc_register;
-    wire [31:0] select_pc;
+    reg  [31:0] pc_instru;
+    wire [31:0] pc_mux;
 
 
     // =========================================================================
     // ============================ implementation =============================
     // =========================================================================
-    // init IF output to avoid x 
-    initial begin
-        pc_register    = 32'h0; // init pc to start at 0x00000000
-        pc_plus4_f_o  = 32'h0;
-    end
     // output IF stage to ID stage
     always@(posedge clk)begin
         // IF pipeline register output 
         if(~resetn)begin
-            pc_register    <= 32'h0; // init pc to start at 0x00000000
-            // instruction_f_o <= 32'h0;
-            pc_plus4_f_o  <= 32'h0;
+            pc_register     <= 32'h0; // init pc to start at 0x00000000
+            pc_plus4_f_o    <= 32'h4;
+            pc_f_o          <= 32'h0;
+            instruction_f_o <= 32'h0;
         end
         else if(enable) begin 
             // instruction_f_o <= sram_output; // read instruction from I-Memory
-            pc_plus4_f_o <= select_pc + 32'h4;
-            pc_f_o       <= select_pc;
-            pc_register   <= select_pc + 32'h4;
+            pc_register     <= pc_mux + 32'h4;
+            pc_plus4_f_o    <= pc_mux + 32'h4;
+            pc_instru       <= pc_mux; // delay pc for 1 cycle, so pc and instruction can match
+            pc_f_o          <= pc_instru;
+            instruction_f_o <= sram_output;
         end
     end
-    assign select_pc = (taken_d_i == 1'b1) ? redirection_d_i : pc_register; 
+    assign pc_mux = (taken_d_i == 1'b1) ? redirection_d_i : pc_register; 
 
-    assign instruction_f_o = sram_output; // I-Memory has 1 cycle delay already
+    // assign instruction_f_o = sram_output; // I-Memory has 1 cycle delay already
 
     // instruction memory instance
     assign WEB = 1; // only read from I-Memory
     assign CEB = 0;
-    assign sram_addr = select_pc[11:2];
+    assign sram_addr = pc_mux[11:2];
 
     sram_1p_32x816 sramInstance(
         .CLK(clk),
@@ -65,7 +64,8 @@ module pipelineIF
         .WEB(WEB),
         .A(sram_addr),
         .D(32'h0), // I-Memory will not be write into, we only read from I-Memory
-        .Q(sram_output)
+        .Q(sram_output),
+        .resetn(resetn)
     );
 endmodule
 `endif
