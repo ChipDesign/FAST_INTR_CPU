@@ -78,7 +78,7 @@ module pipelineID(
     wire [31:0]	instr_o;
     wire 	    is_compressed_o;
     wire 	    compress_instr_illegal;
-    wire [31:0] instruction32Bits;
+    wire [31:0] instru_32bits;
     // extending unit instance signals
     wire [31:0]	imm_o;
     // register file  instance signals
@@ -93,11 +93,11 @@ module pipelineID(
 // =========================================================================
 
     // index for rd, rs1, rs2
-    assign rd_index  = instruction32Bits[11: 7];
-    assign rs1_index = instruction32Bits[19:15];
-    assign rs2_index = instruction32Bits[24:20];
+    assign rd_index  = instru_32bits[11: 7];
+    assign rs1_index = instru_32bits[19:15];
+    assign rs2_index = instru_32bits[24:20];
     assign instr_illegal = decoder_instr_illegal | compress_instr_illegal;
-    assign instruction32Bits = (is_compressed_o==1'b1) ? instr_o : instruction_f_i;
+    assign instru_32bits = (is_compressed_o==1'b1) ? instr_o : instruction_f_i;
 
     // ID stage pipeline register output
     always @(posedge clk ) begin 
@@ -151,7 +151,7 @@ module pipelineID(
     // decode instance
     decoder u_decoder(
         //ports
-        .instruction_i  		( instruction32Bits  	),
+        .instruction_i  		( instru_32bits  	),
         .aluOperation_o 		( aluOperation_o 		),
         .rs1_sel_o       		( rs1_sel_o       		),
         .rs2_sel_o       		( rs2_sel_o       		),
@@ -180,7 +180,7 @@ module pipelineID(
     // extending unit instance
     extendingUnit u_extendingUnit(
         //ports
-        .instr_i    		( instruction32Bits ),
+        .instr_i    		( instru_32bits ),
         .imm_type_i  		( imm_type_o 		),
         .imm_o      		( imm_o      		)
     );
