@@ -8,11 +8,11 @@ time: 2023年 5月 5日 星期五 14时48分40秒 CST
 `include "definitions.vh"
 module pipelineEXE (
     input wire clk,
-    // input wire resetn, // no reset need in EXE stage
+    input wire resetn, // no reset need in EXE stage
 
     /* signals passed from ID stage*/
     // EXE stage signals
-    input wire [ 4:0] alu_op_d_i,          // ALU Operation
+    input wire [17:0] alu_op_d_i,          // ALU Operation
     input wire [31:0] rs1_d_i,            // ALU operand 1
     input wire [31:0] rs2_d_i,            // ALU operand 2
     input wire [31:0] extended_imm_d_i,  
@@ -31,7 +31,7 @@ module pipelineEXE (
     // WB stage signals 
     input wire        reg_write_en_d_i,         
     input wire [ 4:0] rd_idx_d_i,          
-    input wire [ 1:0] result_src_d_i,   
+    input wire [ 3:0] result_src_d_i,   
     input wire        instr_illegal_d_i,  // instruction illegal
 
     /* signals passed to MEM stage */
@@ -42,7 +42,7 @@ module pipelineEXE (
     output reg [31:0] pc_plus4_e_o,     // rd=pc+4, for `jal` instruction                                       
     output reg        reg_write_en_e_o,  // RF write enable                                                      
     output reg [ 4:0] rd_idx_e_o,          
-    output reg [ 1:0] result_src_e_o,   // select signal to choose one of the four inputs
+    output reg [ 3:0] result_src_e_o,   // select signal to choose one of the four inputs
     output reg        instr_illegal_e_o // instruction illegal
 );
 
@@ -50,7 +50,7 @@ module pipelineEXE (
 // =========================================================================
 // ============================ internal variables =========================
 // =========================================================================
-    reg [31:0] aluResult;
+    reg [31:0] alu_calculation;
 // =========================================================================
 // ============================ implementation =============================
 // =========================================================================
@@ -59,23 +59,35 @@ module pipelineEXE (
     always @(*) begin 
         case(alu_op_d_i) 
             `ALUOP_ADD: begin
-                aluResult = rs1_d_i + rs2_d_i;
+                alu_calculation = rs1_d_i + rs2_d_i;
             end
-            default: aluResult = rs1_d_i + rs2_d_i;
+            default: alu_calculation = rs1_d_i - rs2_d_i;
         endcase
     end
     // TODO: `jalr` newPC = (pc+offset)&~1
     
     // pass through data to next stage
     always @(posedge clk ) begin 
-        reg_write_en_e_o   <= reg_write_en_d_i;
-        result_src_e_o    <= result_src_d_i;
-        alu_result_e_o    <= aluResult;
-        pc_plus4_e_o      <= pc_plus4_d_i;
-        extended_imm_e_o  <= extended_imm_d_i;
-        rd_idx_e_o        <= rd_idx_d_i;      
-        dmem_type_e_o     <= dmem_type_d_i;   
-        instr_illegal_e_o <= instr_illegal_d_i;
+        if(~resetn) begin
+            alu_result_e_o    <= 32'h0;
+            dmem_type_e_o     <= 3'b0;
+            extended_imm_e_o  <= 32'h0;
+            pc_plus4_e_o      <= 32'h0;
+            reg_write_en_e_o  <= 1'b0;
+            rd_idx_e_o        <= 5'h0;
+            result_src_e_o    <= 4'b0000;
+            instr_illegal_e_o <= 1'h0;
+        end
+        else begin
+            alu_result_e_o    <= alu_calculation;
+            dmem_type_e_o     <= dmem_type_d_i;   
+            extended_imm_e_o  <= extended_imm_d_i;
+            pc_plus4_e_o      <= pc_plus4_d_i;
+            reg_write_en_e_o  <= reg_write_en_d_i;
+            rd_idx_e_o        <= rd_idx_d_i;      
+            result_src_e_o    <= result_src_d_i;
+            instr_illegal_e_o <= instr_illegal_d_i;
+        end
     end
     
 endmodule

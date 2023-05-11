@@ -29,41 +29,39 @@ module top (
     // ID stage instance signals
     wire [31:0]	redirection_d_o;
     wire 	taken_d_o;
-    wire [4:0]	alu_op_d_o;
+    wire [17:0]	alu_op_d_o;
     wire [31:0]	rs1_d_o;
     wire [31:0]	rs2_d_o;
-    wire 	rs1_sel_d_o;
-    wire 	rs2_sel_d_o;
     wire 	beq_d_o;
     wire 	blt_d_o;
-    wire [2:0]	dmem_type_d_o;
+    wire [ 2:0]	dmem_type_d_o;
     wire [31:0]	extended_imm_d_o;
     wire [31:0]	pc_plus4_d_o;
     wire 	reg_write_en_d_o;
-    wire [4:0]	rd_idx_d_o;
-    wire [1:0]	resultSrc_d_o;
+    wire [ 4:0]	rd_idx_d_o;
+    wire [ 3:0]	resultSrc_d_o;
     wire 	instrIllegal_d_o;
     reg     rs1_depended_h_o;
     // EXE instance
     wire [31:0]	aluResult_e_o;
-    wire [2:0]	dMemType_e_o;
+    wire [ 2:0]	dMemType_e_o;
     wire [31:0]	extendedImm_e_o;
     wire [31:0]	pcPlus4_e_o;
     wire 	regWriteEn_e_o;
-    wire [4:0]	rdIdx_e_o;
-    wire [1:0]	resultSrc_e_o;
+    wire [ 4:0]	rdIdx_e_o;
+    wire [ 3:0]	resultSrc_e_o;
     wire 	instrIllegal_e_o;
     // MEM stage instance signals
     wire [31:0]	mem_read_data_m_o;
     wire [31:0]	alu_result_m_o;
     wire [31:0]	extended_imm_m_o;
     wire [31:0]	pc_plus4_m_o;
-    wire 	reg_write_nen_m_o;
-    wire [4:0]	rd_idx_m_o;
-    wire [1:0]	result_src_m_o;
+    wire 	reg_write_en_m_o;
+    wire [ 4:0]	rd_idx_m_o;
+    wire [ 3:0]	result_src_m_o;
     // WB stage instance signals
     wire 	reg_write_en_w_o;
-    wire [4:0]	rd_idx_w_o;
+    wire [ 4:0]	rd_idx_w_o;
     wire [31:0]	write_back_data_w_o;
 
     // =========================================================================
@@ -106,8 +104,6 @@ module top (
         .alu_op_d_o         	( alu_op_d_o         	),
         .rs1_d_o           		( rs1_d_o           	),
         .rs2_d_o           		( rs2_d_o           	),
-        .rs1_sel_d_o        	( rs1_sel_d_o        	),
-        .rs2_sel_d_o        	( rs2_sel_d_o        	),
         .beq_d_o           		( beq_d_o           	),
         .blt_d_o           		( blt_d_o           	),
         .dmem_type_d_o      	( dmem_type_d_o      	),
@@ -122,6 +118,7 @@ module top (
     pipelineEXE u_pipelineEXE(
         //ports
         .clk             		( clk             		),
+        .resetn           		( resetn           		),
         .alu_op_d_i        		( alu_op_d_o        	),
         .rs1_d_i          		( rs1_d_o          		),
         .rs2_d_i          		( rs2_d_o          		),
@@ -146,6 +143,7 @@ module top (
     pipelineMEM u_pipelineMEM(
         //ports
         .clk             		( clk             		),
+        .resetn           		( resetn           		),
         .alu_result_e_i    		( aluResult_e_o    		),
         .dmem_type_e_i     		( dMemType_e_o     		),
         .extended_imm_e_i  		( extendedImm_e_o  		),
@@ -158,7 +156,7 @@ module top (
         .alu_result_m_o    		( alu_result_m_o    	),
         .extended_imm_m_o  		( extended_imm_m_o  	),
         .pc_plus4_m_o      		( pc_plus4_m_o      	),
-        .reg_write_nen_m_o   	( reg_write_nen_m_o   	),
+        .reg_write_en_m_o   	( reg_write_en_m_o   	),
         .rd_idx_m_o        		( rd_idx_m_o        	),
         .result_src_m_o    		( result_src_m_o    	)
     );
@@ -166,12 +164,11 @@ module top (
     // WB stage instance
     pipelineWB u_pipelineWB(
         //ports
-        .clk              		( clk              		),
         .alu_result_m_i     	( alu_result_m_o     	),
         .mem_read_data_m_i  	( mem_read_data_m_o   	),
         .extended_imm_m_i   	( extended_imm_m_o   	),
         .pc_plus4_m_i       	( pc_plus4_m_o       	),
-        .reg_write_en_m_i   	( reg_write_nen_m_o    	),
+        .reg_write_en_m_i   	( reg_write_en_m_o    	),
         .rd_idx_m_i          	( rd_idx_m_o        	),
         .result_src_m_i     	( result_src_m_o     	),
         .reg_write_en_w_o    	( reg_write_en_w_o    	),

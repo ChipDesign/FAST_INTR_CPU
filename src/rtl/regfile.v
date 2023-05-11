@@ -40,7 +40,7 @@ module regfile
     integer i;
     // set all registers to 0 on initialization
     initial begin
-        for(i=0; i<REGFILE_DEPTH-1; i=i+1) begin
+        for(i=0; i<REGFILE_DEPTH; i=i+1) begin
             regfile_data[i] = 0;
         end      
     end
@@ -53,26 +53,22 @@ module regfile
         end
         
     end
-    
+
     // If a register address is about to be written to and the data is needed
     // for the instruction currently in ID, place write data on output bus
     assign rs1_data_o = ((rs1_addr_i == rd_addr_i) &&
                          (rd_addr_i != 0) &&
                          (rd_wr_en_i))  
                          ? rd_wr_data_i : regfile_data[rs1_addr_i];
-    
     assign rs2_data_o = ((rs2_addr_i == rd_addr_i) &&
                          (rd_addr_i != 0) &&
                          (rd_wr_en_i))     
                          ? rd_wr_data_i : regfile_data[rs2_addr_i];
-
     // synchronous process for writes
     always@(posedge clk_i) begin
-        
         if((rd_wr_en_i) && (rd_addr_i != 0)) begin
                 regfile_data[rd_addr_i] <= rd_wr_data_i;
         end
-
     end 
     
 endmodule

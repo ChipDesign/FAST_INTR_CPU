@@ -12,7 +12,7 @@ time: 2023年 5月 5日 星期五 11时27分51秒 CST
 // `include "sram_1p_32x816.v"
 module pipelineMEM (
     input wire clk,
-    // input wire resetn, // no reset need in MEM stage
+    input wire resetn, // no reset need in MEM stage
 
     /* signals passed from EXE stage */
     // MEM stage signals
@@ -23,7 +23,7 @@ module pipelineMEM (
     input wire [31:0] pc_plus4_e_i,      
     input wire        reg_write_en_e_i,         
     input wire [ 4:0] rd_idx_e_i,          
-    input wire [ 1:0] result_src_e_i,   
+    input wire [ 3:0] result_src_e_i,   
     input wire        instr_illegal_e_i, // instruction illegal, used by CSR unit
 
     /* signals to passed to WB stage */
@@ -31,9 +31,9 @@ module pipelineMEM (
     output reg [31:0] alu_result_m_o,    // alu calculation result
     output reg [31:0] extended_imm_m_o,  // extended imm, for 'lui' instruction
     output reg [31:0] pc_plus4_m_o,      // rd=pc+4, for `jal` instruction
-    output reg        reg_write_nen_m_o,   // RF write enable
+    output reg        reg_write_en_m_o,   // RF write enable
     output reg [ 4:0] rd_idx_m_o,            // RF write back register index, passed from MEM stage
-    output reg [ 1:0] result_src_m_o    // select signal to choose one of the four inputs
+    output reg [ 3:0] result_src_m_o    // select signal to choose one of the four inputs
     // TODO: signals to communicate with Data Memory
     // TODO: add CSR Unit signals
 );
@@ -42,15 +42,29 @@ module pipelineMEM (
 // ============================ implementation =============================
 // =========================================================================
 
+
     always @(posedge clk ) begin 
-        // pass signals to MEM stage
-        reg_write_nen_m_o  <= reg_write_en_e_i;
-        result_src_m_o   <= result_src_e_i;
-        alu_result_m_o   <= alu_result_e_i;
-        mem_read_data_m_o <= 32'h0; // TODO: memory read data must from D-memory
-        pc_plus4_m_o     <= pc_plus4_e_i;
-        extended_imm_m_o <= extended_imm_e_i;
-        rd_idx_m_o       <= rd_idx_e_i;
+        if(~resetn) begin
+            reg_write_en_m_o  <= 1'b0;
+            result_src_m_o    <= 4'b0000;
+            alu_result_m_o    <= 32'h0;
+            mem_read_data_m_o <= 32'h0;
+            pc_plus4_m_o      <= 32'h0;
+            extended_imm_m_o  <= 32'h0;
+            rd_idx_m_o        <= 5'h0;
+        end
+        else begin
+            // pass signals to MEM stage
+            reg_write_en_m_o  <= reg_write_en_e_i;
+            result_src_m_o    <= result_src_e_i;
+            alu_result_m_o    <= alu_result_e_i;
+            mem_read_data_m_o <= 32'h0; // TODO: memory read data must from D-memory
+            pc_plus4_m_o      <= pc_plus4_e_i;
+            extended_imm_m_o  <= extended_imm_e_i;
+            rd_idx_m_o        <= rd_idx_e_i;
+        end
+        
+        
     end
 
     // TODO: add D-memory logic signals

@@ -23,7 +23,7 @@ time: 2023年 4月27日 星期四 09时09分22秒 CST
 module decoder(
     input wire [31:0] instruction_i, // instruction from IF stage
     // ========= alu related signals =========
-    output reg [4:0] aluOperation_o,
+    output reg [17:0] aluOperation_o,
     output reg rs1_sel_o, // alu operand a selection, 0 for rd1, 1 for pc
     output reg rs2_sel_o, // alu operand b selection, 0 for rd2, 1 for imm
     // ========= immediate types =========
@@ -40,7 +40,7 @@ module decoder(
     output reg [2:0] dmem_type_o, // data memory type
     // =========  =========
     // output reg regWriteEnD,
-    output reg [1:0] wb_src_o, // write back select
+    output reg [3:0] wb_src_o, // write back select
     output reg wb_en_o,  // write back enable
     // ========= illegal instruction =========
     output reg instr_illegal_o
@@ -62,9 +62,9 @@ module decoder(
 
     always @(*) begin 
         // suppose branch instruction is not asserted by default
-        aluOperation_o = `ALUOP_ERROR; // suppose alu opcode = error by default
-        rs1_sel_o = `RD1SEL_RF;
-        rs2_sel_o = `RD2SEL_IMM;
+        aluOperation_o = `ALUOP_ADD; // suppose alu opcode = error by default
+        rs1_sel_o = `RS1SEL_RF;
+        rs2_sel_o = `RS2SEL_IMM;
         imm_type_o = `IMM_NO;   // suppose instruction imm_type_o is IMM_NO by default.
         beq_o = 1'b0; // suppose branch instruction is not asserted by default
         blt_o = 1'b0;
@@ -73,7 +73,7 @@ module decoder(
         branchJALR_o = 1'b0;
         instr_illegal_o = 1'b0; // suppose instruction is legal by default.
         wb_src_o = `WBSRC_ALU;  // suppose write back source is from ALU 
-        wb_en_o = 1'b1; // suppose write back is enabled
+        wb_en_o = 1'b0; // suppose write back is not enable 
         case(opcode) 
             `OPCODE_LOAD  : begin
                 imm_type_o = `IMM_I;
@@ -137,7 +137,7 @@ module decoder(
             `OPCODE_AUIPC : begin
                 imm_type_o = `IMM_U;
                 aluOperation_o = `ALUOP_ADD;
-                rs1_sel_o = `RD1SEL_PC;
+                rs1_sel_o = `RS1SEL_PC;
                 wb_src_o = `WBSRC_ALU;
                 wb_en_o = 1'b1;
             end
@@ -161,7 +161,7 @@ module decoder(
             end
             `OPCODE_RTYPE : begin
                 imm_type_o = `IMM_NO; // rType instructions don't have imm
-                rs2_sel_o = `RD2SEL_RF;
+                rs2_sel_o = `RS2SEL_RF;
                 wb_src_o = `WBSRC_ALU;
                 wb_en_o = 1'b1;
                 if(instruction_i[25]) begin // R type instruction
@@ -238,7 +238,7 @@ module decoder(
             `OPCODE_BRANCH: begin
                 imm_type_o = `IMM_B;
                 branchBType_o = 1'b1;
-                rs1_sel_o = `RD1SEL_PC;
+                rs2_sel_o = `RS2SEL_RF;
                 wb_en_o = 1'b0;
                 case(funct3) 
                     3'b000: begin
@@ -276,7 +276,6 @@ module decoder(
                 imm_type_o = `IMM_J;
                 branchJAL_o = 1'b1;
                 aluOperation_o = `ALUOP_ADD;
-                rs1_sel_o = `RD1SEL_PC;
                 wb_src_o = `WBSRC_PC;
                 wb_en_o = 1'b1;
             end

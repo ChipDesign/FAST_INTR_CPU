@@ -38,25 +38,24 @@
     `define IMM_NO          3'b110
 
     // ALU Operations types
-    `define ALUOP_ADD         5'b00000
-    `define ALUOP_SUB         5'b00001
-    `define ALUOP_SLL         5'b00010
-    `define ALUOP_SRL         5'b00011
-    `define ALUOP_SRA         5'b00100
-    `define ALUOP_OR          5'b00101
-    `define ALUOP_AND         5'b00110
-    `define ALUOP_XOR         5'b00111
-    `define ALUOP_SLT         5'b01000 
-    `define ALUOP_SLTU        5'b01001 
-    `define ALUOP_MUL         5'b01010 
-    `define ALUOP_MULH        5'b01011 
-    `define ALUOP_MULHU       5'b01100 
-    `define ALUOP_MULHSU      5'b01101 
-    `define ALUOP_DIV         5'b01110 
-    `define ALUOP_DIVU        5'b01111 
-    `define ALUOP_REM         5'b10000 
-    `define ALUOP_REMU        5'b10001 
-    `define ALUOP_ERROR       5'b10010 
+    `define ALUOP_ADD         18'b000000000000000001
+    `define ALUOP_SUB         18'b000000000000000010
+    `define ALUOP_SLL         18'b000000000000000100
+    `define ALUOP_SRL         18'b000000000000001000
+    `define ALUOP_SRA         18'b000000000000010000
+    `define ALUOP_OR          18'b000000000000100000
+    `define ALUOP_AND         18'b000000000001000000
+    `define ALUOP_XOR         18'b000000000010000000
+    `define ALUOP_SLT         18'b000000000100000000 
+    `define ALUOP_SLTU        18'b000000001000000000 
+    `define ALUOP_MUL         18'b000000010000000000 
+    `define ALUOP_MULH        18'b000000100000000000 
+    `define ALUOP_MULHU       18'b000001000000000000 
+    `define ALUOP_MULHSU      18'b000010000000000000 
+    `define ALUOP_DIV         18'b000100000000000000 
+    `define ALUOP_DIVU        18'b001000000000000000 
+    `define ALUOP_REM         18'b010000000000000000 
+    `define ALUOP_REMU        18'b100000000000000000 
 
     // alu source seletct
     `define RS1SEL_RF       1'b0 
@@ -65,10 +64,10 @@
     `define RS2SEL_IMM      1'b1 
 
     // write back source
-    `define WBSRC_ALU      2'b00 
-    `define WBSRC_IMM      2'b01 
-    `define WBSRC_MEM      2'b10 
-    `define WBSRC_PC       2'b11 
+    `define WBSRC_ALU      4'b0001 
+    `define WBSRC_IMM      4'b0010
+    `define WBSRC_MEM      4'b0100
+    `define WBSRC_PC       4'b1000
 
     // data memory type
     `define DMEM_SB  3'b000

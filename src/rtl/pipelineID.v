@@ -35,11 +35,11 @@ module pipelineID(
     input wire        rs1_depended_h_i, // used by `jalr`
     
     /* redirection info passed back to IF stage */
-    output wire [31:0] redirection_d_o,
-    output wire        taken_d_o,
+    output reg [31:0] redirection_d_o,
+    output reg        taken_d_o,
     /* signals passed to EXE stage */
     // EXE stage signals
-    output reg [ 4:0] alu_op_d_o,         // ALU Operation
+    output reg [17:0] alu_op_d_o,         // ALU Operation
     output reg [31:0] rs1_d_o,           // ALU operand 1
     output reg [31:0] rs2_d_o,           // ALU operand 2
     output reg        beq_d_o,           // additional control for ALU
@@ -51,27 +51,27 @@ module pipelineID(
     output reg [31:0] pc_plus4_d_o,      
     output reg        reg_write_en_d_o,         
     output reg [ 4:0] rd_idx_d_o,          
-    output reg [ 1:0] result_src_d_o,   
+    output reg [ 3:0] result_src_d_o,   
     output reg        instr_illegal_d_o   // instruction illegal
     // TODO: bypass at ID, add bypass logic
 );
 // =========================================================================
 // =============================   variables   =============================
 // =========================================================================
-    wire [4:0] rs1_index, rs2_index, rd_index;
+    wire [ 4:0] rs1_index, rs2_index, rd_index;
     wire       instr_illegal;
     // decoder instance signals
-    wire [4:0]	aluOperation_o;
+    wire [17:0]	aluOperation_o;
     wire 	    rs1_sel_o;
     wire 	    rs2_sel_o;
-    wire [2:0]	imm_type_o;
+    wire [ 2:0]	imm_type_o;
     wire 	    beq_o;
     wire 	    blt_o;
     wire 	    branchBType_o;
     wire 	    branchJAL_o;
     wire 	    branchJALR_o;
-    wire [2:0]	dmem_type_o;
-    wire [1:0]	wb_src_o;
+    wire [ 2:0]	dmem_type_o;
+    wire [ 3:0]	wb_src_o;
     wire 	    wb_en_o;
     wire 	    decoder_instr_illegal;
     // compress decoder instance signals 
@@ -103,7 +103,7 @@ module pipelineID(
     always @(posedge clk ) begin 
         if(~resetn) begin
             reg_write_en_d_o  <= 1'b0; 
-            result_src_d_o    <= 2'b0;  
+            result_src_d_o    <= 4'b0;  
             pc_plus4_d_o      <= 32'h0;    
             extended_imm_d_o  <= 32'h0;
             rd_idx_d_o        <= 5'b0;         
@@ -114,6 +114,8 @@ module pipelineID(
             blt_d_o           <= 1'b0;        
             dmem_type_d_o     <= 3'b0;   
             instr_illegal_d_o <= 1'b0;
+            redirection_d_o   <= 32'h0;
+            taken_d_o         <= 1'b0;
         end
         else if(enable) begin
             reg_write_en_d_o  <= wb_en_o; 
@@ -122,8 +124,8 @@ module pipelineID(
             extended_imm_d_o  <= imm_o;
             rd_idx_d_o        <= rd_index; 
             alu_op_d_o        <= aluOperation_o;      
-            rs1_d_o           <= rs1_data_o;        
-            rs2_d_o           <= rs2_data_o;        
+            redirection_d_o   <= redirection_pc;
+            taken_d_o         <= taken;
             // choose alu operand source
             if(rs1_sel_o == `RS1SEL_RF) begin
                 rs1_d_o <= rs1_data_o;  // alu operand1 from RF
@@ -144,8 +146,6 @@ module pipelineID(
         end
     end
 
-    assign redirection_d_o = redirection_pc;
-    assign taken_d_o       = taken;
 
 
     // decode instance
@@ -192,13 +192,13 @@ module pipelineID(
         .REGFILE_DEPTH      		( 32 		))
     u_regfile(
         //ports
-        .clk_i        		( clk        		),
-        .resetn_i     		( resetn     		),
-        .rs1_data_o   		( rs1_data_o   		),
-        .rs2_data_o   		( rs2_data_o   		),
-        .rs1_addr_i   		( rs1_index          ),
-        .rs2_addr_i   		( rs2_index          ),
-        .rd_addr_i    		( rd_idx_w_i  	    ),
+        .clk_i        		( clk        		    ),
+        .resetn_i     		( resetn     		    ),
+        .rs1_data_o   		( rs1_data_o   		    ),
+        .rs2_data_o   		( rs2_data_o   		    ),
+        .rs1_addr_i   		( rs1_index             ),
+        .rs2_addr_i   		( rs2_index             ),
+        .rd_addr_i    		( rd_idx_w_i  	        ),
         .rd_wr_data_i 		( write_back_data_w_i 	),
         .rd_wr_en_i   		( reg_write_en_w_i   	)
     );
