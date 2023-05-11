@@ -65,6 +65,26 @@ begin
   end
 end
 
+always@(posedge clk)
+begin
+  if(r_dst==0)
+  begin
+    r_dst<=3;
+  end
+  else if(r_dst==3)
+  begin
+    r_dst<=5;
+  end
+  else if(r_dst==5)
+  begin
+    r_dst<=7;
+  end
+  else 
+  begin
+    r_dst<=0;
+  end
+end
+
 
 hazard h1(
 	.is_b(is_b),
