@@ -82,9 +82,9 @@ module shifter32#(parameter DATA_WIDTH=32, parameter SHIFT_WIDTH=5) (
     assign M2_28=shift[1]?M1_30   :M1_28;
     assign M2_29=shift[1]?M1_31   :M1_29;
     assign M2_30=shift[1]?msbFill :M1_30;
-    ;
+    
     assign M2_31=shift[1]?msbFill :M1_31;
-    ;
+    
     // --------third column of shiter array: third shift column can choose shift by 0 bit or 4 bit
     assign M3_00=shift[2]?M2_04   :M2_00;
     assign M3_01=shift[2]?M2_05   :M2_01;
@@ -117,9 +117,9 @@ module shifter32#(parameter DATA_WIDTH=32, parameter SHIFT_WIDTH=5) (
     assign M3_28=shift[2]?msbFill :M2_28;
     assign M3_29=shift[2]?msbFill :M2_29;
     assign M3_30=shift[2]?msbFill :M2_30;
-    ;
+    
     assign M3_31=shift[2]?msbFill :M2_31;
-    ;
+    
     // --------forth column of shiter array: forth shift column can choose shift by 0 bit or 8 bit
     assign M4_00=shift[3]?M3_08  :M3_00;
     assign M4_01=shift[3]?M3_09   :M3_01;
@@ -152,9 +152,9 @@ module shifter32#(parameter DATA_WIDTH=32, parameter SHIFT_WIDTH=5) (
     assign M4_28=shift[3]?msbFill :M3_28;
     assign M4_29=shift[3]?msbFill :M3_29;
     assign M4_30=shift[3]?msbFill :M3_30;
-    ;
+    
     assign M4_31=shift[3]?msbFill :M3_31;
-    ;
+    
     // --------output column of shiter array: output shift column can choose shift by 0 bit or 16 bit
     assign shifter_d_out[0 ]=shift[4]?M4_16   :M4_00;
     assign shifter_d_out[1 ]=shift[4]?M4_17   :M4_01;
@@ -187,9 +187,9 @@ module shifter32#(parameter DATA_WIDTH=32, parameter SHIFT_WIDTH=5) (
     assign shifter_d_out[28]=shift[4]?msbFill :M4_28;
     assign shifter_d_out[29]=shift[4]?msbFill :M4_29;
     assign shifter_d_out[30]=shift[4]?msbFill :M4_30;
-    ;
+    
     assign shifter_d_out[31]=shift[4]?msbFill :M4_31;
-    ;
+    
     // shift array logic end
 
     assign d_out=leftOrRight? shifter_d_out: {shifter_d_out[0], shifter_d_out[1], shifter_d_out[2], shifter_d_out[3], shifter_d_out[4], shifter_d_out[5], shifter_d_out[6], shifter_d_out[7], shifter_d_out[8], shifter_d_out[9], shifter_d_out[10], shifter_d_out[11], shifter_d_out[12], shifter_d_out[13], shifter_d_out[14], shifter_d_out[15], shifter_d_out[16], shifter_d_out[17], shifter_d_out[18], shifter_d_out[19], shifter_d_out[20], shifter_d_out[21], shifter_d_out[22], shifter_d_out[23], shifter_d_out[24], shifter_d_out[25], shifter_d_out[26], shifter_d_out[27], shifter_d_out[28], shifter_d_out[29], shifter_d_out[30], shifter_d_out[31]};
