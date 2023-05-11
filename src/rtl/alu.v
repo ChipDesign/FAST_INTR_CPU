@@ -1,11 +1,13 @@
+`ifndef __ALU__
+`define __ALU__
 `include "long_div.v"
 `include "multi.v"
 `include "shifter32.v"
-module alu(clk,rstn,ain,bin,ALUout,ALUop,branch_taken);
+module alu(clk,resetn,ain,bin,ALUout,ALUop,branch_taken);
 
 input[31:0] ain,bin;
 input[20:0] ALUop;
-input clk,rstn;
+input clk,resetn;
 
 output[31:0] ALUout;
 output branch_taken;
@@ -27,7 +29,7 @@ wire d_init,d_advance;
 
 always@(posedge clk)
 begin
-  if(~rstn)
+  if(~resetn)
   begin
     mul_state<=2'b0;
     div_state<=4'b0;
@@ -150,3 +152,4 @@ shifter32 #(32,5) sft(
 
 
 endmodule
+`endif
