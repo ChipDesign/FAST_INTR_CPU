@@ -39,11 +39,12 @@ module pipelineID(
     output reg        taken_d_o,
     /* signals passed to EXE stage */
     // EXE stage signals
-    output reg [17:0] alu_op_d_o,         // ALU Operation
+    output reg [20:0] alu_op_d_o,         // ALU Operation
     output reg [31:0] rs1_d_o,           // ALU operand 1
     output reg [31:0] rs2_d_o,           // ALU operand 2
     output reg        beq_d_o,           // additional control for ALU
     output reg        blt_d_o,           // additional control for ALU
+    output reg        jalr_d_o,         // instruction is branch type instruction
     // MEM stage signals
     output reg [ 2:0] dmem_type_d_o,      // load/store types
     // WB stage signals
@@ -61,12 +62,10 @@ module pipelineID(
     wire [ 4:0] rs1_index, rs2_index, rd_index;
     wire       instr_illegal;
     // decoder instance signals
-    wire [17:0]	aluOperation_o;
+    wire [20:0]	aluOperation_o;
     wire 	    rs1_sel_o;
     wire 	    rs2_sel_o;
     wire [ 2:0]	imm_type_o;
-    wire 	    beq_o;
-    wire 	    blt_o;
     wire 	    branchBType_o;
     wire 	    branchJAL_o;
     wire 	    branchJALR_o;
@@ -107,7 +106,8 @@ module pipelineID(
             pc_plus4_d_o      <= 32'h0;    
             extended_imm_d_o  <= 32'h0;
             rd_idx_d_o        <= 5'b0;         
-            alu_op_d_o        <= `ALUOP_ADD;      
+            alu_op_d_o        <= 21'h0;      
+            jalr_d_o          <= 1'b0;
             rs1_d_o           <= 32'h0;        
             rs2_d_o           <= 32'h0;        
             beq_d_o           <= 1'b0;        
@@ -124,6 +124,7 @@ module pipelineID(
             extended_imm_d_o  <= imm_o;
             rd_idx_d_o        <= rd_index; 
             alu_op_d_o        <= aluOperation_o;      
+            jalr_d_o          <= branchJALR_o;
             redirection_d_o   <= redirection_pc;
             taken_d_o         <= taken;
             // choose alu operand source
@@ -139,8 +140,6 @@ module pipelineID(
             else begin
                 rs2_d_o <= imm_o;  // alu operand2 from extended_imm 
             end
-            beq_d_o           <= beq_o;        
-            blt_d_o           <= blt_o;        
             dmem_type_d_o     <= dmem_type_o;   
             instr_illegal_d_o <= instr_illegal;
         end
@@ -152,19 +151,17 @@ module pipelineID(
     decoder u_decoder(
         //ports
         .instruction_i  		( instru_32bits  	),
-        .aluOperation_o 		( aluOperation_o 		),
+        .alu_op_o        		( aluOperation_o 		),
         .rs1_sel_o       		( rs1_sel_o       		),
         .rs2_sel_o       		( rs2_sel_o       		),
         .imm_type_o      		( imm_type_o      		),
-        .beq_o            		( beq_o            		),
-        .blt_o          		( blt_o          		),
         .branchBType_o  		( branchBType_o  		),
         .branchJAL_o    		( branchJAL_o    		),
         .branchJALR_o   		( branchJALR_o   		),
         .dmem_type_o     		( dmem_type_o     		),
         .wb_src_o        		( wb_src_o        		),
         .wb_en_o         		( wb_en_o         		),
-        .instr_illegal_o 		( decoder_instr_illegal 	)
+        .instr_illegal_o 		( decoder_instr_illegal )
     );
 
     // compress decode instance
@@ -173,7 +170,7 @@ module pipelineID(
         .instr_i         		( instruction_f_i[15:0]	),
         .instr_o         		( instr_o         		),
         .is_compressed_o 		( is_compressed_o 		),
-        .illegal_instr_o 		( compress_instr_illegal	)
+        .illegal_instr_o 		( compress_instr_illegal)
     );
 
 
