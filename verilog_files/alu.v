@@ -1,10 +1,10 @@
 `include "long_div.v"
 `include "multi.v"
 `include "shifter32.v"
-module alu(clk,rstn,ain,bin,ALUout,ALUop);
+module alu(clk,rstn,ain,bin,ALUout,ALUop,branch_taken);
 
 input[31:0] ain,bin;
-input[21:0] ALUop;
+input[20:0] ALUop;
 input clk,rstn;
 
 output[31:0] ALUout;
