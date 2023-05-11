@@ -4,11 +4,11 @@
 module alu(clk,rstn,ain,bin,ALUout,ALUop);
 
 input[31:0] ain,bin;
-input[4:0] ALUop;
+input[21:0] ALUop;
 input clk,rstn;
 
 output[31:0] ALUout;
-
+output branch_taken;
 
 
 
@@ -80,24 +80,27 @@ assign mul_next_state= mul_state+2'b1;
 assign d_init=(div_op|divu_op|rem_op|remu_op)&(div_state==4'b0)&(~div_last);
 assign d_advance=(div_op|divu_op|rem_op|remu_op)&(~(div_state==4'b0));
 
-assign add_op=		ALUop==5'd0;
-assign sub_op=		ALUop==5'd1;
-assign sll_op=		ALUop==5'd2;
-assign srl_op=		ALUop==5'd3;
-assign sra_op=		ALUop==5'd4;
-assign or_op=		ALUop==5'd5;
-assign and_op=		ALUop==5'd6;
-assign xor_op=		ALUop==5'd7;
-assign slt_op=		ALUop==5'd8;
-assign sltu_op= 	ALUop==5'd9;
-assign mul_op=		ALUop==5'd10;
-assign mulh_op= 	ALUop==5'd11;
-assign mulhsu_op=	ALUop==5'd12;
-assign mulhu_op=	ALUop==5'd13;
-assign div_op=		ALUop==5'd14;
-assign divu_op=	ALUop==5'd15;
-assign rem_op=		ALUop==5'd16;
-assign remu_op=	ALUop==5'd17;
+assign add_op=		ALUop[0];
+assign sub_op=		ALUop[1];
+assign sll_op=		ALUop[2];
+assign srl_op=		ALUop[3];
+assign sra_op=		ALUop[4];
+assign or_op=		ALUop[5];
+assign and_op=		ALUop[6];
+assign xor_op=		ALUop[7];
+assign slt_op=		ALUop[8];
+assign sltu_op= 	ALUop[9];
+assign mul_op=		ALUop[10];
+assign mulh_op= 	ALUop[11];
+assign mulhsu_op=	ALUop[12];
+assign mulhu_op=	ALUop[13];
+assign div_op=		ALUop[14];
+assign divu_op=	ALUop[15];
+assign rem_op=		ALUop[16];
+assign remu_op=	ALUop[17];
+assign beq=		ALUop[18];
+assign blt=		ALUop[19];
+assign branch=		ALUop[20];
 
 assign add_ans={(~sltu_op)&ain[31],ain}+({33{sub_op|slt_op|sltu_op}}^{bin[31]&(~sltu_op),bin})+{{32{1'b0}},sub_op|slt_op|sltu_op};
 assign log_ans=((ain^bin)&{32{(xor_op|or_op)}})|((ain&bin)&{32{(and_op|or_op)}});
@@ -110,6 +113,8 @@ assign ALUout=  ({32{sub_op|add_op}}&add_ans[31:0])|
 		({32{or_op|and_op|xor_op}}&log_ans) |
 		({32{sll_op|srl_op|sra_op}}&sft_ans) |
 		({32{sltu_op|slt_op}}&{31'b0,add_ans[32]});
+		
+assign branch_taken=branch&((sub_op&(~beq^(add_ans==0)))|	((slt_op|sltu_op)&(~blt^(add_ans[32]))));
 
 
 long_div  div(
