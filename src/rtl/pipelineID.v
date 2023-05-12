@@ -33,10 +33,12 @@ module pipelineID(
     input wire [31:0] write_back_data_w_i, // data write to RF in ID 
     // 3. signals passed from Hazard Unit
     input wire        rs1_depended_h_i, // used by `jalr`
+    input wire        flush_i,
     
     /* redirection info passed back to IF stage */
     output reg [31:0] redirection_d_o,
     output reg        taken_d_o,
+    output reg        flush_jal_d_o,  // flush pipeline because of jal instruction
     /* signals passed to EXE stage */
     // EXE stage signals
     output reg [20:0] alu_op_d_o,         // ALU Operation
@@ -100,7 +102,7 @@ module pipelineID(
 
     // ID stage pipeline register output
     always @(posedge clk ) begin 
-        if(~resetn) begin
+        if(~resetn || flush_i) begin
             reg_write_en_d_o  <= 1'b0; 
             result_src_d_o    <= 4'b0;  
             pc_plus4_d_o      <= 32'h0;    
@@ -116,6 +118,7 @@ module pipelineID(
             instr_illegal_d_o <= 1'b0;
             redirection_d_o   <= 32'h0;
             taken_d_o         <= 1'b0;
+            flush_jal_d_o     <= 1'b0;
         end
         else if(enable) begin
             reg_write_en_d_o  <= wb_en_o; 
@@ -127,6 +130,7 @@ module pipelineID(
             jalr_d_o          <= branchJALR_o;
             redirection_d_o   <= redirection_pc;
             taken_d_o         <= taken;
+            flush_jal_d_o     <= branchJAL_o;
             // choose alu operand source
             if(rs1_sel_o == `RS1SEL_RF) begin
                 rs1_d_o <= rs1_data_o;  // alu operand1 from RF
