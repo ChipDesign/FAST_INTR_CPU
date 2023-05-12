@@ -18,19 +18,21 @@ module top_tb ();
     // begin test
     always@(posedge clk) begin 
         if(counter===0)begin
-        resetn <= 0;
-    end
+            resetn <= 0;
+        end
 
-    if(counter===1)begin
-        resetn <= 1;
-    end
-    if(counter===2)begin
-        /* $readmemh("registerFile.txt", u_top.pipelineIDInstance.registerFile,0,15); */
-    end
-    if(counter===40)begin
-        $finish();
-    end
-    counter+=1;
+        if(counter===1)begin
+            resetn <= 1;
+        end
+        if(counter===2)begin
+            /* $readmemh("registerFile.txt", u_top.pipelineIDInstance.registerFile,0,15); */
+        end
+        if(counter===40)begin
+            $finish();
+        end
+
+        $display("counter = %h", counter);
+        counter+=1;
     end
 
     initial begin

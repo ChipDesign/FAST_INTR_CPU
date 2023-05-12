@@ -29,11 +29,9 @@ module top (
     // ID stage instance signals
     wire [31:0]	redirection_d_o;
     wire 	taken_d_o;
-    wire [17:0]	alu_op_d_o;
+    wire [20:0]	alu_op_d_o;
     wire [31:0]	rs1_d_o;
     wire [31:0]	rs2_d_o;
-    wire 	beq_d_o;
-    wire 	blt_d_o;
     wire [ 2:0]	dmem_type_d_o;
     wire [31:0]	extended_imm_d_o;
     wire [31:0]	pc_plus4_d_o;
@@ -42,7 +40,12 @@ module top (
     wire [ 3:0]	resultSrc_d_o;
     wire 	instrIllegal_d_o;
     reg     rs1_depended_h_o;
+    wire    jalr_d_o;
+    wire    flush_jal_d_o;
+
     // EXE instance
+    wire        redirection_e_o;
+    wire [31:0] redirection_pc_e_o;      
     wire [31:0]	aluResult_e_o;
     wire [ 2:0]	dMemType_e_o;
     wire [31:0]	extendedImm_e_o;
@@ -51,6 +54,10 @@ module top (
     wire [ 4:0]	rdIdx_e_o;
     wire [ 3:0]	resultSrc_e_o;
     wire 	instrIllegal_e_o;
+    wire        flush_if_e_o;
+    wire        flush_id_e_o;
+    wire        flush_exe_e_o;
+
     // MEM stage instance signals
     wire [31:0]	mem_read_data_m_o;
     wire [31:0]	alu_result_m_o;
@@ -73,14 +80,19 @@ module top (
         enable = 1'b1;
         rs1_depended_h_o = 1'b0; // suppose rs1 has no data dependence
     end
+    
+    // pipeline resetn signals
     // IF stage instance
     pipelineIF u_pipelineIF(
         //ports
         .clk            		( clk            		),
-        .resetn         		( resetn         		),
+        .resetn         		( resetn        		),
         .enable         		( enable         		),
         .redirection_d_i 		( redirection_d_o 		),
         .taken_d_i       		( taken_d_o       		),
+        .redirection_e_i 		( redirection_pc_e_o 	),
+        .taken_e_i       		( redirection_e_o   	),
+        .flush_i                ( flush_if_e_o | flush_jal_d_o),
         .instruction_f_o 		( instruction_f_o 		),
         .pc_plus4_f_o     		( pc_plus4_f_o     		),
         .pc_f_o                 ( pc_f_o)
@@ -90,22 +102,23 @@ module top (
     pipelineID u_pipelineID(
         //ports
         .clk              		( clk              		),
-        .resetn           		( resetn           		),
+        .resetn           		( resetn            	),
         .enable           		( enable           		),
         .instruction_f_i   		( instruction_f_o  		),
         .pc_plus4_f_i      		( pc_plus4_f_o     		),
         .pc_f_i                 ( pc_f_o                ),
         .reg_write_en_w_i  		( reg_write_en_w_o    	),
-        .rd_idx_w_i        		( rd_idx_w_o        		),
+        .rd_idx_w_i        		( rd_idx_w_o       		),
         .write_back_data_w_i 	( write_back_data_w_o 	),
         .rs1_depended_h_i   	( rs1_depended_h_o   	),
+        .flush_i                ( flush_id_e_o | flush_jal_d_o),
         .redirection_d_o   		( redirection_d_o   	),
         .taken_d_o         		( taken_d_o         	),
+        .flush_jal_d_o          ( flush_jal_d_o         ),
         .alu_op_d_o         	( alu_op_d_o         	),
+        .jalr_d_o               ( jalr_d_o              ),
         .rs1_d_o           		( rs1_d_o           	),
         .rs2_d_o           		( rs2_d_o           	),
-        .beq_d_o           		( beq_d_o           	),
-        .blt_d_o           		( blt_d_o           	),
         .dmem_type_d_o      	( dmem_type_d_o      	),
         .extended_imm_d_o   	( extended_imm_d_o   	),
         .pc_plus4_d_o       	( pc_plus4_d_o       	),
@@ -118,12 +131,18 @@ module top (
     pipelineEXE u_pipelineEXE(
         //ports
         .clk             		( clk             		),
-        .resetn           		( resetn           		),
+        .resetn           		( exe_resetn           	),
         .alu_op_d_i        		( alu_op_d_o        	),
         .rs1_d_i          		( rs1_d_o          		),
         .rs2_d_i          		( rs2_d_o          		),
         .extended_imm_d_i  		( extended_imm_d_o  	),
         .pc_plus4_d_i      		( pc_plus4_d_o      	),
+        .taken_d_i              ( taken_d_o             ),
+        .prediction_pc_d_i      ( redirection_d_o       ),
+        .flush_e_i              ( flush_exe_e_o         ),
+        .redirection_e_o        ( redirection_e_o       ),
+        .redirection_pc_e_o     ( redirection_pc_e_o    ),
+        .jalr_d_i               ( jalr_d_o              ),
         .dmem_type_d_i     		( dmem_type_d_o     	),
         .reg_write_en_d_i   	( reg_write_en_d_o   	),
         .rd_idx_d_i        		( rd_idx_d_o        	),
@@ -136,6 +155,9 @@ module top (
         .reg_write_en_e_o   	( regWriteEn_e_o   		),
         .rd_idx_e_o        		( rdIdx_e_o        		),
         .result_src_e_o    		( resultSrc_e_o    		),
+        .flush_if_e_o           ( flush_if_e_o          ),
+        .flush_id_e_o           ( flush_id_e_o          ),
+        .flush_exe_e_o          ( flush_exe_e_o         ),
         .instr_illegal_e_o 		( instrIllegal_e_o 		)
     );
 

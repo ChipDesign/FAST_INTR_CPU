@@ -73,8 +73,8 @@ vvp:
 
 # rtl simulation
 sim: vvp machine
-	@vvp ${rtlTop}_tb.vvp
-	@echo "Finish rtl simulation"
+	@vvp ${rtlTop}_tb.vvp > simulation.log
+	@echo "Finish rtl simulation, get simulation result in simulation.log"
 
 # show waveform in gtkwave
 waveform: rtlRun
