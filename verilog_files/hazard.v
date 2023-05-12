@@ -30,7 +30,7 @@ wire Icmiss_st,Dcmiss_st,Linst_st,Ldhaz_st;
 reg Icmiss_st_keep,Dcmiss_st_keep,Linst_st_keep;
 
 
-reg jd1,jd2,jd3;//when jump instruction is decode, the state machine of flush control.
+reg jd1,jd2,jd3,jd4;//when jump instruction is decode, the state machine of flush control.
 reg bpt,bptrt,bptnt,bptrt1,bptnt1,bptrt2,bptnt2,bptnt3;
 reg bnt,bnt1,bnt2,bnt3,bnt4;
 
@@ -56,8 +56,8 @@ begin
 end
 
 assign src1_sel[0]=(~(r_src1==0))&(dst_1==r_src1)&(~jd1)&(~bptrt)&(~bptnt1)&(~bnt1)&(~bnt2);
-assign src1_sel[1]=(~(r_src2==0))&(~(dst_1==dst_2))&(dst_2==r_src1)&(~jd2)&(~bptrt1)&(~bptnt2)&(~bnt2)&(~bnt3);
-assign src2_sel[0]=(~(r_src1==0))&(dst_1==r_src2)&(~jd1)&(~bptrt)&(~bptnt1)&(~bnt1)&(~bnt2);
+assign src1_sel[1]=(~(r_src1==0))&(~(dst_1==dst_2))&(dst_2==r_src1)&(~jd2)&(~bptrt1)&(~bptnt2)&(~bnt2)&(~bnt3);
+assign src2_sel[0]=(~(r_src2==0))&(dst_1==r_src2)&(~jd1)&(~bptrt)&(~bptnt1)&(~bnt1)&(~bnt2);
 assign src2_sel[1]=(~(r_src2==0))&(~(dst_1==dst_2))&(dst_2==r_src2)&(~jd2)&(~bptrt1)&(~bptnt2)&(~bnt2)&(~bnt3);
 
 //stall
@@ -168,6 +168,7 @@ begin
   
     jd2<=jd1;
     jd3<=jd2;
+    jd4<=jd3;
 
     
     
@@ -194,9 +195,10 @@ begin
 end
 
 
-assign flush_fin=jd1|bptrt|bptnt1|bnt1|bnt2;
-assign wb_ignore=jd3|bptrt2|bptnt3|bnt3|bnt4;
+assign flush_fin=jd2|bptrt|bptnt1|bnt1|bnt2;
+assign wb_ignore=jd4|bptrt2|bptnt3|bnt3|bnt4;
 assign jump_ignore=jd1|bptnt|(bpt&real_taken)|bnt1|(bnt&real_taken);
+assign j_ignore=jump_ignore;
 
 
 endmodule
