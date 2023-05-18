@@ -23,9 +23,9 @@ initial begin
   fin<=0;
   pre_taken<=0;
   real_taken<=0;
-  r_dst<=0;
-  r_src1<=0;
-  r_src2<=0;
+  r_dst<=3;
+  r_src1<=3;
+  r_src2<=3;
   f_cmiss<=0;
   m_cmiss<=0;
   f_arrival<=0;
@@ -58,19 +58,20 @@ always@(posedge clk)
 begin
   if(counter==15)
   begin
-    is_j<=1;
+    is_b<=1;
+    pre_taken<=0;
   end
   else if(counter==16)
   begin
-    is_j<=0;
+    real_taken<=1;
+    pre_taken<=0;
+    is_b<=0;
   end
-  else if(counter==17)
+  else
   begin
-    is_j<=1;
-  end
-  else if(counter==19)
-  begin
-    is_j<=0;
+    real_taken<=0;
+    pre_taken<=0;
+    is_b<=0;
   end
  
 end

@@ -77,3 +77,21 @@ When branch signal is decoded, signal of instruction type and prediction result 
 <img decoding="fl4" src="./flush_test_bnt.png" width="100%">
 
 When branch signal is decoded, signal of instruction type and prediction result will be sent to hazard unit. As shown in the figure above, when the EX stage of branch signal finished, the branch taken signal will be sent to hazard unit. The target instruction in the figure will be fetched in the next cycle. The next instruction and next+1 instruction in the figure will be flushed. When target instruction is next+1 instruction,  next+1 instruction will still be flushed to simplify the control of pipeline flush. The operation of flush is the same as that in the Jump section, but every signal will last for 2 cycles.
+
+
+
+# Combination of flush and bypass
+
+ When flush happen, bypass signal will be generated as shown below. The result of flushed instruction will not be bypassed.
+
+<img decoding="fl4" src="./combine_test_jmp.png" width="100%">
+
+<img decoding="fl4" src="./combine_test_bptrt.png" width="100%">
+
+<img decoding="fl4" src="./combine_test_bptnt.png" width="100%">
+
+<img decoding="fl4" src="./combine_test_bnt.png" width="100%">
+
+# Combination of flush and stall
+
+When a instruction is flushed, j_ignore will be generated in its ID stage. With this signal, memory access will not happen in its MEM stage. So no Dcache miss will happen within the instruction. Also, flush_fin signal will terminate the execution of multi-cycle instruction. The only stall could happen is caused by Icache miss, which is not specially handled.

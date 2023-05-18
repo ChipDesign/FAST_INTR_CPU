@@ -7,7 +7,7 @@ src1_sel,src2_sel,
 f_cmiss,m_cmiss,
 f_arrival,m_arrival,
 fd_st,de_st,em_st,mw_st,
-flush_fin,j_ignore,wb_ignore,
+flush_o,
 rstn,clk);
 
 input is_b,is_j,is_load,dst_en,is_m,is_d;
@@ -21,7 +21,7 @@ input rstn,clk;
 
 output[1:0] src1_sel,src2_sel;
 output fd_st,de_st,em_st,mw_st;
-output flush_fin,j_ignore,wb_ignore;
+output flush_o;
 
 
 reg[4:0] dst_1,dst_2;
@@ -30,11 +30,11 @@ wire Icmiss_st,Dcmiss_st,Linst_st,Ldhaz_st;
 reg Icmiss_st_keep,Dcmiss_st_keep,Linst_st_keep;
 
 
-reg jd1,jd2,jd3,jd4;//when jump instruction is decode, the state machine of flush control.
+reg jd1,jd2,jd_b1,jd_b2,jd_b3;//when jump instruction is decode, the state machine of flush control.
 reg bpt,bptrt,bptnt,bptrt1,bptnt1,bptrt2,bptnt2,bptnt3;
 reg bnt,bnt1,bnt2,bnt3,bnt4;
 
-wire jump_ignore;
+wire flush;
 always@(posedge clk)//bypass
 begin
 
@@ -47,7 +47,7 @@ begin
   end
   else
   begin
-    dst_1<=r_dst&{5{dst_en}};
+    dst_1<=r_dst&{5{dst_en&~(flush)}};
     dst_2<=dst_1;
     ld_dst1<=is_load;
     ld_dst2<=ld_dst1;
@@ -55,17 +55,17 @@ begin
 
 end
 
-assign src1_sel[0]=(~(r_src1==0))&(dst_1==r_src1)&(~jd1)&(~bptrt)&(~bptnt1)&(~bnt1)&(~bnt2);
-assign src1_sel[1]=(~(r_src1==0))&(~(dst_1==dst_2))&(dst_2==r_src1)&(~jd2)&(~bptrt1)&(~bptnt2)&(~bnt2)&(~bnt3);
-assign src2_sel[0]=(~(r_src2==0))&(dst_1==r_src2)&(~jd1)&(~bptrt)&(~bptnt1)&(~bnt1)&(~bnt2);
-assign src2_sel[1]=(~(r_src2==0))&(~(dst_1==dst_2))&(dst_2==r_src2)&(~jd2)&(~bptrt1)&(~bptnt2)&(~bnt2)&(~bnt3);
+assign src1_sel[0]=(~(r_src1==0))&(dst_1==r_src1);
+assign src1_sel[1]=(~(r_src1==0))&(~(dst_1==dst_2))&(dst_2==r_src1);
+assign src2_sel[0]=(~(r_src2==0))&(dst_1==r_src2);
+assign src2_sel[1]=(~(r_src2==0))&(~(dst_1==dst_2))&(dst_2==r_src2);
 
 //stall
 
 assign Ldhaz_st= ld_dst1&((dst_1==r_src1)|(dst_1==r_src2));
 assign Icmiss_st=~f_arrival&(f_cmiss|Icmiss_st_keep);
 assign Dcmiss_st=~m_arrival&(m_cmiss|Dcmiss_st_keep);
-assign Linst_st=~(flush_fin|fin)&(is_d|is_m|Linst_st_keep);
+assign Linst_st=~(fin|flush)&(is_d|is_m|Linst_st_keep);
 
 always@(posedge clk)
 begin
@@ -80,11 +80,11 @@ begin
   begin
   
   
-    if(is_d|is_m)
+    if((~flush)&(is_d|is_m))
     begin
       Linst_st_keep<=1'b1;
     end
-    else if(flush_fin|fin)
+    else if(fin)
     begin
       Linst_st_keep<=1'b0;
     end
@@ -128,6 +128,9 @@ begin
     jd1<=1'b0;
     jd2<=1'b0;
     jd3<=1'b0;
+    jd_b1<=1'b0;
+    jd_b2<=1'b0;
+    jd_b3<=1'b0;
     bpt<=1'b0;
     bptrt<=1'b0;
     bptnt<=1'b0;
@@ -144,11 +147,12 @@ begin
   end
   else
   begin
-    if(is_j&(~jump_ignore))// if jump-1 is also a jump, ingore latter one
+    if(is_j&(~flush))// if jump-1 is also a jump, ingore latter one
     begin
       jd1<=1'b1;
+      jd_b1<=(|src1_sel[1:0])|(|src2_sel[1:0]);
     end
-    else if(is_b&(~jump_ignore))
+    else if(is_b&(~flush))
     begin
       if(pre_taken)
       begin
@@ -164,11 +168,12 @@ begin
       jd1<=1'b0;
       bpt<=1'b0;
       bnt<=1'b0;
+      jd_b1<=1'b0;
     end
   
     jd2<=jd1;
-    jd3<=jd2;
-    jd4<=jd3;
+    jd_b2<=jd_b1;
+    jd_b3<=jd_b2;
 
     
     
@@ -195,10 +200,9 @@ begin
 end
 
 
-assign flush_fin=jd2|bptrt|bptnt1|bnt1|bnt2;
-assign wb_ignore=jd4|bptrt2|bptnt3|bnt3|bnt4;
-assign jump_ignore=jd1|bptnt|(bpt&real_taken)|bnt1|(bnt&real_taken);
-assign j_ignore=jump_ignore;
+
+assign flush=jd1|jd2|jd_b3|bptnt1|bptrt|(bpt&real_taken)|bnt1|bnt2|(bnt&real_taken);
+assign flush_o=flush;
 
 
 endmodule
