@@ -1,3 +1,5 @@
+`ifndef __HAZARD__
+`define __HAZARD__
 module hazard(
 is_b,is_j,is_load,is_m,is_d,dst_en,
 fin,
@@ -31,8 +33,8 @@ reg Icmiss_st_keep,Dcmiss_st_keep,Linst_st_keep;
 
 
 reg jd1,jd2,jd_b1,jd_b2,jd_b3;//when jump instruction is decode, the state machine of flush control.
-reg bpt,bptrt,bptnt,bptrt1,bptnt1,bptrt2,bptnt2,bptnt3;
-reg bnt,bnt1,bnt2,bnt3,bnt4;
+reg bpt,bptrt,bptnt,bptnt1;
+reg bnt,bnt1,bnt2;
 
 wire flush;
 always@(posedge clk)//bypass
@@ -90,8 +92,8 @@ begin
     end
     
     
-    if(f_cmiss)
-    begin
+    if(f_cmiss)`ifndef __ALU__
+`define __ALU__
       Icmiss_st_keep<=1'b1;
     end
     else if(f_arrival)
@@ -127,23 +129,16 @@ begin
   begin
     jd1<=1'b0;
     jd2<=1'b0;
-    jd3<=1'b0;
     jd_b1<=1'b0;
     jd_b2<=1'b0;
     jd_b3<=1'b0;
     bpt<=1'b0;
     bptrt<=1'b0;
     bptnt<=1'b0;
-    bptrt1<=1'b0;
     bptnt1<=1'b0;
-    bptrt2<=1'b0;
-    bptnt2<=1'b0;
-    bptnt3<=1'b0;
     bnt<=1'b0;
     bnt1<=1'b0;
     bnt2<=1'b0;
-    bnt3<=1'b0;
-    bnt4<=1'b0;
   end
   else
   begin
@@ -179,17 +174,12 @@ begin
     
     bptrt<=bpt&real_taken;
     bptnt<=bpt&~real_taken;
-    bptrt1<=bptrt;
     bptnt1<=bptnt;
-    bptrt2<=bptrt1;
-    bptnt2<=bptnt1;
-    bptnt3<=bptnt2;
+
     
 
     bnt1<=bnt&real_taken;
     bnt2<=bnt1;
-    bnt3<=bnt2;
-    bnt4<=bnt3;
 
     
     
@@ -206,3 +196,4 @@ assign flush_o=flush;
 
 
 endmodule
+`endif
