@@ -2,7 +2,7 @@
 # ======================== makefile source files ==========================
 # =========================================================================
 # rtlTop is used for rtl source file, asmSrc is used for ams source file
-rtlTop = dmemory
+rtlTop = pipelineMEM_withloadstore
 asmSrc = test
 rtlFiles = $(wildcard *.v)
 
