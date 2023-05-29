@@ -2,7 +2,7 @@
 # ======================== makefile source files ==========================
 # =========================================================================
 # rtlTop is used for rtl source file, asmSrc is used for ams source file
-rtlTop = top
+rtlTop = pipelineMEM_withloadstore
 asmSrc = test
 rtlFiles = $(wildcard *.v)
 
@@ -73,14 +73,14 @@ vvp:
 
 # rtl simulation
 sim: vvp machine
-	@vvp ${rtlTop}_tb.vvp > simulation.log
+	@vvp ${rtlTop}_tb.vvp > simulation.txt
 	@echo "Finish rtl simulation, get simulation result in simulation.log"
 
 # show waveform in gtkwave
-waveform: rtlRun
+waveform: sim 
 	@gtkwave ${rtlTop}_tb.vcd -a gtkwave_setup.gtkw
 
 # clean all rtl and asm trash files
 clean: asmClean
-	@-rm -rf *.vcd *.vvp
+	@-rm -rf *.vcd *.vvp *.log
 	@echo "Finish clean all rtl and asm intermediate files"
