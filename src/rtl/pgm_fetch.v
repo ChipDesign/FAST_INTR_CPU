@@ -10,13 +10,13 @@ module pgm_fetch(
                  );
 
 input clk, rstn;
-output p_rd; 
-output [16:0] pe_addr, po_addr;
 input [15:0] pe_rdata, po_rdata;
 input drain_1, drain_2;
 input trans_d;
 input [17:0] trans_addr;
 input null_ir;
+output p_rd; 
+output [16:0] pe_addr, po_addr;
 output [31:0] ir;
 output word2_d, parallel;
 output [7:0] acc_depend_chk;
@@ -81,6 +81,7 @@ always @(posedge clk) begin
    paddr_d <= paddr[0];
 end
 // program read request
+// TODO: next_fifo_cnt change to pf_fifo_cnt
 assign p_rd  = (trans_d | ~(next_fifo_cnt >= 3'h4)) & rstn; // fifo count less than or equal to 3
 
 always @(posedge clk) begin

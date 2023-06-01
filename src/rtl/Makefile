@@ -2,7 +2,7 @@
 # ======================== makefile source files ==========================
 # =========================================================================
 # rtlTop is used for rtl source file, asmSrc is used for ams source file
-rtlTop = pipelineMEM_withloadstore
+rtlTop = pipelineIF_withFIFO
 asmSrc = test
 rtlFiles = $(wildcard *.v)
 
@@ -72,7 +72,7 @@ vvp:
 	@echo "Finish compiling RTL source codes"
 
 # rtl simulation
-sim: vvp machine
+sim: vvp
 	@vvp ${rtlTop}_tb.vvp > simulation.txt
 	@echo "Finish rtl simulation, get simulation result in simulation.log"
 
