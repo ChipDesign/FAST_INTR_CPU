@@ -10,9 +10,9 @@ module pipelineIF_withFIFO
     /* redirectionPC from static branch predictor in ID stage */
     input wire [31:0] redirection_d_i,
     input wire        taken_d_i,
-    input wire [ 1:0] drain_cnt_d_i, // 16 bits or 32 bits
     input wire [31:0] redirection_e_i,
     input wire        taken_e_i,
+    input wire        is_compress_d_i, // 16 bits or 32 bits
     input             flush_i,
 
     /* output signals to ID stage */
@@ -29,6 +29,7 @@ module pipelineIF_withFIFO
     // FIFO variables
     wire [31:0] mem_addr;
     wire [31:0] re_addr;
+    wire [31:0] ir;
     wire        taken;
     reg         taken_reg;
     wire [ 1:0] drain_cnt;
@@ -36,6 +37,9 @@ module pipelineIF_withFIFO
     // =========================================================================
     // ============================ implementation =============================
     // =========================================================================
+
+    // if flush, output instruction is NOP(0x00000013)
+    assign instruction_f_o = ({32{flush_i}} & 32'h13) | ({32{~flush_i}} & ir);
     
     // instruction memory instance
     assign web = 1; // only read from I-Memory
@@ -49,8 +53,8 @@ module pipelineIF_withFIFO
     assign re_addr = (taken_e_i == 1'b1) ? redirection_e_i: redirection_d_i;
 
     // if not enable, to redirection pc, don't read from FIFO
-    // assign drain_cnt = {2{enable == 1'b1}} & drain_cnt_d_i;
-    assign drain_cnt = ({2{enable == 1'b1 & {taken == 1'b0} & {taken_reg == 1'b0}}}) & (drain_cnt_d_i);
+    assign drain_cnt = ({2{enable == 1'b1 & {taken == 1'b0} & {taken_reg == 1'b0}}}) & (({2{is_compress_d_i}} & 2'b01)|({2{~is_compress_d_i}}&2'b10));
+    // assign drain_cnt = ({2{enable == 1'b1 & {taken == 1'b0} & {taken_reg == 1'b0}}}) & (is_compress_d_i);
 
     // I-Memory instance
     imemory u_imemory(
@@ -75,7 +79,7 @@ module pipelineIF_withFIFO
         .drain_cnt 		( drain_cnt 		),
         .mem_addr  		( mem_addr  		),
         .mem_rq    		( ceb        		),
-        .ir        		( instruction_f_o 	)
+        .ir        		( ir            	)
     );
 
 endmodule
