@@ -67,7 +67,7 @@ module pipelineMEM (
         
         
     end
-    assign bypass_m_o<=32'b0;
+    assign bypass_m_o = 32'b0 ;
 
     // TODO: add D-memory logic signals
 endmodule

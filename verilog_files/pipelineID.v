@@ -35,8 +35,8 @@ module pipelineID(
     input wire        rs1_depended_h_i, // used by `jalr`
     input wire        flush_i,
     // signals for bypass
-    input wire [1:0]  src1_sel_d_i,src2_sel_d_i;
-    input wire [31:0] bypass_e_o,bypass_m_o;
+    input wire [1:0]  src1_sel_d_i,src2_sel_d_i,
+    input wire [31:0] bypass_e_o,bypass_m_o,
     /* redirection info passed back to IF stage */
     output reg [31:0] redirection_d_o,
     output reg        taken_d_o,
@@ -47,7 +47,7 @@ module pipelineID(
     output reg        div_last_d_o,
     output reg        d_advance_d_o,
     output reg        d_init_d_o,
-    output reg        fin_d_o;
+    output reg        fin_d_o,
     output reg [20:0] alu_op_d_o,         // ALU Operation
     output reg [31:0] rs1_d_o,           // ALU operand 1
     output reg [31:0] rs2_d_o,           // ALU operand 2
@@ -62,22 +62,22 @@ module pipelineID(
     output reg        reg_write_en_d_o,         
     output reg [ 4:0] rd_idx_d_o,          
     output reg [ 3:0] result_src_d_o,   
-    output reg        instr_illegal_d_o   // instruction illegal
+    output reg        instr_illegal_d_o,   // instruction illegal
 
     //wire output to hazard unit
-    output wire is_d_d_o;
-    output wire is_m_d_o;
-    output wire is_b_d_o;
-    output wire is_j_d_o;
-    output wire is_load_d_o;
-    output wire dst_en_d_o;
-    output wire fin_w_d_o;
-    output wire pre_taken_d_o;
-    output wire [4:0] r_dst_d_o,r_src1_d_o,r_src2_d_o;
+    output wire is_d_d_o,
+    output wire is_m_d_o,
+    output wire is_b_d_o,
+    output wire is_j_d_o,
+    output wire is_load_d_o,
+    output wire dst_en_d_o,
+    output wire fin_w_d_o,
+    output wire pre_taken_d_o,
+    output wire [4:0] r_dst_d_o,r_src1_d_o,r_src2_d_o
 
 
 
-    // TODO: bypass at ID, add bypass logic
+  
 );
 // =========================================================================
 // =============================   variables   =============================
@@ -179,7 +179,7 @@ module pipelineID(
                             ({32{src1_sel_d_i==2'b10}}&bypass_m_o);  // alu operand1 from RF
             end
             else begin
-                rs1_d_o <= pc_plu s4_f_i; // alu source from pc+4
+                rs1_d_o <= pc_plus4_f_i; // alu source from pc+4
             end
             if(rs2_sel_o == `RS2SEL_RF) begin
                 rs2_d_o <= ({32{src2_sel_d_i==2'b0}}&rs2_data_o)|

@@ -1,5 +1,6 @@
 `ifndef __TOP__
 `define __TOP__
+
 /*
 file: MCU Core top, five stage pipeline MCU core
 author: fujie
@@ -14,7 +15,7 @@ time: 2023年 5月 6日 星期六 16时03分58秒 CST
 `include "regfile.v"
 `include "hazard.v"
 
-module top (
+module top(
     input wire clk,
     input wire resetn
 );
@@ -32,9 +33,9 @@ module top (
     wire fin_w_d_o;          
     wire pre_taken_d_o;         
     wire real_taken_e_o;        
-    wire r_dst_d_o;       
-    wire r_src1_d_o;            
-    wire r_src2_d_o;            
+    wire [4:0] r_dst_d_o;       
+    wire [4:0] r_src1_d_o;            
+    wire [4:0] r_src2_d_o;            
     wire [1:0] src1_sel_d_i;
     wire [1:0] src2_sel_d_i;
     wire fd_st_f_i;           
@@ -58,20 +59,13 @@ module top (
     wire [ 4:0]	rd_idx_d_o;
     wire [ 3:0]	resultSrc_d_o;
     wire 	instrIllegal_d_o;
-    reg     rs1_depended_h_o;
+    wire     rs1_depended_h_o;
     wire    jalr_d_o;
     wire    flush_jal_d_o;
-    //id non-reg signals
-    wire is_d_d_o;
-    wire is_m_d_o;
-    wire is_b_d_o;
-    wire is_j_d_o;
-    wire is_load_d_o;
-    wire dst_en_d_o;
-    wire fin_d_o;
-    wire pre_taken_d_o;
-    swire [4:0] r_dst_d_o,r_src1_d_o,r_src2_d_o;
-    
+    wire [1:0] mul_state_d_o;
+    wire    d_advance_d_o;
+    wire    d_init_d_o;
+    wire    div_last_d_o;
 
     // EXE instance
     wire        redirection_e_o;
@@ -84,9 +78,7 @@ module top (
     wire [ 4:0]	rdIdx_e_o;
     wire [ 3:0]	resultSrc_e_o;
     wire 	instrIllegal_e_o;
-    wire        flush_if_e_o;
-    wire        flush_id_e_o;
-    wire        flush_exe_e_o;
+    wire [31:0] bypass_e_o;
 
     // MEM stage instance signals
     wire [31:0]	mem_read_data_m_o;
@@ -96,6 +88,7 @@ module top (
     wire 	reg_write_en_m_o;
     wire [ 4:0]	rd_idx_m_o;
     wire [ 3:0]	result_src_m_o;
+    wire [31:0] bypass_m_o;
     // WB stage instance signals
     wire 	reg_write_en_w_o;
     wire [ 4:0]	rd_idx_w_o;
@@ -108,7 +101,6 @@ module top (
     //TODO: init some inner signals, should be replaced later
     initial begin
         enable = 1'b1;
-        rs1_depended_h_o = 1'b0; // suppose rs1 has no data dependence
     end
     
     // pipeline resetn signals
@@ -117,7 +109,7 @@ module top (
         //ports
         .clk            		( clk            		),
         .resetn         		( resetn        		),
-        .enable         		( ~fd_st_f_i      		),
+        .enable         		( ~ fd_st_f_i      		),
         .redirection_d_i 		( redirection_d_o 		),
         .taken_d_i       		( taken_d_o       		),
         .redirection_e_i 		( redirection_pc_e_o 	),
@@ -133,7 +125,7 @@ module top (
         //ports
         .clk              		( clk              		),
         .resetn           		( resetn            	),
-        .enable           		( ~de_st_f_i      		),
+        .enable           		( ~ de_st_d_i      		),
         .instruction_f_i   		( instruction_f_o  		),
         .pc_plus4_f_i      		( pc_plus4_f_o     		),
         .pc_f_i                 ( pc_f_o                ),
@@ -174,8 +166,7 @@ module top (
         .mul_state_d_o          ( mul_state_d_o         ),
         .div_last_d_o           ( div_last_d_o          ),
         .d_advance_d_o          ( d_advance_d_o         ),
-        .d_init_d_o             ( d_init_d_o            ),
-        .fin_d_o                ( fin_d_o               )
+        .d_init_d_o             ( d_init_d_o            )
         
     );
 
@@ -200,6 +191,10 @@ module top (
         .rd_idx_d_i        		( rd_idx_d_o        	),
         .result_src_d_i    		( resultSrc_d_o    		),
         .instr_illegal_d_i 		( instrIllegal_d_o 		),
+        .d_advance_d_o          ( d_advance_d_o         ),
+        .d_init_d_o             ( d_init_d_o            ),
+        .mul_state_d_o          ( mul_state_d_o         ),
+        .div_last_d_o           ( div_last_d_o          ),
         .alu_result_e_o    		( aluResult_e_o    		),
         .dmem_type_e_o     		( dMemType_e_o     		),
         .extended_imm_e_o  		( extendedImm_e_o  		),
@@ -207,12 +202,9 @@ module top (
         .reg_write_en_e_o   	( regWriteEn_e_o   		),
         .rd_idx_e_o        		( rdIdx_e_o        		),
         .result_src_e_o    		( resultSrc_e_o    		),
-        .flush_if_e_o           ( flush_if_e_o          ),
-        .flush_id_e_o           ( flush_id_e_o          ),
-        .flush_exe_e_o          ( flush_exe_e_o         ),
         .instr_illegal_e_o 		( instrIllegal_e_o 		),
         .real_taken_e_o         ( real_taken_e_o        ),
-        .bypass_e_o             ( bypass_e_o            ),
+        .bypass_e_o             ( bypass_e_o            )
     );
 
     // MEM stage instance
@@ -234,7 +226,8 @@ module top (
         .pc_plus4_m_o      		( pc_plus4_m_o      	),
         .reg_write_en_m_o   	( reg_write_en_m_o   	),
         .rd_idx_m_o        		( rd_idx_m_o        	),
-        .result_src_m_o    		( result_src_m_o    	)
+        .result_src_m_o    		( result_src_m_o    	),
+        .bypass_m_o             ( bypass_m_o            )
     );
 
     // WB stage instance
@@ -275,10 +268,11 @@ module top (
         .de_st                  ( de_st_d_i             ),
         .em_st                  ( em_st_e_i             ),
         .mw_st                  (),
+        .rs1_depended_h_o       ( rs1_depended_h_o      ),
         .flush_o                ( flush_d_i             ),
         .rstn                   ( resetn                ),
-        .clk                    ( clk                   ),
-    )
+        .clk                    ( clk                   )
+    );
 
 endmodule
 `endif

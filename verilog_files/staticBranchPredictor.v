@@ -46,6 +46,7 @@ module staticBranchPredictor(
             end
             else begin
                 taken = 1'b0; // offset[31]=0 => offset greater than 0 => forwarding not taken
+                redirection_pc = pc+offset; // pc += sext(offset)
             end
         end
     end

@@ -31,8 +31,13 @@ module pipelineEXE (
     input wire [ 4:0] rd_idx_d_i,          
     input wire [ 3:0] result_src_d_i,   
     input wire        instr_illegal_d_i,  // instruction illegal
+    input wire        d_init_d_o,
+    input wire        d_advance_d_o,
+    input wire        div_last_d_o,
+    input wire [ 1:0] mul_state_d_o,
+    
 
-    input wire        st_e_i;
+    input wire        st_e_i,
 
     /* signals passed to IF stage */
     output reg        redirection_e_o,        // sbp wrong, alu revise pc to correct pc 
@@ -50,7 +55,7 @@ module pipelineEXE (
     
     output reg        instr_illegal_e_o, // instruction illegal
     output wire       real_taken_e_o,  
-    output wire       bypass_e_o
+    output wire [31:0]      bypass_e_o
 );
 
 
@@ -84,7 +89,7 @@ module pipelineEXE (
             alu_result_e_o    <= alu_result_e_o ;
             dmem_type_e_o     <= dmem_type_e_o;   
             extended_imm_e_o  <= extended_imm_e_o ;
-            pc_plus4_e_o      <= pc_plus4_e_o
+            pc_plus4_e_o      <= pc_plus4_e_o;
             reg_write_en_e_o  <= reg_write_en_e_o;
             rd_idx_e_o        <= rd_idx_e_o;      
             result_src_e_o    <= result_src_e_o;
@@ -198,6 +203,10 @@ module pipelineEXE (
         .ALUop        		( alu_op_d_i        ),
         .clk          		( clk          		),
         .resetn       		( resetn       		),
+        .mul_state          ( mul_state_d_o     ),
+        .div_last           ( div_last_d_o      ),
+        .d_advance          ( d_advance_d_o     ),
+        .d_init             ( d_init_d_o        ),
         .ALUout       		( alu_calculation   ),
         .branch_taken 		( alu_taken 		)
     );
