@@ -9,35 +9,31 @@ reg [4:0] r_dst,r_src1,r_src2;
 reg f_cmiss,m_cmiss;
 reg f_arrival,m_arrival;
 reg clk,rstn;
-
-reg [5:0] counter;
 initial begin
   
   clk<=1'b0;
   is_b<=0;
   is_j<=0;
   is_load<=0;
-  dst_en<=1;
+  dst_en<=0;
   is_m<=0;
   is_d<=0;
   fin<=0;
   pre_taken<=0;
   real_taken<=0;
-  r_dst<=3;
-  r_src1<=3;
-  r_src2<=3;
+  r_dst<=0;
+  r_src1<=0;
+  r_src2<=0;
   f_cmiss<=0;
   m_cmiss<=0;
   f_arrival<=0;
   m_arrival<=0;
-  counter<=0;
   
 
   $dumpfile("hazard.vcd");
   $dumpvars(0,hazard_tb);
   #5 rstn<=1'b0;
   #50 rstn<=1'b1;
-  
   #1000
   
   	
@@ -51,35 +47,43 @@ end
 
 always@(posedge clk)
 begin
-  counter<=counter+1;
+  if(r_dst==0)
+  begin
+    r_dst<=3;
+  end
+  else if(r_dst==3)
+  begin
+    r_dst<=5;
+  end
+  else if(r_dst==5)
+  begin
+    r_dst<=7;
+  end
+  else 
+  begin
+    r_dst<=0;
+  end
 end
 
 always@(posedge clk)
 begin
-  if(counter==15)
+  if(r_dst==0)
   begin
-    is_b<=1;
-    pre_taken<=0;
+    r_dst<=3;
   end
-  else if(counter==16)
+  else if(r_dst==3)
   begin
-    real_taken<=1;
-    pre_taken<=0;
-    is_b<=0;
+    r_dst<=5;
   end
-  else
+  else if(r_dst==5)
   begin
-    real_taken<=0;
-    pre_taken<=0;
-    is_b<=0;
+    r_dst<=7;
   end
- 
+  else 
+  begin
+    r_dst<=0;
+  end
 end
-
-
-
-
-
 
 
 hazard h1(
