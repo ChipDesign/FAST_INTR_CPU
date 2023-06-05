@@ -1,4 +1,4 @@
-.metals
+j.metals
 .vscode
 .bloop
 test_run_dir
@@ -35,3 +35,4 @@ demo/
 .nvim/*
 *.elf
 *.bin
+*.metals
