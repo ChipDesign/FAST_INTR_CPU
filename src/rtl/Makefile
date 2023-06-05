@@ -2,7 +2,7 @@
 # ======================== makefile source files ==========================
 # =========================================================================
 # rtlTop is used for rtl source file, asmSrc is used for ams source file
-rtlTop = pipelineIF_withFIFO
+rtlTop = pipelineID
 asmSrc = test
 rtlFiles = $(wildcard *.v)
 
