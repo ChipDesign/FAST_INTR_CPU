@@ -41,6 +41,7 @@ module pipelineID(
     output reg [31:0] redirection_d_o,
     output reg        taken_d_o,
     output reg        flush_jal_d_o,  // flush pipeline because of jal instruction
+    output wire       is_compressed_d_o,
     /* signals passed to EXE stage */
     // EXE stage signals
     output reg [1:0]  mul_state_d_o,
@@ -73,11 +74,7 @@ module pipelineID(
     output wire dst_en_d_o,
     output wire fin_w_d_o,
     output wire pre_taken_d_o,
-    output wire [4:0] r_dst_d_o,r_src1_d_o,r_src2_d_o
-
-
-
-  
+    output wire [4:0] r_dst_d_o,r_src1_d_o,r_src2_d_o,
 );
 // =========================================================================
 // =============================   variables   =============================
@@ -123,6 +120,9 @@ module pipelineID(
 // =========================================================================
 // ============================ implementation =============================
 // =========================================================================
+
+    // pass compress info to IF, used by FIFO pop operation
+    assign is_compressed_d_o = is_compressed_o;
 
     // index for rd, rs1, rs2
     assign rd_index  = instru_32bits[11: 7];
