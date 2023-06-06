@@ -34,7 +34,8 @@ module pipelineMEM_withloadstore (
     output reg [31:0] pc_plus_m_o,      // rd=pc+4, for `jal` instruction
     output reg        reg_write_en_m_o,   // RF write enable
     output reg [ 4:0] rd_idx_m_o,            // RF write back register index, passed from MEM stage
-    output reg [ 3:0] result_src_m_o    // select signal to choose one of the four inputs
+    output reg [ 3:0] result_src_m_o,    // select signal to choose one of the four inputs
+    output wire [31:0] bypass_m_o
     // TODO: signals to communicate with Data Memory
     // TODO: add CSR Unit signals
 );
@@ -96,6 +97,7 @@ module pipelineMEM_withloadstore (
     end
 
     assign mem_read_data_m_o = read_data;
+    assign bypass_m_o = 32'b0 ;
 
     //*********************************    
     //        DATA MEM STORES
