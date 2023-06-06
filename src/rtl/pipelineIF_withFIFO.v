@@ -10,8 +10,8 @@ module pipelineIF_withFIFO
     /* redirectionPC from static branch predictor in ID stage */
     input wire [31:0] redirection_d_i,
     input wire        taken_d_i,
-    input wire [31:0] redirection_e_i,
-    input wire        taken_e_i,
+    // input wire [31:0] redirection_e_i,
+    // input wire        taken_e_i,
     input wire        is_compress_d_i, // 16 bits or 32 bits
     input             flush_i,
 
@@ -45,12 +45,12 @@ module pipelineIF_withFIFO
     assign web = 1; // only read from I-Memory
     assign sram_addr = mem_addr[10:1];
 
-    assign taken = taken_e_i | taken_d_i;
+    assign taken = taken_d_i;
     always @(posedge clk ) begin 
         taken_reg <= taken;
     end
     
-    assign re_addr = (taken_e_i == 1'b1) ? redirection_e_i: redirection_d_i;
+    assign re_addr = redirection_d_i;
 
     // if not enable, to redirection pc, don't read from FIFO
     assign drain_cnt = ({2{enable == 1'b1 & {taken == 1'b0} & {taken_reg == 1'b0}}}) & (({2{is_compress_d_i}} & 2'b01)|({2{~is_compress_d_i}}&2'b10));
