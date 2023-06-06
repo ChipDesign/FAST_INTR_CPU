@@ -7,7 +7,8 @@ author: fujie
 time: 2023年 5月 6日 星期六 16时03分58秒 CST
 */
 `include "definitions.vh"
-`include "pipelineIF.v"
+// `include "pipelineIF.v"
+`include "pipelineIF_withFIFO.v"
 `include "pipelineID.v"
 `include "pipelineEXE.v"
 `include "pipelineMEM.v"
@@ -43,10 +44,12 @@ module top(
     wire em_st_e_i; 
     // IF stage instance signals
     wire [31:0]	instruction_f_o;
-    wire [31:0]	pc_plus4_f_o;
-    wire [31:0] pc_f_o;
+    wire        is_compress_d_i;
     reg         enable; // TODO: `enable` should be controled by Hazard Unit
     // ID stage instance signals
+    wire [31:0] redirection_pc_e_i;
+    wire        redirection_e_i;
+    wire        ptnt_e_i;
     wire [31:0]	redirection_d_o;
     wire 	taken_d_o;
     wire [20:0]	alu_op_d_o;
@@ -105,19 +108,16 @@ module top(
     
     // pipeline resetn signals
     // IF stage instance
-    pipelineIF u_pipelineIF(
+    pipelineIF_withFIFO u_pipeline_withFIFO(
         //ports
         .clk            		( clk            		),
         .resetn         		( resetn        		),
         .enable         		( ~ fd_st_f_i      		),
         .redirection_d_i 		( redirection_d_o 		),
         .taken_d_i       		( taken_d_o       		),
-        .redirection_e_i 		( redirection_pc_e_o 	),
-        .taken_e_i       		( redirection_e_o   	),
+        .is_compress_d_i        (is_compress_d_i        ),
         .flush_i                ( flush_if_e_o | flush_jal_d_o),
-        .instruction_f_o 		( instruction_f_o 		),
-        .pc_plus4_f_o     		( pc_plus4_f_o     		),
-        .pc_f_o                 ( pc_f_o)
+        .instruction_f_o 		( instruction_f_o 		)
     );
 
     // ID stage instance
@@ -127,8 +127,9 @@ module top(
         .resetn           		( resetn            	),
         .enable           		( ~ de_st_d_i      		),
         .instruction_f_i   		( instruction_f_o  		),
-        .pc_plus4_f_i      		( pc_plus4_f_o     		),
-        .pc_f_i                 ( pc_f_o                ),
+        .redirection_pc_e_i     ( redirection_pc_e_i    ),
+        .redirection_e_i        ( redirection_e_i       ),
+        .ptnt_e_i               ( ptnt_e_i              ),
         .reg_write_en_w_i  		( reg_write_en_w_o    	),
         .rd_idx_w_i        		( rd_idx_w_o       		),
         .write_back_data_w_i 	( write_back_data_w_o 	),
@@ -141,13 +142,14 @@ module top(
         .redirection_d_o   		( redirection_d_o   	),
         .taken_d_o         		( taken_d_o         	),
         .flush_jal_d_o          ( flush_jal_d_o         ),
+        .is_compressed_d_o      ( is_compress_d_i       ),
         .alu_op_d_o         	( alu_op_d_o         	),
         .jalr_d_o               ( jalr_d_o              ),
         .rs1_d_o           		( rs1_d_o           	),
         .rs2_d_o           		( rs2_d_o           	),
         .dmem_type_d_o      	( dmem_type_d_o      	),
         .extended_imm_d_o   	( extended_imm_d_o   	),
-        .pc_plus4_d_o       	( pc_plus4_d_o       	),
+        .pc_next_d_o        	( pc_plus4_d_o       	),
         .reg_write_en_d_o    	( reg_write_en_d_o    	),
         .rd_idx_d_o         	( rd_idx_d_o         	),
         .result_src_d_o     	( resultSrc_d_o     	),

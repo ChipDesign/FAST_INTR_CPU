@@ -75,7 +75,7 @@ module top_tb ();
 
   // initial I_Memory
     initial begin
-        $readmemh("i-memory.txt", u_top.u_pipelineIF.sramInstance.m_array);
+        // $readmemh("i-memory.txt", u_top.u_pipelineIF_withFIFO.u_imemory.data_array);
         // $readmemh("registerFile.txt", u_top.u_pipelineID.u_regfile.regfile_data,0,15);
     end
 
