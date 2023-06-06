@@ -31,7 +31,7 @@ module pipelineID(
     // signals passed from EXE stage 
     input wire [31:0] redirection_pc_e_i, 
     input wire        redirection_e_i,
-    input wire        pc_next_next_taken_e_i, // sbp taken, alu not taken, change pc to pc_next_next
+    input wire        ptnt_e_i, // sbp taken, alu not taken, change pc to pc_next_next
     // 2. signals passed from WB stage
     input wire        reg_write_en_w_i, // write back to RF enable
     input wire [ 4:0] rd_idx_w_i,   // RF write register index
@@ -46,7 +46,7 @@ module pipelineID(
     output wire [31:0] redirection_d_o,
     output wire        taken_d_o,
     output wire        flush_jal_d_o,  // flush pipeline because of jal instruction
-    output wire       is_compressed_d_o,
+    output wire        is_compressed_d_o,
     /* signals passed to EXE stage */
     // EXE stage signals
     output reg [1:0]  mul_state_d_o,
@@ -210,7 +210,8 @@ module pipelineID(
     assign flush_jal_d_o   = ({~resetn | flush_i} & 1'b0) | branchJAL_o;
     assign taken_d_o       = ({~resetn | flush_i} & 1'b0) | redirection_e_i | taken;
     assign redirection_d_o = ({32{~resetn | flush_i}} & 32'h0)|
-                             ({32{pc_next_next_taken_e_i}} & pc_next)| 
+                             ({32{ptnt_e_i & ~branchJAL_o}} & pc_next)| // sbp taken, alu not taken
+                             ({32{ptnt_e_i &  branchJAL_o}} & redirection_pc)| // sbp taken, alu not taken, following by JAL 
                              ({32{ redirection_e_i}}  & redirection_pc_e_i)| // pc from EXE
                              ({32{~redirection_e_i}}  & redirection_pc);  // pc from SBP
         
