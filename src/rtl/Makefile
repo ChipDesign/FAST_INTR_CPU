@@ -2,7 +2,7 @@
 # ======================== makefile source files ==========================
 # =========================================================================
 # rtlTop is used for rtl source file, asmSrc is used for ams source file
-rtlTop = pipelineID
+rtlTop = top
 asmSrc = test
 rtlFiles = $(wildcard *.v)
 
@@ -41,6 +41,10 @@ all:
 machine: all 
 	@${OBJDUMP} -D --section .text ${asmSrc}.elf | grep '[0-9a-f]:'|grep -v 'file' | cut -d: -f2| cut -d" " -f1 | sed 's/^\t *//g' > i-memory.txt
 	@echo "Finish generating pure machine code to i-memory.txt"
+
+verilog: all
+	${OBJCOPY} -O verilog ${asmSrc}.bin ${asmSrc}.verilog
+	@echo "Finish get verilog files"
 	
 run: all
 	@echo "Press Ctrl-A and then X to exit QEMU"
