@@ -45,7 +45,7 @@ module pipelineID(
     /* redirection info passed back to IF stage */
     output wire [31:0] redirection_d_o,
     output wire        taken_d_o,
-    output wire        flush_jal_d_o,  // flush pipeline because of jal instruction
+    output reg        flush_jal_d_o,  // flush pipeline because of jal instruction
     output wire        is_compressed_d_o,
     /* signals passed to EXE stage */
     // EXE stage signals
@@ -148,7 +148,6 @@ module pipelineID(
         if(~resetn || flush_i) begin
             reg_write_en_d_o  <= 1'b0; 
             result_src_d_o    <= 4'b0;  
-            // pc_plus4_d_o      <= 32'h0;    
             extended_imm_d_o  <= 32'h0;
             rd_idx_d_o        <= 5'b0;         
             alu_op_d_o        <= 21'h0;      
@@ -159,9 +158,7 @@ module pipelineID(
             blt_d_o           <= 1'b0;        
             dmem_type_d_o     <= 3'b0;   
             instr_illegal_d_o <= 1'b0;
-            // redirection_d_o   <= 32'h0;
-            // taken_d_o         <= 1'b0;
-            // flush_jal_d_o     <= 1'b0;
+            flush_jal_d_o     <= 1'b0;
             fin_d_o           <= 1'b0;
             mul_state_d_o     <= 2'b0;
             d_advance_d_o     <= 1'b0;
@@ -171,14 +168,11 @@ module pipelineID(
         else if(enable) begin
             reg_write_en_d_o  <= wb_en_o; 
             result_src_d_o    <= wb_src_o;  
-            // pc_plus4_d_o      <= pc_plus4_f_i;    
             extended_imm_d_o  <= imm_o;
             rd_idx_d_o        <= rd_index; 
             alu_op_d_o        <= aluOperation_o;      
             jalr_d_o          <= branchJALR_o;
-            // redirection_d_o   <= redirection_pc;
-            // taken_d_o         <= taken;
-            // flush_jal_d_o     <= branchJAL_o;
+            flush_jal_d_o     <= branchJAL_o;
             mul_state_d_o     <= mul_state;
             d_advance_d_o     <= d_advance;
             d_init_d_o        <= d_init;
@@ -212,32 +206,12 @@ module pipelineID(
     end
     
     // calculate redirection pc to IF stage
-    assign flush_jal_d_o   =  branchJAL_o;
-    // assign flush_jal_d_o   = ({~resetn_delay | flush_i} & 1'b0) | branchJAL_o;
-    assign taken_d_o       = ({~resetn_delay | flush_i} & 1'b1) | redirection_e_i | taken;
+    assign taken_d_o       = ({~resetn_delay | flush_i} & 1'b1) | ptnt_e_i | redirection_e_i | taken;
     assign redirection_d_o = ({32{~resetn_delay | flush_i}} & 32'h0)|
                              ({32{ptnt_e_i & ~branchJAL_o}} & pc_next)| // sbp taken, alu not taken
                              ({32{ptnt_e_i &  branchJAL_o}} & redirection_pc)| // sbp taken, alu not taken, following by JAL 
                              ({32{ redirection_e_i}}  & redirection_pc_e_i)| // pc from EXE
                              ({32{~redirection_e_i}}  & redirection_pc);  // pc from SBP
-        
-    
-    // always @(posedge clk ) begin 
-    //     if(~resetn || flush_i) begin
-    //         redirection_d_o <= 32'h0;
-    //         taken_d_o       <=  1'b0;
-    //     end
-    //     else if(enable) begin
-    //         if(redirection_e_i) begin
-    //             redirection_d_o <= redirection_pc_e_i;
-    //             taken_d_o       <= 1'b1;
-    //         end
-    //         else begin
-    //             redirection_d_o <= redirection_pc;    
-    //             taken_d_o       <= taken;
-    //         end
-    //     end
-    // end
 
     // calculate instruction pc 
     always @(posedge clk ) begin 
