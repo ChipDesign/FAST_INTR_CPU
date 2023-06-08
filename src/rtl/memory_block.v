@@ -26,10 +26,11 @@ end
 
 // read data
 always @(posedge clk) begin
-    if(~resetn) begin
-        Q <= 8'h0;    
-    end
-    else if(~ceb & web) begin
+    // if(~resetn) begin
+    //     Q <= 8'h0;    
+    // end
+    // else if(~ceb & web) begin
+    if(~ceb & web) begin
         Q <= m_array[A];
     end
 end 

@@ -134,7 +134,7 @@ module pipelineID(
 // =========================================================================
 
     // pass compress info to IF, used by FIFO pop operation
-    assign is_compressed_d_o = is_compressed_o;
+    assign is_compressed_d_o = resetn_delay & is_compressed_o;
 
     // index for rd, rs1, rs2
     assign rd_index  = instru_32bits[11: 7];
@@ -206,10 +206,16 @@ module pipelineID(
         end
     end 
 
+    reg resetn_delay;
+    always @(posedge clk ) begin 
+        resetn_delay <= resetn;
+    end
+    
     // calculate redirection pc to IF stage
-    assign flush_jal_d_o   = ({~resetn | flush_i} & 1'b0) | branchJAL_o;
-    assign taken_d_o       = ({~resetn | flush_i} & 1'b0) | redirection_e_i | taken;
-    assign redirection_d_o = ({32{~resetn | flush_i}} & 32'h0)|
+    assign flush_jal_d_o   =  branchJAL_o;
+    // assign flush_jal_d_o   = ({~resetn_delay | flush_i} & 1'b0) | branchJAL_o;
+    assign taken_d_o       = ({~resetn_delay | flush_i} & 1'b1) | redirection_e_i | taken;
+    assign redirection_d_o = ({32{~resetn_delay | flush_i}} & 32'h0)|
                              ({32{ptnt_e_i & ~branchJAL_o}} & pc_next)| // sbp taken, alu not taken
                              ({32{ptnt_e_i &  branchJAL_o}} & redirection_pc)| // sbp taken, alu not taken, following by JAL 
                              ({32{ redirection_e_i}}  & redirection_pc_e_i)| // pc from EXE

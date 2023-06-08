@@ -1,1 +1,47 @@
-VCD info: dumpfile pipelineID_tb.vcd opened for output.
+VCD info: dumpfile top_tb.vcd opened for output.
+VCD warning: array word top_tb.itcm_mem[0] will conflict with an escaped identifier.
+VCD warning: array word top_tb.u_top.u_pipeline_withFIFO.u_imemory.u_memory_block0.m_array[0] will conflict with an escaped identifier.
+VCD warning: array word top_tb.u_top.u_pipeline_withFIFO.u_imemory.u_memory_block1.m_array[0] will conflict with an escaped identifier.
+VCD warning: array word top_tb.itcm_mem[1] will conflict with an escaped identifier.
+VCD warning: array word top_tb.u_top.u_pipeline_withFIFO.u_imemory.u_memory_block0.m_array[1] will conflict with an escaped identifier.
+VCD warning: array word top_tb.u_top.u_pipeline_withFIFO.u_imemory.u_memory_block1.m_array[1] will conflict with an escaped identifier.
+VCD warning: array word top_tb.itcm_mem[2] will conflict with an escaped identifier.
+VCD warning: array word top_tb.u_top.u_pipeline_withFIFO.u_imemory.u_memory_block0.m_array[2] will conflict with an escaped identifier.
+VCD warning: array word top_tb.u_top.u_pipeline_withFIFO.u_imemory.u_memory_block1.m_array[2] will conflict with an escaped identifier.
+VCD warning: array word top_tb.itcm_mem[3] will conflict with an escaped identifier.
+VCD warning: array word top_tb.u_top.u_pipeline_withFIFO.u_imemory.u_memory_block0.m_array[3] will conflict with an escaped identifier.
+VCD warning: array word top_tb.u_top.u_pipeline_withFIFO.u_imemory.u_memory_block1.m_array[3] will conflict with an escaped identifier.
+VCD warning: array word top_tb.itcm_mem[4] will conflict with an escaped identifier.
+VCD warning: array word top_tb.u_top.u_pipeline_withFIFO.u_imemory.u_memory_block0.m_array[4] will conflict with an escaped identifier.
+VCD warning: array word top_tb.u_top.u_pipeline_withFIFO.u_imemory.u_memory_block1.m_array[4] will conflict with an escaped identifier.
+VCD warning: array word top_tb.itcm_mem[5] will conflict with an escaped identifier.
+VCD warning: array word top_tb.u_top.u_pipeline_withFIFO.u_imemory.u_memory_block0.m_array[5] will conflict with an escaped identifier.
+VCD warning: array word top_tb.u_top.u_pipeline_withFIFO.u_imemory.u_memory_block1.m_array[5] will conflict with an escaped identifier.
+VCD warning: array word top_tb.itcm_mem[6] will conflict with an escaped identifier.
+VCD warning: array word top_tb.u_top.u_pipeline_withFIFO.u_imemory.u_memory_block0.m_array[6] will conflict with an escaped identifier.
+VCD warning: array word top_tb.u_top.u_pipeline_withFIFO.u_imemory.u_memory_block1.m_array[6] will conflict with an escaped identifier.
+VCD warning: array word top_tb.itcm_mem[7] will conflict with an escaped identifier.
+VCD warning: array word top_tb.u_top.u_pipeline_withFIFO.u_imemory.u_memory_block0.m_array[7] will conflict with an escaped identifier.
+VCD warning: array word top_tb.u_top.u_pipeline_withFIFO.u_imemory.u_memory_block1.m_array[7] will conflict with an escaped identifier.
+VCD warning: array word top_tb.itcm_mem[8] will conflict with an escaped identifier.
+VCD warning: array word top_tb.u_top.u_pipeline_withFIFO.u_imemory.u_memory_block0.m_array[8] will conflict with an escaped identifier.
+VCD warning: array word top_tb.u_top.u_pipeline_withFIFO.u_imemory.u_memory_block1.m_array[8] will conflict with an escaped identifier.
+VCD warning: array word top_tb.itcm_mem[9] will conflict with an escaped identifier.
+VCD warning: array word top_tb.u_top.u_pipeline_withFIFO.u_imemory.u_memory_block0.m_array[9] will conflict with an escaped identifier.
+VCD warning: array word top_tb.u_top.u_pipeline_withFIFO.u_imemory.u_memory_block1.m_array[9] will conflict with an escaped identifier.
+VCD warning: array word top_tb.itcm_mem[10] will conflict with an escaped identifier.
+VCD warning: array word top_tb.u_top.u_pipeline_withFIFO.u_imemory.u_memory_block0.m_array[10] will conflict with an escaped identifier.
+VCD warning: array word top_tb.u_top.u_pipeline_withFIFO.u_imemory.u_memory_block1.m_array[10] will conflict with an escaped identifier.
+VCD warning: array word top_tb.itcm_mem[11] will conflict with an escaped identifier.
+VCD warning: array word top_tb.u_top.u_pipeline_withFIFO.u_imemory.u_memory_block0.m_array[11] will conflict with an escaped identifier.
+VCD warning: array word top_tb.u_top.u_pipeline_withFIFO.u_imemory.u_memory_block1.m_array[11] will conflict with an escaped identifier.
+WARNING: top_tb.v:88: $readmemh: Standard inconsistency, following 1364-2005.
+~~~~~~~~~~~~~~~~ TEST_FAIL ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~######    ##       #    #     ~~~~~~~~~~~~~~~~
+~~~~~~~~~~#        #  #      #    #     ~~~~~~~~~~~~~~~~
+~~~~~~~~~~#####   #    #     #    #     ~~~~~~~~~~~~~~~~
+~~~~~~~~~~#       ######     #    #     ~~~~~~~~~~~~~~~~
+~~~~~~~~~~#       #    #     #    #     ~~~~~~~~~~~~~~~~
+~~~~~~~~~~#       #    #     #    ######~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

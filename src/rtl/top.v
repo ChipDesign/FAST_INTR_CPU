@@ -69,6 +69,8 @@ module top(
     wire    d_advance_d_o;
     wire    d_init_d_o;
     wire    div_last_d_o;
+    wire    flush_d_temp; // temp flush ID, because Hazard has 1 cycle more delay
+    assign flush_d_temp = 1'b0;
 
     // EXE instance
     wire        redirection_e_o;
@@ -105,6 +107,16 @@ module top(
     initial begin
         enable = 1'b1;
     end
+
+
+    //TODO: delete this when EXE add these signals
+    // wire [31:0] redirection_pc_e_i;
+    // wire        redirection_e_i;
+    // wire        ptnt_e_i;
+    assign ptnt_e_i = 1'b0;
+    assign redirection_e_i = 1'b0;
+    assign redirection_pc_e_i = 32'h0;
+
     
     // pipeline resetn signals
     // IF stage instance
@@ -116,7 +128,7 @@ module top(
         .redirection_d_i 		( redirection_d_o 		),
         .taken_d_i       		( taken_d_o       		),
         .is_compress_d_i        (is_compress_d_i        ),
-        .flush_i                ( flush_if_e_o | flush_jal_d_o),
+        .flush_i                ( flush_jal_d_o         ), // TODO: flush from EXE
         .instruction_f_o 		( instruction_f_o 		)
     );
 
@@ -134,7 +146,7 @@ module top(
         .rd_idx_w_i        		( rd_idx_w_o       		),
         .write_back_data_w_i 	( write_back_data_w_o 	),
         .rs1_depended_h_i   	( rs1_depended_h_o   	),
-        .flush_i                ( flush_d_i             ),
+        .flush_i                ( flush_d_temp             ), // TODO: temp flush, replaced by hazard flush
         .src1_sel_d_i           ( src1_sel_d_i          ),
         .src2_sel_d_i           ( src2_sel_d_i          ),
         .bypass_e_o             ( bypass_e_o            ),
