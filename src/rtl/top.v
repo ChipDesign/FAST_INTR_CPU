@@ -45,7 +45,6 @@ module top(
     // IF stage instance signals
     wire [31:0]	instruction_f_o;
     wire        is_compress_d_i;
-    reg         enable; // TODO: `enable` should be controled by Hazard Unit
     // ID stage instance signals
     wire [31:0] redirection_pc_e_i;
     wire        redirection_e_i;
@@ -103,12 +102,6 @@ module top(
     // ============================ implementation =============================
     // =========================================================================
 
-    //TODO: init some inner signals, should be replaced later
-    initial begin
-        enable = 1'b1;
-    end
-
-
     //TODO: delete this when EXE add these signals
     // wire [31:0] redirection_pc_e_i;
     // wire        redirection_e_i;
@@ -128,7 +121,7 @@ module top(
         .redirection_d_i 		( redirection_d_o 		),
         .taken_d_i       		( taken_d_o       		),
         .is_compress_d_i        (is_compress_d_i        ),
-        .flush_i                ( flush_jal_d_o         ), // TODO: flush from EXE
+        .flush_i                ( flush_jal_d_o         ), // TODO: add flush from EXE
         .instruction_f_o 		( instruction_f_o 		)
     );
 
