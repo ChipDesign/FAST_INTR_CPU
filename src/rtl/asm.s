@@ -9,6 +9,7 @@ _boot:
     nop
     nop
     beq  x0, x5, _boot 
+    j stop 
     nop
     addi x2, x2, 1
     addi x3, x3, 1
