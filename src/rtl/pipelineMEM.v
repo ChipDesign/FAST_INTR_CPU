@@ -33,7 +33,8 @@ module pipelineMEM (
     output reg [31:0] pc_plus4_m_o,      // rd=pc+4, for `jal` instruction
     output reg        reg_write_en_m_o,   // RF write enable
     output reg [ 4:0] rd_idx_m_o,            // RF write back register index, passed from MEM stage
-    output reg [ 3:0] result_src_m_o    // select signal to choose one of the four inputs
+    output reg [ 3:0] result_src_m_o,    // select signal to choose one of the four inputs
+    output wire [31:0] bypass_m_o
     // TODO: signals to communicate with Data Memory
     // TODO: add CSR Unit signals
 );
@@ -63,10 +64,9 @@ module pipelineMEM (
             extended_imm_m_o  <= extended_imm_e_i;
             rd_idx_m_o        <= rd_idx_e_i;
         end
-        
-        
     end
 
+    assign bypass_m_o = 32'b0 ;
     // TODO: add D-memory logic signals
 endmodule
 `endif

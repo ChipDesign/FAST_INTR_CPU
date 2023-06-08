@@ -3,10 +3,14 @@
 `include "long_div.v"
 `include "multi.v"
 `include "shifter32.v"
-module alu(clk,resetn,ain,bin,ALUout,ALUop,branch_taken);
+module alu(clk,resetn,ain,bin,ALUout,ALUop,branch_taken,
+mul_state,d_init,div_last,d_advance
+);
 
 input[31:0] ain,bin;
 input[20:0] ALUop;
+input[1:0] mul_state;
+input d_init, div_last,d_advance;
 input clk,resetn;
 
 output[31:0] ALUout;
@@ -19,68 +23,10 @@ wire mul_op,mulh_op,mulhu_op,mulhsu_op,div_op,divu_op,rem_op,remu_op;
 
 wire[31:0] sft_ans,div_ans,rem_ans,log_ans,mul_low,mul_high;
 wire [32:0] add_ans;
-wire[1:0] mul_next_state;
-reg[1:0] mul_state;
-wire[3:0] div_next_state;
-reg[3:0] div_state;
-reg div_last;
-reg fin;
-wire d_init,d_advance;
-
-always@(posedge clk)
-begin
-  if(~resetn)
-  begin
-    mul_state<=2'b0;
-    div_state<=4'b0;
-    div_last<=0;
-  end
-  
-  
-  else if(mul_op|mulh_op|mulhu_op|mulhsu_op)
-  begin
-    mul_state<=mul_next_state;
-    if(mul_state==2'b11)
-    begin
-      fin<=1'b1;
-    end
-    else begin 
-      fin<=1'b0;
-    end
-  end
-  
-  else if(div_op|divu_op|rem_op|remu_op)
-  begin
-    if(div_state==4'b1111)
-    begin
-      div_last<=1'b1;
-    end
-    
-    
-    if(div_last)
-    begin
-    	div_last<=1'b0;
-    	fin<=1'b1;
-    end
-    else 
-    begin
-    	div_state<=div_next_state; 
-      	fin<=1'b0;
-    end
-  end
-  
-  else begin
-  fin<=1'b0;
-  end
-  
-end
 
 
-assign div_next_state= div_state+4'b1;
-assign mul_next_state= mul_state+2'b1;
 
-assign d_init=(div_op|divu_op|rem_op|remu_op)&(div_state==4'b0)&(~div_last);
-assign d_advance=(div_op|divu_op|rem_op|remu_op)&(~(div_state==4'b0));
+
 
 assign add_op=		ALUop[0];
 assign sub_op=		ALUop[1];
@@ -116,7 +62,7 @@ assign ALUout=  ({32{sub_op|add_op}}&add_ans[31:0])|
 		({32{sll_op|srl_op|sra_op}}&sft_ans) |
 		({32{sltu_op|slt_op}}&{31'b0,add_ans[32]});
 		
-assign branch_taken=branch&((sub_op&(~beq^(add_ans==0)))|	((slt_op|sltu_op)&(~blt^(add_ans[32]))));
+assign branch_taken=branch&((sub_op&(~beq^(add_ans===0)))|	((slt_op|sltu_op)&(~blt^(add_ans[32]))));
 
 
 long_div  div(

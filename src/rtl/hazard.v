@@ -1,3 +1,5 @@
+`ifndef __HAZARD__
+`define __HAZARD__
 module hazard(
 is_b,is_j,is_load,is_m,is_d,dst_en,
 fin,
@@ -8,6 +10,7 @@ f_cmiss,m_cmiss,
 f_arrival,m_arrival,
 fd_st,de_st,em_st,mw_st,
 flush_o,
+rs1_depended_h_o,
 rstn,clk);
 
 input is_b,is_j,is_load,dst_en,is_m,is_d;
@@ -22,6 +25,7 @@ input rstn,clk;
 output[1:0] src1_sel,src2_sel;
 output fd_st,de_st,em_st,mw_st;
 output flush_o;
+output rs1_depended_h_o;
 
 
 reg[4:0] dst_1,dst_2;
@@ -108,11 +112,10 @@ begin
     begin
       Dcmiss_st_keep<=1'b0;
     end
-    
-    
-  end
-
+  end 
 end
+
+
 
 assign fd_st=Linst_st|Icmiss_st|Dcmiss_st|Ldhaz_st;
 assign de_st=Ldhaz_st|Dcmiss_st;
@@ -191,6 +194,8 @@ end
 
 assign flush=jd1|jd2|jd_b3|bptnt1|bptrt|(bpt&real_taken)|bnt1|bnt2|(bnt&real_taken);
 assign flush_o=flush;
+assign rs1_depended_h_o=|src1_sel;
 
 
 endmodule
+`endif

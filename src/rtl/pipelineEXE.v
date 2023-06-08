@@ -31,6 +31,13 @@ module pipelineEXE (
     input wire [ 4:0] rd_idx_d_i,          
     input wire [ 3:0] result_src_d_i,   
     input wire        instr_illegal_d_i,  // instruction illegal
+    input wire        d_init_d_o,
+    input wire        d_advance_d_o,
+    input wire        div_last_d_o,
+    input wire [ 1:0] mul_state_d_o,
+    
+
+    input wire        st_e_i,
 
     /* signals passed to IF stage */
     output reg        redirection_e_o,        // sbp wrong, alu revise pc to correct pc 
@@ -45,11 +52,10 @@ module pipelineEXE (
     output reg        reg_write_en_e_o,  // RF write enable                                                      
     output reg [ 4:0] rd_idx_e_o,          
     output reg [ 3:0] result_src_e_o,   // select signal to choose one of the four inputs
-    /* flush pipeline register*/
-    output reg        flush_if_e_o, // flush if/id pipeline register
-    output reg        flush_id_e_o, // flush id/exe pipeline register
-    output reg        flush_exe_e_o, // flush if/id pipeline register
-    output reg        instr_illegal_e_o // instruction illegal
+    
+    output reg        instr_illegal_e_o, // instruction illegal
+    output wire       real_taken_e_o,  
+    output wire [31:0]      bypass_e_o
 );
 
 
@@ -63,6 +69,8 @@ module pipelineEXE (
 // ============================ implementation =============================
 // =========================================================================
 
+    assign bypass_e_o=alu_calculation;
+    assign real_taken_e_o=alu_taken;
     assign is_branch = alu_op_d_i[20];
     // pass through data to next stage
     always @(posedge clk ) begin 
@@ -75,6 +83,17 @@ module pipelineEXE (
             rd_idx_e_o        <= 5'h0;
             result_src_e_o    <= 4'b0000;
             instr_illegal_e_o <= 1'h0;
+        end
+        else if(st_e_i)
+        begin
+            alu_result_e_o    <= alu_result_e_o ;
+            dmem_type_e_o     <= dmem_type_e_o;   
+            extended_imm_e_o  <= extended_imm_e_o ;
+            pc_plus4_e_o      <= pc_plus4_e_o;
+            reg_write_en_e_o  <= reg_write_en_e_o;
+            rd_idx_e_o        <= rd_idx_e_o;      
+            result_src_e_o    <= result_src_e_o;
+            instr_illegal_e_o <= instr_illegal_e_o;
         end
         else begin
             alu_result_e_o    <= alu_calculation;
@@ -124,10 +143,12 @@ module pipelineEXE (
     
     // pipeline flush signals
     always @(posedge clk ) begin 
-        if(flush_e_i) begin
-            flush_if_e_o       <= 1'b0; 
-            flush_id_e_o       <= 1'b0; 
-            flush_exe_e_o      <= 1'b0;
+        if(st_e_i)
+        begin
+            redirection_e_o    <= redirection_e_o;
+            redirection_pc_e_o <= redirection_pc_e_o;
+        end
+        else if(flush_e_i) begin
             redirection_e_o    <= 1'b0;
             redirection_pc_e_o <= 32'h0;
         end
@@ -135,32 +156,20 @@ module pipelineEXE (
             case({taken_d_i, alu_taken}) 
                 2'b00: begin
                     // sbp taken, alu taken => don't need to flush instruction
-                    flush_if_e_o       <= 1'b0;
-                    flush_id_e_o       <= 1'b0;
-                    flush_exe_e_o      <= 1'b0;
                     redirection_e_o    <= 1'b0;
                 end
                 2'b01: begin
                     // sbp not taken, alu taken => flush 3 instructions which are all pc+4
-                    flush_if_e_o       <= 1'b1;
-                    flush_id_e_o       <= 1'b1;
-                    flush_exe_e_o      <= 1'b1;
                     redirection_e_o    <= 1'b1;
                     redirection_pc_e_o <= prediction_pc_d_i; // fetch instruction from sbp
                 end
                 2'b10: begin
                     // sbp taken, alu not taken => flush 1 rediction instruction
-                    flush_if_e_o       <= 1'b1; 
-                    flush_id_e_o       <= 1'b0;
-                    flush_exe_e_o      <= 1'b0;
                     redirection_e_o    <= 1'b1;
                     redirection_pc_e_o <= pc_plus4_d_i + 32'h8; // TODO: change 8 to pc_sequential, to support rvc
                 end
                 default: begin
                     // sbp taken, alu taken => flush 2 instructions which are all pc+4
-                    flush_if_e_o       <= 1'b0; 
-                    flush_id_e_o       <= 1'b1;
-                    flush_exe_e_o      <= 1'b1;
                     redirection_e_o    <= 1'b0;    
                 end
             endcase
@@ -171,24 +180,14 @@ module pipelineEXE (
             // if it's jarl instruction, and ID says it's not taken 
             // it means sbp can not calculate `jalr` target pc, 
             // so alu have to calculate target pc
-                flush_if_e_o       <= 1'b1; // flush 3 instruction fetch by pc+4
-                flush_id_e_o       <= 1'b1;
-                flush_exe_e_o      <= 1'b1;
                 redirection_e_o    <= 1'b1;    
                 redirection_pc_e_o <= alu_calculation & ~1; // new pc for jalr instruction
             end
             else begin
-                flush_if_e_o       <= 1'b0; // flush 2 instruction fetch by pc+4
-                flush_id_e_o       <= 1'b1;
-                flush_exe_e_o      <= 1'b1;
                 redirection_e_o    <= 1'b0;    
             end
         end
-        else begin
-            $display("not branch");
-            flush_if_e_o           <= 1'b0;    
-            flush_id_e_o           <= 1'b0;    
-            flush_exe_e_o          <= 1'b0;    
+        else begin   
             redirection_e_o        <= 1'b0;
             redirection_pc_e_o     <= 32'h0;
         end
@@ -204,6 +203,10 @@ module pipelineEXE (
         .ALUop        		( alu_op_d_i        ),
         .clk          		( clk          		),
         .resetn       		( resetn       		),
+        .mul_state          ( mul_state_d_o     ),
+        .div_last           ( div_last_d_o      ),
+        .d_advance          ( d_advance_d_o     ),
+        .d_init             ( d_init_d_o        ),
         .ALUout       		( alu_calculation   ),
         .branch_taken 		( alu_taken 		)
     );

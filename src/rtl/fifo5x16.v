@@ -57,7 +57,7 @@ assign mem_addr = cur_addr; // I-Memory access address
 
 
 // I-Memory read request
-assign mem_rq = (taken | (next_fifo_cnt <= 3'h3)) & resetn; // request I-Memory read, if next_fifo_cnt <=3 and no reset assert
+assign mem_rq = (taken | (next_fifo_cnt <= 3'h3)) & resetn; 
 always @(posedge clk ) begin 
     fill <= mem_rq; // data read out from I-Memory takes 1 cycle 
 end
@@ -67,13 +67,12 @@ assign lead_data = mem_data[31:16];
 assign next_data    = mem_data[15: 0];
 
 
-// fifo count
+
 assign drain_1 = drain_cnt == 2'h1; // ID takens 16 bits
 assign drain_2 = drain_cnt == 2'h2; // ID takens 32 bits
 assign drain   = drain_1 | drain_2;
 
-assign next_fifo_cnt = pf_fifo_cnt + ({3{fill}} & 3'h2) 
-       - (({3{drain_2}} & 3'h2) | ({3{drain_1}} & 3'h1));
+assign next_fifo_cnt = pf_fifo_cnt + ({3{fill}} & 3'h2) - (({3{drain_2}} & 3'h2) | ({3{drain_1}} & 3'h1));
 always @(posedge clk) begin 
     if(~resetn | taken) begin
         // set fifo count to 0

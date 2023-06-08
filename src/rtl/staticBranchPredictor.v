@@ -36,13 +36,13 @@ module staticBranchPredictor(
             
             else begin // only jalr instruction need access register file, so it has to deal with data dependency problem
                 taken = 1'b1; // if rs1 doesn't have data dependency, we suppose jalr is taken in branch predictor    
-                redirection_pc = (rs1+offset)&32'hfffffffe; // pc=(x[rs1]+sext(offset))&∼1
+                redirection_pc = (rs1+offset) & 32'hfffffffe; // pc=(x[rs1]+sext(offset))&∼1
             end
         end
         if(branchBType) begin
+                redirection_pc = pc+offset; // pc += sext(offset)
             if(offset[31]) begin
                 taken = 1'b1; // offset[31]=1 => offset less than 0 => backwarding taken
-                redirection_pc = pc+offset; // pc += sext(offset)
             end
             else begin
                 taken = 1'b0; // offset[31]=0 => offset greater than 0 => forwarding not taken

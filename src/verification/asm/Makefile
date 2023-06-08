@@ -6,7 +6,7 @@ XLEN ?= 32
 
 src_dir := .
 
-include $(src_dir)/rv64ui/Makefrag
+# include $(src_dir)/rv64ui/Makefrag
 # include $(src_dir)/rv64uc/Makefrag
 # include $(src_dir)/rv64um/Makefrag
 # include $(src_dir)/rv64ua/Makefrag
@@ -14,7 +14,7 @@ include $(src_dir)/rv64ui/Makefrag
 # include $(src_dir)/rv64ud/Makefrag
 # include $(src_dir)/rv64si/Makefrag
 # include $(src_dir)/rv64mi/Makefrag
-include $(src_dir)/rv32ui/Makefrag
+# include $(src_dir)/rv32ui/Makefrag
 # include $(src_dir)/rv32uc/Makefrag
 # include $(src_dir)/rv32um/Makefrag
 # include $(src_dir)/rv32ua/Makefrag
@@ -22,6 +22,8 @@ include $(src_dir)/rv32ui/Makefrag
 # include $(src_dir)/rv32ud/Makefrag
 # include $(src_dir)/rv32si/Makefrag
 # include $(src_dir)/rv32mi/Makefrag
+# include $(src_dir)/rv64ui/Makefrag
+include $(src_dir)/asmTest/Makefrag
 
 #include $(src_dir)/rv32imc_0/Makefrag
 #include $(src_dir)/rv32imc_1/Makefrag
@@ -79,6 +81,7 @@ tests += $$($(1)_tests)
 endef
 
 $(eval $(call compile_template,rv32ui,-march=rv32imafdc -mabi=ilp32))
+$(eval $(call compile_template,asmTest,-march=rv32imafdc -mabi=ilp32))
 $(eval $(call compile_template,rv32uc,-march=rv32imafdc -mabi=ilp32))
 $(eval $(call compile_template,rv32um,-march=rv32imafdc -mabi=ilp32))
 $(eval $(call compile_template,rv32ua,-march=rv32imafdc -mabi=ilp32))

@@ -36,3 +36,4 @@ demo/
 *.elf
 *.bin
 *.metals
+src/verification/asm/generated/*
