@@ -36,7 +36,6 @@ reg         fill;          // push into fifo
 wire        drain, drain_1, drain_2; // ID takes 16 bits or 32 bits
 wire        next_pt2, next_pt3, next_pt4, next_pt5;
 wire        pt2, pt3, pt4, pt5;
-// reg         taken_reg;
 
 
 // =========================================================================
@@ -58,7 +57,6 @@ assign mem_addr = cur_addr; // I-Memory access address
 
 
 // I-Memory read request
-// assign mem_rq = ((taken | (next_fifo_cnt <= 3'h3)) & resetn) | (~resetn); 
 assign mem_rq = (taken | (next_fifo_cnt <= 3'h3)) & resetn; 
 always @(posedge clk ) begin 
     fill <= mem_rq; // data read out from I-Memory takes 1 cycle 
@@ -69,21 +67,11 @@ assign lead_data = mem_data[31:16];
 assign next_data    = mem_data[15: 0];
 
 
-// fifo count
-// always @(posedge clk ) begin 
-//     taken_reg <= taken;
-// end
 
 assign drain_1 = drain_cnt == 2'h1; // ID takens 16 bits
 assign drain_2 = drain_cnt == 2'h2; // ID takens 32 bits
 assign drain   = drain_1 | drain_2;
 
-// wire [ 2:0] next_cnt_seq;
-// assign next_cnt_seq = pf_fifo_cnt + ({3{fill}} & 3'h2) - (({3{drain_2}} & 3'h2) | ({3{drain_1}} & 3'h1));
-// assign next_fifo_cnt = (({3{ taken_reg}}) & 3'h2)|
-//                        (({3{~taken_reg}}) & next_cnt_seq);
-// assign next_fifo_cnt = ({3{taken}}) &
-//    (pf_fifo_cnt + ({3{fill}} & 3'h2) - (({3{drain_2}} & 3'h2) | ({3{drain_1}} & 3'h1)));
 assign next_fifo_cnt = pf_fifo_cnt + ({3{fill}} & 3'h2) - (({3{drain_2}} & 3'h2) | ({3{drain_1}} & 3'h1));
 always @(posedge clk) begin 
     if(~resetn | taken) begin
