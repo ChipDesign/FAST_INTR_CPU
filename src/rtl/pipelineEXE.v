@@ -45,7 +45,7 @@ module pipelineEXE (
     /* signals passed to MEM stage */
     // MEM stage signals
     output reg [31:0] alu_result_e_o,   // alu calculation result                                               
-    output reg [ 2:0] dmem_type_e_o,      // load/store types
+    output reg [ 3:0] dmem_type_e_o,      // load/store types
     // WB stage signals 
     output reg [31:0] extended_imm_e_o, // extended imm, for 'lui' instruction                                 ,
     output reg [31:0] pc_plus4_e_o,     // rd=pc+4, for `jal` instruction                                       
