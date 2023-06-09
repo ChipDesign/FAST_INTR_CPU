@@ -11,7 +11,8 @@ time: 2023年 5月 6日 星期六 16时03分58秒 CST
 `include "pipelineIF_withFIFO.v"
 `include "pipelineID.v"
 `include "pipelineEXE.v"
-`include "pipelineMEM.v"
+// `include "pipelineMEM.v"
+`include "pipelineMEM_withloadstore.v"
 `include "pipelineWB.v"
 `include "regfile.v"
 `include "hazard.v"
@@ -75,7 +76,7 @@ module top(
     wire        redirection_e_o;
     wire [31:0] redirection_pc_e_o;      
     wire [31:0]	aluResult_e_o;
-    wire [ 2:0]	dMemType_e_o;
+    wire [ 3:0]	dMemType_e_o;
     wire [31:0]	extendedImm_e_o;
     wire [31:0]	pcPlus4_e_o;
     wire 	regWriteEn_e_o;
@@ -215,22 +216,21 @@ module top(
     );
 
     // MEM stage instance
-    pipelineMEM u_pipelineMEM(
+    pipelineMEM_withloadstore u_pipelineMEM_withloadstore(
         //ports
         .clk             		( clk             		),
         .resetn           		( resetn           		),
         .alu_result_e_i    		( aluResult_e_o    		),
         .dmem_type_e_i     		( dMemType_e_o     		),
         .extended_imm_e_i  		( extendedImm_e_o  		),
-        .pc_plus4_e_i      		( pcPlus4_e_o      		),
+        .pc_plus_e_i      		( pcPlus4_e_o      		),
         .reg_write_en_e_i   	( regWriteEn_e_o   		),
         .rd_idx_e_i        		( rdIdx_e_o        		),
         .result_src_e_i    		( resultSrc_e_o    		),
-        .instr_illegal_e_i 		( instrIllegal_e_o 		),
         .mem_read_data_m_o  	( mem_read_data_m_o  	),
         .alu_result_m_o    		( alu_result_m_o    	),
         .extended_imm_m_o  		( extended_imm_m_o  	),
-        .pc_plus4_m_o      		( pc_plus4_m_o      	),
+        .pc_plus_m_o      		( pc_plus4_m_o      	),
         .reg_write_en_m_o   	( reg_write_en_m_o   	),
         .rd_idx_m_o        		( rd_idx_m_o        	),
         .result_src_m_o    		( result_src_m_o    	),
