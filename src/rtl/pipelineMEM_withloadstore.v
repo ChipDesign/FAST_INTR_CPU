@@ -1,5 +1,5 @@
-`ifndef __PIPELINEMEM__
-`define __PIPELINEMEM__
+`ifndef __PIPELINEMEMWITHLOADSTORE__
+`define __PIPELINEMEMWITHLOADSTORE__
 /*
 file: five stage pipeline MEM stage
     1. if need to read from data memory, use the address calculated by alu to access data memory 
@@ -97,7 +97,7 @@ module pipelineMEM_withloadstore (
     end
 
     assign mem_read_data_m_o = read_data;
-    assign bypass_m_o = 32'b0 ;
+    assign bypass_m_o = read_data ;
 
     //*********************************    
     //        DATA MEM STORES
