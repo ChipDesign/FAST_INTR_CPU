@@ -45,7 +45,7 @@ module pipelineEXE (
     /* signals passed to MEM stage */
     // MEM stage signals
     output reg [31:0] alu_result_e_o,   // alu calculation result                                               
-    output reg [ 2:0] dmem_type_e_o,      // load/store types
+    output reg [ 3:0] dmem_type_e_o,      // load/store types
     // WB stage signals 
     output reg [31:0] extended_imm_e_o, // extended imm, for 'lui' instruction                                 ,
     output reg [31:0] pc_plus4_e_o,     // rd=pc+4, for `jal` instruction                                       
@@ -55,7 +55,9 @@ module pipelineEXE (
     
     output reg        instr_illegal_e_o, // instruction illegal
     output wire       real_taken_e_o,  
-    output wire [31:0]      bypass_e_o
+    output wire [31:0]      bypass_e_o,
+    output reg         redirection_e_i,
+    output reg [31:0]  redirection_pc_e_i
 );
 
 
@@ -190,6 +192,57 @@ module pipelineEXE (
         else begin   
             redirection_e_o        <= 1'b0;
             redirection_pc_e_o     <= 32'h0;
+        end
+    end
+
+    always @(*) begin 
+        if(st_e_i)
+        begin
+            redirection_e_i    = redirection_e_o;
+            redirection_pc_e_i = redirection_pc_e_o;
+        end
+        else if(flush_e_i) begin
+            redirection_e_i    = 1'b0;
+            redirection_pc_e_i = 32'h0;
+        end
+        else if(is_branch==1'b1) begin
+            case({taken_d_i, alu_taken}) 
+                2'b00: begin
+                    // sbp taken, alu taken => don't need to flush instruction
+                    redirection_e_i    = 1'b0;
+                end
+                2'b01: begin
+                    // sbp not taken, alu taken => flush 3 instructions which are all pc+4
+                    redirection_e_i    = 1'b1;
+                    redirection_pc_e_i = prediction_pc_d_i; // fetch instruction from sbp
+                end
+                2'b10: begin
+                    // sbp taken, alu not taken => flush 1 rediction instruction
+                    redirection_e_i    = 1'b1;
+                    redirection_pc_e_i = pc_plus4_d_i + 32'h8; // TODO: change 8 to pc_sequential, to support rvc
+                end
+                default: begin
+                    // sbp taken, alu taken => flush 2 instructions which are all pc+4
+                    redirection_e_i    = 1'b0;    
+                end
+            endcase
+        end
+        else if(jalr_d_i) begin
+            if(~taken_d_i) begin
+            // jalr instruction
+            // if it's jarl instruction, and ID says it's not taken 
+            // it means sbp can not calculate `jalr` target pc, 
+            // so alu have to calculate target pc
+                redirection_e_i    = 1'b1;    
+                redirection_pc_e_i = alu_calculation & ~1; // new pc for jalr instruction
+            end
+            else begin
+                redirection_e_i    = 1'b0;    
+            end
+        end
+        else begin   
+            redirection_e_i        = 1'b0;
+            redirection_pc_e_i     = 32'h0;
         end
     end
 //     end
