@@ -70,12 +70,13 @@
     `define WBSRC_PC       4'b1000
 
     // data memory type
-    `define DMEM_SB  3'b000
-    `define DMEM_SH  3'b000
-    `define DMEM_SW  3'b000
-    `define DMEM_LB  3'b000
-    `define DMEM_LH  3'b000
-    `define DMEM_LW  3'b000
-    `define DMEM_LBU 3'b000
-    `define DMEM_LHU 3'b000
+    `define DMEM_SB  4'b0001
+    `define DMEM_SH  4'b0010
+    `define DMEM_SW  4'b0011
+    `define DMEM_LB  4'b0100
+    `define DMEM_LH  4'b0101
+    `define DMEM_LW  4'b0110
+    `define DMEM_LBU 4'b0111
+    `define DMEM_LHU 4'b1000
+    `define DMEM_NO  4'b0000
 `endif

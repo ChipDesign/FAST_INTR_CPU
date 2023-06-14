@@ -1,10 +1,20 @@
 `include "top.v"
 `include "definitions.vh"
+`define ITCM_DEPTH 1024
+`define MEM_BANK0 u_top.u_pipeline_withFIFO.u_imemory.u_memory_block0.m_array
+`define MEM_BANK1 u_top.u_pipeline_withFIFO.u_imemory.u_memory_block1.m_array
+
 module top_tb ();
 
 
     reg clk,resetn;
+    wire x3;
     integer index, counter;
+    reg [7:0] itcm_mem [`ITCM_DEPTH*4-1:0]; // itcm in testbench
+    integer i;
+
+    // get x3 value
+    assign x3 = u_top.u_pipelineID.u_regfile.regfile_data[3];
 
     // generate clock
     initial begin
@@ -17,36 +27,73 @@ module top_tb ();
 
     // begin test
     always@(posedge clk) begin 
-        if(counter===0)begin
+        if(counter==0)begin
             resetn <= 0;
         end
 
-        if(counter===1)begin
+        if(counter==1)begin
             resetn <= 1;
         end
-        if(counter===2)begin
+        if(counter==2)begin
             /* $readmemh("registerFile.txt", u_top.pipelineIDInstance.registerFile,0,15); */
         end
-        if(counter===40)begin
+        // check test results
+        if(counter == 20) begin
+            if (x3 == 1) begin
+                $display("~~~~~~~~~~~~~~~~ TEST_PASS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+                $display("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+                $display("~~~~~~~~~ #####     ##     ####    #### ~~~~~~~~~~~~~~~~");
+                $display("~~~~~~~~~ #    #   #  #   #       #     ~~~~~~~~~~~~~~~~");
+                $display("~~~~~~~~~ #    #  #    #   ####    #### ~~~~~~~~~~~~~~~~");
+                $display("~~~~~~~~~ #####   ######       #       #~~~~~~~~~~~~~~~~");
+                $display("~~~~~~~~~ #       #    #  #    #  #    #~~~~~~~~~~~~~~~~");
+                $display("~~~~~~~~~ #       #    #   ####    #### ~~~~~~~~~~~~~~~~");
+                $display("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+            end
+            else begin
+                $display("~~~~~~~~~~~~~~~~ TEST_FAIL ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+                $display("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+                $display("~~~~~~~~~~######    ##       #    #     ~~~~~~~~~~~~~~~~");
+                $display("~~~~~~~~~~#        #  #      #    #     ~~~~~~~~~~~~~~~~");
+                $display("~~~~~~~~~~#####   #    #     #    #     ~~~~~~~~~~~~~~~~");
+                $display("~~~~~~~~~~#       ######     #    #     ~~~~~~~~~~~~~~~~");
+                $display("~~~~~~~~~~#       #    #     #    #     ~~~~~~~~~~~~~~~~");
+                $display("~~~~~~~~~~#       #    #     #    ######~~~~~~~~~~~~~~~~");
+                $display("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+            end
+        end
+        if(counter==40)begin
             $finish();
         end
 
         $display("counter = %h", counter);
+        $display("x3= %h", x3);
         counter+=1;
     end
 
+    integer k;
     initial begin
         $dumpfile("top_tb.vcd");
         $dumpvars(0, top_tb);
-        for(index=0;index<32;index++)begin
-            $dumpvars(0, u_top.u_pipelineID.u_regfile.regfile_data[index]);
+
+        for(k=0;k<12;k++)begin
+            $dumpvars(0 , itcm_mem[k]);
+            $dumpvars(0 , `MEM_BANK0[k]);
+            $dumpvars(0 , `MEM_BANK1[k]);
         end
     end
 
   // initial I_Memory
     initial begin
-        $readmemh("i-memory.txt", u_top.u_pipelineIF.sramInstance.m_array);
-        // $readmemh("registerFile.txt", u_top.u_pipelineID.u_regfile.regfile_data,0,15);
+        $readmemh({"i-memory.txt"}, itcm_mem);
+                u_top.u_pipeline_withFIFO.u_imemory.u_memory_block0.m_array[0][ 7:0]=itcm_mem[0];
+                u_top.u_pipeline_withFIFO.u_imemory.u_memory_block0.m_array[0][15:8]=itcm_mem[1];
+                for(i=0;i<`ITCM_DEPTH;i++)begin
+                    `MEM_BANK0[i][15:8]=itcm_mem[i*4+3];
+                    `MEM_BANK0[i][ 7:0]=itcm_mem[i*4+2];
+                    `MEM_BANK1[i][15:8]=itcm_mem[i*4+1];
+                    `MEM_BANK1[i][ 7:0]=itcm_mem[i*4+0]; 
+                end
     end
 
     // MCU top instance
