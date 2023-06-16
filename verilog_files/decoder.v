@@ -39,6 +39,12 @@ module decoder(
     // output reg regWriteEnD,
     output reg [3:0] wb_src_o, // write back select
     output reg wb_en_o,  // write back enable
+    //========== CSR instruction ==========
+    output reg [11:0] csr_addr_o,
+    output reg csr_read_o,
+    output reg csr_op_inv_o,
+    output reg csr_zimm_en_o,
+    output reg [31:0] csr_zimm_o,
     // ========= illegal instruction =========
     output reg instr_illegal_o
 );
@@ -80,6 +86,12 @@ module decoder(
         instr_illegal_o = 1'b0; // suppose instruction is legal by default.
         wb_src_o = `WBSRC_ALU;  // suppose write back source is from ALU 
         wb_en_o = 1'b0; // suppose write back is not enable 
+        csr_addr_o=instruction_i[31:20];
+        csr_op_inv_o=1'b0;
+        csr_read_o=1'b0;
+        csr_write_o=1'b0;
+        csr_zimm_en_o=1'b0;
+        csr_zimm_o=32'b0;
         case(opcode) 
             `OPCODE_LOAD  : begin
                 imm_type_o = `IMM_I;
@@ -101,7 +113,9 @@ module decoder(
                     end
                     3'b101: begin
                         dmem_type_o = `DMEM_LHU;
-                    end
+                    endcsr_op_inv_o=1'b1;
+                    csr_read_o=1'b0;
+                    csr_write_o=1'b1;
                     default: instr_illegal_o = 1'b1;
                 endcase
             end
@@ -284,6 +298,29 @@ module decoder(
                 alu_calculation = `ALUOP_ADD;
                 wb_src_o = `WBSRC_PC;
                 wb_en_o = 1'b1;
+            end
+            `OPCODE_SYSTEM:
+            begin
+                wb_en_o=1'b1;
+                case(instruction_i[12:14])
+                3'b011: begin//csrrc
+                    wb_en_o=1'b1;
+                    wb_src_o=`WBSRC_ALU;//TODO ALU FOR CSR
+                    alu_calculation=`ALUOP_AND;
+                    csr_op_inv_o=1'b1;
+                    csr_read_o=1'b1;
+                    csr_write_o=1'b1;
+                end
+                3'b111: begin//csrrci
+                    wb_en_o=1'b1;
+                    wb_src_o=`WBSRC_ALU;//TODO ALU FOR CSR
+                    alu_calculation=`ALUOP_AND;
+                    csr_op_inv_o=1'b1;
+                    csr_read_o=1'b1;
+                    csr_write_o=1'b1;
+                    csr_zimm_en_o=1'b1;
+                    csr_zimm_o={27'b0,instruction_i};
+                end
             end
             default: instr_illegal_o = 1'b1;
         endcase

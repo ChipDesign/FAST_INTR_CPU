@@ -100,7 +100,7 @@ module pipelineMEM_withloadstore (
     assign bypass_m_o = ({32{result_src_e_i[0]}}&alu_result_e_i)|
                                  ({32{result_src_e_i[1]}}&extended_imm_e_i)|
                                  ({32{result_src_e_i[2]}}&read_data)|
-                                 ({32{result_src_e_i[3]}}&pc_plus4_e_i);
+                                 ({32{result_src_e_i[3]}}&pc_plus_e_i);
 
     //*********************************    
     //        DATA MEM STORES
