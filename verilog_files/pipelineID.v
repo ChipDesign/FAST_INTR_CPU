@@ -179,15 +179,21 @@ module pipelineID(
             div_last_d_o      <= div_last;
             fin_d_o           <= fin;
             // choose alu operand source
-            if(rs1_sel_o == `RS1SEL_RF) begin
-                rs1_d_o <= ({32{src1_sel_d_i==2'b0}}&rs1_data_o)|
+            if(csr_zimm_en_o)
+            begin
+                rs1_d_o<= csr_zimm_o;
+            end
+            else if(rs1_sel_o == `RS1SEL_RF) begin
+                rs1_d_o <= ({32{src1_sel_d_i==2'b0}}&({32{csr_op_inv_o}}^rs1_data_o)|
                             ({32{src1_sel_d_i==2'b1}}&bypass_e_o)|
                             ({32{src1_sel_d_i==2'b10}}&bypass_m_o);  // alu operand1 from RF
             end
             else begin
                 rs1_d_o <= pc_next; // alu source from pc+4
             end
-            if(rs2_sel_o == `RS2SEL_RF) begin
+            if (csr_read_o)
+                rs2_d_o <= csr_d_i;
+            else if(rs2_sel_o == `RS2SEL_RF) begin
                 rs2_d_o <= ({32{src2_sel_d_i==2'b0}}&rs2_data_o)|
                             ({32{src2_sel_d_i==2'b1}}&bypass_e_o)|
                             ({32{src2_sel_d_i==2'b10}}&bypass_m_o); // alu operand2 from RF
