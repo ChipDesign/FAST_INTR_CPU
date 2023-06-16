@@ -28,7 +28,7 @@ module pipelineMEM_withloadstore (
     input wire [ 3:0] result_src_e_i,   
 
     /* signals to passed to WB stage */
-    output wire [31:0] mem_read_data_m_o,  // data read from D-memory 
+    output reg [31:0] mem_read_data_m_o,  // data read from D-memory 
     output reg [31:0] alu_result_m_o,    // alu calculation result
     output reg [31:0] extended_imm_m_o,  // extended imm, for 'lui' instruction
     output reg [31:0] pc_plus_m_o,      // rd=pc+4, for `jal` instruction
@@ -96,8 +96,11 @@ module pipelineMEM_withloadstore (
         end
     end
 
-    assign mem_read_data_m_o = read_data;
-    assign bypass_m_o = read_data ;
+    
+    assign bypass_m_o = ({32{result_src_e_i[0]}}&alu_result_e_i)|
+                                 ({32{result_src_e_i[1]}}&extended_imm_e_i)|
+                                 ({32{result_src_e_i[2]}}&read_data)|
+                                 ({32{result_src_e_i[3]}}&pc_plus_e_i);
 
     //*********************************    
     //        DATA MEM STORES
@@ -164,6 +167,7 @@ module pipelineMEM_withloadstore (
     always@(posedge clk) begin
         mem_op    <= dmem_type_e_i; 
         byte_addr <= alu_result_e_i[1:0];
+        mem_read_data_m_o <= read_data;
     end
 
     always @(*) begin 
