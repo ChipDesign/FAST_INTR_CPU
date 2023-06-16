@@ -107,9 +107,7 @@ module top(
     // wire [31:0] redirection_pc_e_i;
     // wire        redirection_e_i;
     // wire        ptnt_e_i;
-    assign ptnt_e_i = 1'b0;
-    assign redirection_e_i = 1'b0;
-    assign redirection_pc_e_i = 32'h0;
+    
 
     
     // pipeline resetn signals
@@ -193,6 +191,8 @@ module top(
         .flush_e_i              ( flush_exe_e_o         ),
         .redirection_e_o        ( redirection_e_o       ),
         .redirection_pc_e_o     ( redirection_pc_e_o    ),
+        .redirection_e_i        ( redirection_e_i       ),
+        .redirection_pc_e_i     ( redirection_pc_e_i    ),
         .jalr_d_i               ( jalr_d_o              ),
         .dmem_type_d_i     		( dmem_type_d_o     	),
         .reg_write_en_d_i   	( reg_write_en_d_o   	),
@@ -275,6 +275,7 @@ module top(
         .de_st                  ( de_st_d_i             ),
         .em_st                  ( em_st_e_i             ),
         .mw_st                  (),
+        .ptnt_e_i               ( ptnt_e_i              ),
         .rs1_depended_h_o       ( rs1_depended_h_o      ),
         .flush_o                ( flush_d_i             ),
         .rstn                   ( resetn                ),

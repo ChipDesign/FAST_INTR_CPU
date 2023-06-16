@@ -10,7 +10,7 @@ f_cmiss,m_cmiss,
 f_arrival,m_arrival,
 fd_st,de_st,em_st,mw_st,
 flush_o,
-rs1_depended_h_o,
+rs1_depended_h_o,ptnt_e_i,
 rstn,clk);
 
 input is_b,is_j,is_load,dst_en,is_m,is_d;
@@ -26,6 +26,7 @@ output[1:0] src1_sel,src2_sel;
 output fd_st,de_st,em_st,mw_st;
 output flush_o;
 output rs1_depended_h_o;
+output ptnt_e_i;
 
 
 reg[4:0] dst_1,dst_2;
@@ -192,10 +193,10 @@ end
 
 
 
-assign flush=jd1|jd2|jd_b3|bptnt1|bptrt|(bpt&real_taken)|bnt1|bnt2|(bnt&real_taken);
+assign flush=jd1|jd_b2|bptnt|(bpt&real_taken)|bnt1|(bnt&real_taken);
 assign flush_o=flush;
 assign rs1_depended_h_o=|src1_sel;
-
+assign ptnt_e_i=bpt&~real_taken;
 
 endmodule
 `endif
