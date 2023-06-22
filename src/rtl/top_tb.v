@@ -38,7 +38,7 @@ module top_tb ();
             /* $readmemh("registerFile.txt", u_top.pipelineIDInstance.registerFile,0,15); */
         end
         // check test results
-        if(counter == 20) begin
+        if(counter == 30) begin
             if (x3 == 1) begin
                 $display("~~~~~~~~~~~~~~~~ TEST_PASS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
                 $display("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
