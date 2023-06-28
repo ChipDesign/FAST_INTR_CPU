@@ -38,7 +38,7 @@ module top_tb ();
             /* $readmemh("registerFile.txt", u_top.pipelineIDInstance.registerFile,0,15); */
         end
         // check test results
-        if(counter == 20) begin
+        if(counter == 30) begin
             if (x3 == 1) begin
                 $display("~~~~~~~~~~~~~~~~ TEST_PASS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
                 $display("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
@@ -71,7 +71,7 @@ module top_tb ();
         counter+=1;
     end
 
-    integer k;
+    integer k,l;
     initial begin
         $dumpfile("top_tb.vcd");
         $dumpvars(0, top_tb);
@@ -81,6 +81,10 @@ module top_tb ();
             $dumpvars(0 , `MEM_BANK0[k]);
             $dumpvars(0 , `MEM_BANK1[k]);
         end
+        /*for(l=0;l<32;l++)
+        begin
+            $dumpvars(0, u_top.u_pipelineID.u_regfile.regfile_data[i]);
+        end*/
     end
 
   // initial I_Memory

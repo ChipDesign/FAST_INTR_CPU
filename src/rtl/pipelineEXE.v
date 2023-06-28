@@ -35,13 +35,14 @@ module pipelineEXE (
     input wire        d_advance_d_o,
     input wire        div_last_d_o,
     input wire [ 1:0] mul_state_d_o,
+    //input wire [31:0] CSR_data_d_i,
     
 
     input wire        st_e_i,
 
     /* signals passed to IF stage */
-    output reg        redirection_e_o,        // sbp wrong, alu revise pc to correct pc 
-    output reg [31:0] redirection_pc_e_o, // new pc for IF
+    output wire        redirection_e_o,        // sbp wrong, alu revise pc to correct pc 
+    output wire [31:0] redirection_pc_e_o, // new pc for IF
     /* signals passed to MEM stage */
     // MEM stage signals
     output reg [31:0] alu_result_e_o,   // alu calculation result                                               
@@ -52,10 +53,11 @@ module pipelineEXE (
     output reg        reg_write_en_e_o,  // RF write enable                                                      
     output reg [ 4:0] rd_idx_e_o,          
     output reg [ 3:0] result_src_e_o,   // select signal to choose one of the four inputs
-    
+    output reg [31:0] rs1_e_o,
     output reg        instr_illegal_e_o, // instruction illegal
     output wire       real_taken_e_o,  
     output wire [31:0]      bypass_e_o
+    //output reg [31:0]  CSR_data_e_o
 );
 
 
@@ -65,6 +67,8 @@ module pipelineEXE (
     wire [31:0] alu_calculation;     // alu calculation result
     wire 	    alu_taken;        // alu branch decision for b-type instruction
     wire        is_branch;
+    reg redirection_r;
+    reg [31:0] redirection_pc_r;
 // =========================================================================
 // ============================ implementation =============================
 // =========================================================================
@@ -75,6 +79,7 @@ module pipelineEXE (
     // pass through data to next stage
     always @(posedge clk ) begin 
         if(~resetn || flush_e_i) begin
+            rs1_e_o           <= 32'b0;
             alu_result_e_o    <= 32'h0;
             dmem_type_e_o     <= 3'b0;
             extended_imm_e_o  <= 32'h0;
@@ -83,9 +88,11 @@ module pipelineEXE (
             rd_idx_e_o        <= 5'h0;
             result_src_e_o    <= 4'b0000;
             instr_illegal_e_o <= 1'h0;
+            //CSR_data_e_o      <= 32'b0;
         end
         else if(st_e_i)
         begin
+            rs1_e_o           <= rs1_e_o;
             alu_result_e_o    <= alu_result_e_o ;
             dmem_type_e_o     <= dmem_type_e_o;   
             extended_imm_e_o  <= extended_imm_e_o ;
@@ -94,8 +101,10 @@ module pipelineEXE (
             rd_idx_e_o        <= rd_idx_e_o;      
             result_src_e_o    <= result_src_e_o;
             instr_illegal_e_o <= instr_illegal_e_o;
+            //CSR_data_e_o      <= CSR_data_e_o ;
         end
         else begin
+            rs1_e_o           <= rs1_d_i;
             alu_result_e_o    <= alu_calculation;
             dmem_type_e_o     <= dmem_type_d_i;   
             extended_imm_e_o  <= extended_imm_d_i;
@@ -104,102 +113,29 @@ module pipelineEXE (
             rd_idx_e_o        <= rd_idx_d_i;      
             result_src_e_o    <= result_src_d_i;
             instr_illegal_e_o <= instr_illegal_d_i;
+            //CSR_data_e_o      <= CSR_data_d_i; 
         end
     end
 
-    // // deal with b-type instruction, check if sbp is correct
-    // // deal with jalr instruction, calculate correct pc  
-    // always @(posedge clk ) begin 
-    //     if(~resetn) begin
-    //         redirection_e_o   <= 1'b0;
-    //         redirection_pc_e_o<= 32'h0;
-    //     end
-    //     else begin
-    //         // b-type instruction prediction wrong in ID
-    //         if(taken_d_i != alu_taken && is_branch) begin
-    //             if(alu_taken==1'b1) begin // sbp no taken, alu taken, choose rediction pc
-    //                 redirection_e_o    <= 1'b1;    
-    //                 redirection_pc_e_o <= prediction_pc_d_i;
-    //         end
-    //             else begin // sbp taken, alu not taken, choose pc+4 for next pc
-    //                 redirection_e_o    <= 1'b1;    
-    //                 redirection_pc_e_o <= pc_plus4_d_i;
-    //             end
-    //         end
-    //         else if(jalr_d_i && ~taken_d_i) begin
-    //         // jalr instruction
-    //         // if it's jarl instruction, and ID says it's not taken 
-    //         // it means sbp can not calculate it's target pc, 
-    //         // so alu have to calculate target pc
-    //             redirection_e_o    <= 1'b1;    
-    //             redirection_pc_e_o <= alu_calculation & ~1; // new pc for jalr instruction
-    //         end
-    //         else begin
-    //             redirection_e_o    <= 1'b0;    
-    //             redirection_pc_e_o <= 32'h0;
-    //         end
-    //     end
-    // end
-    
-    // pipeline flush signals
-    always @(posedge clk ) begin 
-        if(st_e_i)
-        begin
-            redirection_e_o    <= redirection_e_o;
-            redirection_pc_e_o <= redirection_pc_e_o;
-        end
-        else if(flush_e_i) begin
-            redirection_e_o    <= 1'b0;
-            redirection_pc_e_o <= 32'h0;
-        end
-        else if(is_branch==1'b1) begin
-            case({taken_d_i, alu_taken}) 
-                2'b00: begin
-                    // sbp taken, alu taken => don't need to flush instruction
-                    redirection_e_o    <= 1'b0;
-                end
-                2'b01: begin
-                    // sbp not taken, alu taken => flush 3 instructions which are all pc+4
-                    redirection_e_o    <= 1'b1;
-                    redirection_pc_e_o <= prediction_pc_d_i; // fetch instruction from sbp
-                end
-                2'b10: begin
-                    // sbp taken, alu not taken => flush 1 rediction instruction
-                    redirection_e_o    <= 1'b1;
-                    redirection_pc_e_o <= pc_plus4_d_i + 32'h8; // TODO: change 8 to pc_sequential, to support rvc
-                end
-                default: begin
-                    // sbp taken, alu taken => flush 2 instructions which are all pc+4
-                    redirection_e_o    <= 1'b0;    
-                end
-            endcase
-        end
-        else if(jalr_d_i) begin
-            if(~taken_d_i) begin
-            // jalr instruction
-            // if it's jarl instruction, and ID says it's not taken 
-            // it means sbp can not calculate `jalr` target pc, 
-            // so alu have to calculate target pc
-                redirection_e_o    <= 1'b1;    
-                redirection_pc_e_o <= alu_calculation & ~1; // new pc for jalr instruction
-            end
-            else begin
-                redirection_e_o    <= 1'b0;    
-            end
-        end
-        else begin   
-            redirection_e_o        <= 1'b0;
-            redirection_pc_e_o     <= 32'h0;
-        end
+    always@(posedge clk)
+    begin
+        redirection_r <= redirection_e_o;
+        redirection_pc_r <= redirection_pc_e_o;
     end
-//     end
+
+    assign redirection_e_o = st_e_i? redirection_r :
+                                    (taken_d_i^alu_taken)|(jalr_d_i&~taken_d_i);
+    assign redirection_pc_e_o =st_e_i? redirection_pc_r :  
+                                ({32{~taken_d_i&alu_taken}}&prediction_pc_d_i)|
+                                ({32{~taken_d_i&jalr_d_i}})&(alu_calculation&~1);
+    
     
     
     // alu instance
     alu u_alu(
         //ports
         .ain          		( rs1_d_i          	),
-        .bin          		( rs2_d_i          	),
+        .bin          		( rs2_d_i         	),
         .ALUop        		( alu_op_d_i        ),
         .clk          		( clk          		),
         .resetn       		( resetn       		),

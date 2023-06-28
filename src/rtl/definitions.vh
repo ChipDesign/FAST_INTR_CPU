@@ -27,6 +27,7 @@
     `define OPCODE_BRANCH   7'b1100011
     `define OPCODE_JALR     7'b1100111
     `define OPCODE_JAL      7'b1101111
+    `define OPCODE_SYSTEM   7'b1110011
     `define OPCODE_ERROR    7'b1111111
 
     // Immdiate type in Instruction

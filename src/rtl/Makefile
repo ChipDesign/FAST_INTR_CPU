@@ -82,7 +82,7 @@ sim: vvp
 
 # show waveform in gtkwave
 waveform: sim 
-	@gtkwave ${rtlTop}_tb.vcd -a gtkwave_setup.gtkw
+	@gtkwave ${rtlTop}_tb.vcd -a gtkwave_setup.gtkw &
 
 # clean all rtl and asm trash files
 clean: asmClean

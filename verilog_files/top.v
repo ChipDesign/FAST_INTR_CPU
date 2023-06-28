@@ -62,15 +62,14 @@ module top(
     wire [ 4:0]	rd_idx_d_o;
     wire [ 3:0]	resultSrc_d_o;
     wire 	instrIllegal_d_o;
-    wire     rs1_depended_h_o;
+    wire    rs1_depended_h_o;
     wire    jalr_d_o;
     wire    flush_jal_d_o;
     wire [1:0] mul_state_d_o;
     wire    d_advance_d_o;
     wire    d_init_d_o;
     wire    div_last_d_o;
-    wire    flush_d_temp; // temp flush ID, because Hazard has 1 cycle more delay
-    assign flush_d_temp = 1'b0;
+    wire    flush_d_i; // temp flush ID, because Hazard has 1 cycle more delay
 
     // EXE instance
     wire        redirection_e_o;
@@ -138,7 +137,7 @@ module top(
         .rd_idx_w_i        		( rd_idx_w_o       		),
         .write_back_data_w_i 	( write_back_data_w_o 	),
         .rs1_depended_h_i   	( rs1_depended_h_o   	),
-        .flush_i                ( flush_d_temp             ), // TODO: temp flush, replaced by hazard flush
+        .flush_i                ( flush_d_i             ), // TODO: temp flush, replaced by hazard flush
         .src1_sel_d_i           ( src1_sel_d_i          ),
         .src2_sel_d_i           ( src2_sel_d_i          ),
         .bypass_e_o             ( bypass_e_o            ),
