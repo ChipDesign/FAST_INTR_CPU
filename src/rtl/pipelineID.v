@@ -57,11 +57,10 @@ module pipelineID(
     output reg [20:0] alu_op_d_o,         // ALU Operation
     output reg [31:0] rs1_d_o,           // ALU operand 1
     output reg [31:0] rs2_d_o,           // ALU operand 2
-    output reg        beq_d_o,           // additional control for ALU
-    output reg        blt_d_o,           // additional control for ALU
     output reg        jalr_d_o,         // instruction is branch type instruction
     output reg [31:0] pc_next_d_o,      // next instruction pc 
-    output reg        compressed_d_o,   // instruction is compressed
+    output reg [31:0] prediction_pc_d_o,   // pass to exe stage
+    output reg        sbp_taken_d_o,       // pass to exe stage
     // MEM stage signals
     output reg [ 2:0] dmem_type_d_o,      // load/store types
     // WB stage signals
@@ -154,8 +153,7 @@ module pipelineID(
             jalr_d_o          <= 1'b0;
             rs1_d_o           <= 32'h0;        
             rs2_d_o           <= 32'h0;        
-            beq_d_o           <= 1'b0;        
-            blt_d_o           <= 1'b0;        
+            sbp_taken_d_o     <= 1'b0;
             dmem_type_d_o     <= 3'b0;   
             instr_illegal_d_o <= 1'b0;
             flush_jal_d_o     <= 1'b0;
@@ -164,6 +162,7 @@ module pipelineID(
             d_advance_d_o     <= 1'b0;
             d_init_d_o        <= 1'b0;
             div_last_d_o      <= 1'b0;
+            prediction_pc_d_o <= 32'h0;
         end
         else if(enable) begin
             reg_write_en_d_o  <= wb_en_o; 
@@ -171,6 +170,7 @@ module pipelineID(
             extended_imm_d_o  <= imm_o;
             rd_idx_d_o        <= rd_index; 
             alu_op_d_o        <= aluOperation_o;      
+            sbp_taken_d_o     <= taken;
             jalr_d_o          <= branchJALR_o;
             flush_jal_d_o     <= branchJAL_o;
             mul_state_d_o     <= mul_state;
@@ -178,6 +178,7 @@ module pipelineID(
             d_init_d_o        <= d_init;
             div_last_d_o      <= div_last;
             fin_d_o           <= fin;
+            prediction_pc_d_o <= redirection_pc;
             // choose alu operand source
             if(rs1_sel_o == `RS1SEL_RF) begin
                 rs1_d_o <= ({32{src1_sel_d_i==2'b0}}&rs1_data_o)|
@@ -240,7 +241,6 @@ module pipelineID(
     // calculate pc to EXE stage, used to calculate pc_next_next
     always @(posedge clk ) begin 
         pc_next_d_o    <= pc_next;
-        compressed_d_o <= is_compressed_o;
     end
 
     //mul&div control signals
@@ -386,3 +386,4 @@ module pipelineID(
 
 endmodule
 `endif
+
