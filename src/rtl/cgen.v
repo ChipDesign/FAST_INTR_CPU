@@ -1,3 +1,5 @@
+`ifndef __CGEN__
+`define __CGEN__
 module cgen(
 ain,bin,cin,cout);
 
@@ -7,3 +9,4 @@ output cout;
 assign cout=ain?cin:bin;
 
 endmodule
+`endif

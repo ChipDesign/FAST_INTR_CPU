@@ -56,7 +56,7 @@ module top(
     wire [20:0]	alu_op_d_o;
     wire [31:0]	rs1_d_o;
     wire [31:0]	rs2_d_o;
-    wire [ 2:0]	dmem_type_d_o;
+    wire [ 3:0]	dmem_type_d_o;
     wire [31:0]	extended_imm_d_o;
     wire [31:0]	pc_plus4_d_o;
     wire 	reg_write_en_d_o;

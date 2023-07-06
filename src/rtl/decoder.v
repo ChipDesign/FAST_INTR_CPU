@@ -34,7 +34,7 @@ module decoder(
     output reg branchJAL_o,
     output reg branchJALR_o,
     // ========= load store signals =========
-    output reg [2:0] dmem_type_o, // data memory type
+    output reg [3:0] dmem_type_o, // data memory type
     // =========  =========
     // output reg regWriteEnD,
     output reg [3:0] wb_src_o, // write back select

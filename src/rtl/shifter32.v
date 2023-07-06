@@ -1,3 +1,5 @@
+`ifndef __SHIFTER32__
+`define __SHIFTER32__
 module shifter32#(parameter DATA_WIDTH=32, parameter SHIFT_WIDTH=5) (
         input [DATA_WIDTH-1:0] d_in,
         input [SHIFT_WIDTH-1:0] shift,
@@ -194,3 +196,4 @@ module shifter32#(parameter DATA_WIDTH=32, parameter SHIFT_WIDTH=5) (
 
     assign d_out=leftOrRight? shifter_d_out: {shifter_d_out[0], shifter_d_out[1], shifter_d_out[2], shifter_d_out[3], shifter_d_out[4], shifter_d_out[5], shifter_d_out[6], shifter_d_out[7], shifter_d_out[8], shifter_d_out[9], shifter_d_out[10], shifter_d_out[11], shifter_d_out[12], shifter_d_out[13], shifter_d_out[14], shifter_d_out[15], shifter_d_out[16], shifter_d_out[17], shifter_d_out[18], shifter_d_out[19], shifter_d_out[20], shifter_d_out[21], shifter_d_out[22], shifter_d_out[23], shifter_d_out[24], shifter_d_out[25], shifter_d_out[26], shifter_d_out[27], shifter_d_out[28], shifter_d_out[29], shifter_d_out[30], shifter_d_out[31]};
 endmodule
+`endif

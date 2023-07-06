@@ -1,14 +1,11 @@
+`ifndef __CSA32__
+`define __CSA32__
 `include "full_adder.v"
 
 module CSA35(ain,bin,cin,sout,cout);
 
 input[34:0] ain,bin,cin;
 output[34:0] sout,cout;
-
-
-
-
-
 
 full_adder fa0(
 	.ain(ain[0]),
@@ -220,8 +217,5 @@ full_adder fa34(
 	.cin(cin[34]),
 	.sout(sout[34]),
 	.cout(cout[34]));
-
-
-
-
 endmodule
+`endif

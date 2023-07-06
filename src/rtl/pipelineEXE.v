@@ -25,7 +25,7 @@ module pipelineEXE (
     // TODO: Hazard must add some flush logic when EXE find ID is wrong
     input             flush_e_i,
     // MEM stage signals
-    input wire [ 2:0] dmem_type_d_i,      // load/store types
+    input wire [ 3:0] dmem_type_d_i,      // load/store types
     // WB stage signals 
     input wire        reg_write_en_d_i,         
     input wire [ 4:0] rd_idx_d_i,          
@@ -66,7 +66,7 @@ module pipelineEXE (
 // =========================================================================
     wire [31:0] alu_calculation;     // alu calculation result
     wire 	    alu_taken;        // alu branch decision for b-type instruction
-    wire        is_branch;
+    // wire        is_branch;
     reg redirection_r;
     reg [31:0] redirection_pc_r;
 // =========================================================================
@@ -75,13 +75,13 @@ module pipelineEXE (
 
     assign bypass_e_o=alu_calculation;
     assign real_taken_e_o=alu_taken;
-    assign is_branch = alu_op_d_i[20];
+    // assign is_branch = alu_op_d_i[20];
     // pass through data to next stage
     always @(posedge clk ) begin 
         if(~resetn || flush_e_i) begin
             rs1_e_o           <= 32'b0;
             alu_result_e_o    <= 32'h0;
-            dmem_type_e_o     <= 3'b0;
+            dmem_type_e_o     <= 4'b0;
             extended_imm_e_o  <= 32'h0;
             pc_plus4_e_o      <= 32'h0;
             reg_write_en_e_o  <= 1'b0;

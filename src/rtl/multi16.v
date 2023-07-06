@@ -1,3 +1,5 @@
+`ifndef __MULTI16__
+`define __MULTI16__
 `include "booth16.v"
 `include "comp42.v"
 `include "full_adder.v"
@@ -314,3 +316,4 @@ assign sign_out=(ss&(ain[15]^bin[15])) |
 
 
 endmodule
+`endif

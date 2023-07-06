@@ -1,3 +1,5 @@
+`ifndef __COMP42__
+`define __COMP42__
 `include "cgen.v"
 module comp42(
 ain,bin,cin,din,ct,cr,sout,cout);
@@ -26,3 +28,4 @@ cgen cgen1(
 
 
 endmodule
+`endif

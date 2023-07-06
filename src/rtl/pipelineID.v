@@ -62,7 +62,7 @@ module pipelineID(
     output reg [31:0] prediction_pc_d_o,   // pass to exe stage
     output reg        sbp_taken_d_o,       // pass to exe stage
     // MEM stage signals
-    output reg [ 2:0] dmem_type_d_o,      // load/store types
+    output reg [ 3:0] dmem_type_d_o,      // load/store types
     // WB stage signals
     output reg [31:0] extended_imm_d_o,  
     // output reg [31:0] pc_plus4_d_o,      // TODO: depressed, use pc_next_d_o instead
@@ -95,7 +95,7 @@ module pipelineID(
     wire 	    branchBType_o;
     wire 	    branchJAL_o;
     wire 	    branchJALR_o;
-    wire [ 2:0]	dmem_type_o;
+    wire [ 3:0]	dmem_type_o;
     wire [ 3:0]	wb_src_o;
     wire 	    wb_en_o;
     wire 	    decoder_instr_illegal;
@@ -154,7 +154,7 @@ module pipelineID(
             rs1_d_o           <= 32'h0;        
             rs2_d_o           <= 32'h0;        
             sbp_taken_d_o     <= 1'b0;
-            dmem_type_d_o     <= 3'b0;   
+            dmem_type_d_o     <= 4'b0;   
             instr_illegal_d_o <= 1'b0;
             flush_jal_d_o     <= 1'b0;
             fin_d_o           <= 1'b0;

@@ -1,3 +1,5 @@
+`ifndef __BOOTH16__
+`define __BOOTH16__
 module booth16(
 mcand,mlier,umcand,sign,adder,neg);
 
@@ -25,3 +27,4 @@ assign sign=s;
 assign neg=n&(~zero);
 
 endmodule
+`endif
