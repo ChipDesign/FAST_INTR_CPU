@@ -19,7 +19,9 @@ time: 2023年 5月 6日 星期六 16时03分58秒 CST
 
 module top(
     input wire clk,
-    input wire resetn
+    input wire resetn,
+    output wire [31:0] pc,
+    output wire [63:0] instr
 );
 
     // =========================================================================
@@ -102,6 +104,9 @@ module top(
     wire [ 4:0]	rd_idx_w_o;
     wire [31:0]	write_back_data_w_o;
 
+    // pass pc to top 
+    wire [31:0] pc_instr_d_o, pc_instr_e_o, pc_instr_m_o, pc_instr_w_o;
+
     // =========================================================================
     // ============================ implementation =============================
     // =========================================================================
@@ -111,6 +116,9 @@ module top(
     // wire        redirection_e_i;
     // wire        ptnt_e_i;
     
+    // pass pc to top
+    assign pc = pc_instr_w_o;
+    assign instr = 64'h0; // TODO: put right instr from WB
 
     
     // pipeline resetn signals
@@ -170,7 +178,7 @@ module top(
         .is_load_d_o            ( is_load_d_o           ),
         .dst_en_d_o             ( dst_en_d_o            ),
         .fin_d_o                ( fin_d_o               ),
-        .fin_w_d_o              ( fin_w_d_o               ),
+        .fin_w_d_o              ( fin_w_d_o             ),
         .pre_taken_d_o          ( pre_taken_d_o         ),
         .r_dst_d_o              ( r_dst_d_o             ),
         .r_src1_d_o             ( r_src1_d_o            ),
@@ -178,7 +186,8 @@ module top(
         .mul_state_d_o          ( mul_state_d_o         ),
         .div_last_d_o           ( div_last_d_o          ),
         .d_advance_d_o          ( d_advance_d_o         ),
-        .d_init_d_o             ( d_init_d_o            )
+        .d_init_d_o             ( d_init_d_o            ),
+        .pc_instr_d_o           ( pc_instr_d_o          )
         //.CSR_data_d_i           ( CSR_data_c_o          ),
         //.CSR_data_d_o           ( CSR_data_d_o          ),
         //.CSR_addr_d_o           ( CSR_addr_d_o          ),
@@ -221,7 +230,9 @@ module top(
         .result_src_e_o    		( resultSrc_e_o    		),
         .instr_illegal_e_o 		( instrIllegal_e_o 		),
         .real_taken_e_o         ( real_taken_e_o        ),
-        .bypass_e_o             ( bypass_e_o            )
+        .bypass_e_o             ( bypass_e_o            ),
+        .pc_instr_d_i           ( pc_instr_d_o          ),
+        .pc_instr_e_o           ( pc_instr_e_o          )
         //.CSR_wen_e_o            ( CSR_wen_e_o           )
     );
 
@@ -245,12 +256,16 @@ module top(
         .reg_write_en_m_o   	( reg_write_en_m_o   	),
         .rd_idx_m_o        		( rd_idx_m_o        	),
         .result_src_m_o    		( result_src_m_o    	),
-        .bypass_m_o             ( bypass_m_o            )
+        .bypass_m_o             ( bypass_m_o            ),
+        .pc_instr_e_i           ( pc_instr_e_o          ),
+        .pc_instr_m_o           ( pc_instr_m_o          )
     );
 
     // WB stage instance
     pipelineWB u_pipelineWB(
         //ports
+        .clk             		( clk             		),
+        .resetn           		( resetn           		),
         .alu_result_m_i     	( alu_result_m_o     	),
         .mem_read_data_m_i  	( mem_read_data_m_o   	),
         .extended_imm_m_i   	( extended_imm_m_o   	),
@@ -260,7 +275,9 @@ module top(
         .result_src_m_i     	( result_src_m_o     	),
         .reg_write_en_w_o    	( reg_write_en_w_o    	),
         .rd_idx_w_o          	( rd_idx_w_o         	),
-        .write_back_data_w_o 	( write_back_data_w_o 	)
+        .write_back_data_w_o 	( write_back_data_w_o 	),
+        .pc_instr_m_i           ( pc_instr_m_o          ),
+        .pc_instr_w_o           ( pc_instr_w_o          )
     );
 
     hazard hu(

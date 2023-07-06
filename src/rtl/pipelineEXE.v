@@ -35,6 +35,7 @@ module pipelineEXE (
     input wire        d_advance_d_o,
     input wire        div_last_d_o,
     input wire [ 1:0] mul_state_d_o,
+    input wire [31:0] pc_instr_d_i,
     //input wire [31:0] CSR_data_d_i,
     
 
@@ -51,6 +52,7 @@ module pipelineEXE (
     output reg [31:0] extended_imm_e_o, // extended imm, for 'lui' instruction                                 ,
     output reg [31:0] pc_plus4_e_o,     // rd=pc+4, for `jal` instruction                                       
     output reg        reg_write_en_e_o,  // RF write enable                                                      
+    output reg [31:0] pc_instr_e_o,
     output reg [ 4:0] rd_idx_e_o,          
     output reg [ 3:0] result_src_e_o,   // select signal to choose one of the four inputs
     output reg [31:0] rs1_e_o,
@@ -88,6 +90,7 @@ module pipelineEXE (
             rd_idx_e_o        <= 5'h0;
             result_src_e_o    <= 4'b0000;
             instr_illegal_e_o <= 1'h0;
+            pc_instr_e_o      <= 32'h80000000;
             //CSR_data_e_o      <= 32'b0;
         end
         else if(st_e_i)
@@ -101,6 +104,7 @@ module pipelineEXE (
             rd_idx_e_o        <= rd_idx_e_o;      
             result_src_e_o    <= result_src_e_o;
             instr_illegal_e_o <= instr_illegal_e_o;
+            pc_instr_e_o      <= pc_instr_d_i;
             //CSR_data_e_o      <= CSR_data_e_o ;
         end
         else begin

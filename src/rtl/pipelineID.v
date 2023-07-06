@@ -13,6 +13,7 @@ main components:
 author: fujie
 time: 2023年 4月28日 星期五 15时52分49秒 CST
 */
+import "DPI-C" function void ebreak(); // add DPI-C
 `include "definitions.vh"
 `include "decoder.v"
 `include "staticBranchPredictor.v"
@@ -58,6 +59,7 @@ module pipelineID(
     output reg [31:0] rs1_d_o,           // ALU operand 1
     output reg [31:0] rs2_d_o,           // ALU operand 2
     output reg        jalr_d_o,         // instruction is branch type instruction
+    output reg [31:0] pc_instr_d_o,     // instruction PC
     output reg [31:0] pc_next_d_o,      // next instruction pc 
     output reg [31:0] prediction_pc_d_o,   // pass to exe stage
     output reg        sbp_taken_d_o,       // pass to exe stage
@@ -132,6 +134,14 @@ module pipelineID(
 // ============================ implementation =============================
 // =========================================================================
 
+    // ebreak 
+    wire [2:0] func3 = instru_32bits[14:12];
+    wire [6:0] func7 = instru_32bits[31:25];
+    wire [6:0] op    = instru_32bits[6:0];
+    reg inst_ebreak =  op[6] &  op[5] &  op[4] & ~op[3] & ~op[2] & ~func3[2] & ~func3[1] & ~func3[0] & ~func7[5] & ~func7[0] & ~instru_32bits[21] &  instru_32bits[20]; // ebreak 断点
+    always @(*) begin
+      if (inst_ebreak) ebreak();
+    end
     // pass compress info to IF, used by FIFO pop operation
     assign is_compressed_d_o = resetn_delay & is_compressed_o;
 
@@ -163,6 +173,7 @@ module pipelineID(
             d_init_d_o        <= 1'b0;
             div_last_d_o      <= 1'b0;
             prediction_pc_d_o <= 32'h0;
+            pc_instr_d_o      <= 32'h80000000; // riscv pc starts at 0x80000000
         end
         else if(enable) begin
             reg_write_en_d_o  <= wb_en_o; 
@@ -179,6 +190,7 @@ module pipelineID(
             div_last_d_o      <= div_last;
             fin_d_o           <= fin;
             prediction_pc_d_o <= redirection_pc;
+            pc_instr_d_o      <= pc_instr;
             // choose alu operand source
             if(rs1_sel_o == `RS1SEL_RF) begin
                 rs1_d_o <= ({32{src1_sel_d_i==2'b0}}&rs1_data_o)|
