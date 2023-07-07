@@ -20,9 +20,19 @@ time: 2023年 5月 6日 星期六 16时03分58秒 CST
 module top(
     input  wire        clk,
     input  wire        resetn,
+    // signals used by difftest
     output wire [31:0] pc,
     output wire [63:0] instr,
-    output wire        wb_en
+    output wire        wb_en,
+    output wire [ 4:0] wb_idx,
+    output wire [31:0] wb_data,
+    output wire [31:0] id_instr,
+    output wire [20:0] op_code,
+    output wire [31:0] src1,
+    output wire [31:0] src2,
+    output wire [ 3:0] wb_src,
+    output wire [31:0] alu_result
+    // signals used by difftest
 );
 
     // =========================================================================
@@ -117,10 +127,23 @@ module top(
     // wire        redirection_e_i;
     // wire        ptnt_e_i;
     
-    // pass pc to top
-    assign pc = pc_instr_w_o;
-    assign instr = 64'h0; // TODO: put right instr from WB
-    assign wb_en = reg_write_en_w_o; // used ass difftest signals
+    // TOP signals used for difftest
+    assign pc = pc_instr_d_o;
+    // assign instr = {{32'h0}, instruction_f_o}; // TODO: put right instr from WB
+    assign wb_idx = rd_idx_w_o;
+    assign wb_data=write_back_data_w_o;
+    assign id_instr=instruction_f_o;
+    assign op_code=alu_op_d_o;
+    assign src1 = rs1_d_o;
+    assign src2 = rs2_d_o;
+    assign wb_src = resultSrc_d_o; 
+    assign alu_result=aluResult_e_o;
+    assign wb_en  = wb_en_pre; // used ass difftest signals
+    reg wb_en_pre;
+    always @(posedge clk ) begin 
+        wb_en_pre <= reg_write_en_w_o;
+    end
+    
 
     
     // pipeline resetn signals
@@ -134,7 +157,8 @@ module top(
         .taken_d_i       		( taken_d_o       		),
         .is_compress_d_i        (is_compress_d_i        ),
         .flush_i                ( flush_jal_d_o         ), // TODO: add flush from EXE
-        .instruction_f_o 		( instruction_f_o 		)
+        .instruction_f_o 		( instruction_f_o 		),
+        .top_ins                ( instr)
     );
 
     // ID stage instance
