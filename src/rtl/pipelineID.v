@@ -241,7 +241,7 @@ module pipelineID(
                      ({32{~is_compressed_o}} & pc_instr + 32'h4);
     always @(posedge clk ) begin 
         if(~resetn) begin
-            pc_instr <= 32'h0;    
+            pc_instr <= 32'h80000000;    
         end
         else if(taken_reg) begin
             pc_instr <= pc_taken;    
