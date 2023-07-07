@@ -18,10 +18,11 @@ time: 2023年 5月 6日 星期六 16时03分58秒 CST
 `include "hazard.v"
 
 module top(
-    input wire clk,
-    input wire resetn,
+    input  wire        clk,
+    input  wire        resetn,
     output wire [31:0] pc,
-    output wire [63:0] instr
+    output wire [63:0] instr,
+    output wire        wb_en
 );
 
     // =========================================================================
@@ -119,6 +120,7 @@ module top(
     // pass pc to top
     assign pc = pc_instr_w_o;
     assign instr = 64'h0; // TODO: put right instr from WB
+    assign wb_en = reg_write_en_w_o; // used ass difftest signals
 
     
     // pipeline resetn signals
