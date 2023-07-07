@@ -190,7 +190,7 @@ module pipelineID(
             div_last_d_o      <= div_last;
             fin_d_o           <= fin;
             prediction_pc_d_o <= redirection_pc;
-            pc_instr_d_o      <= pc_instr;
+            pc_instr_d_o      <= pc_instr_d_o + 4 ; // TODO: fix this
             // choose alu operand source
             if(rs1_sel_o == `RS1SEL_RF) begin
                 rs1_d_o <= ({32{src1_sel_d_i==2'b0}}&rs1_data_o)|
@@ -230,15 +230,19 @@ module pipelineID(
     always @(posedge clk ) begin 
         if(~resetn) begin
             taken_reg <= 1'b1;
-            pc_taken  <= 32'h0;
+            pc_taken  <= 32'h80000000;
         end
         else begin
             taken_reg <= taken_d_o;
             pc_taken  <= redirection_d_o;
         end
     end
-    assign pc_next = ({32{ is_compressed_o}} & pc_instr + 32'h2)| 
-                     ({32{~is_compressed_o}} & pc_instr + 32'h4);
+    // TODO: temp -> suppose instruction to be 32 bits
+    wire compress_temp;
+    assign compress_temp = 1'b0;
+    assign pc_next = ({32{ compress_temp}} & pc_instr + 32'h2)| 
+                     ({32{~compress_temp}} & pc_instr + 32'h4);
+    // TODO: temp -> suppose instruction to be 32 bits
     always @(posedge clk ) begin 
         if(~resetn) begin
             pc_instr <= 32'h80000000;    
