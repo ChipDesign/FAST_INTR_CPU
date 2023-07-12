@@ -22,16 +22,22 @@ module top(
     input  wire        resetn,
     // signals used by difftest
     output wire [31:0] pc,
-    output wire [63:0] instr,
-    output wire        wb_en,
+    input  wire [63:0] instr,
     output wire [ 4:0] wb_idx,
     output wire [31:0] wb_data,
     output wire [31:0] id_instr,
     output wire [20:0] op_code,
     output wire [31:0] src1,
     output wire [31:0] src2,
+    output wire        id_wb_en,
+    output wire        exe_wb_en,
+    output wire        mem_wb_en,
+    output wire        wb_wb_en,
     output wire [ 3:0] wb_src,
-    output wire [31:0] alu_result
+    output wire [31:0] alu_result,
+    output wire        reg_en,
+    output wire [4:0]  reg_idx,
+    output wire [31:0] reg_data
     // signals used by difftest
 );
 
@@ -94,7 +100,7 @@ module top(
     wire [ 3:0]	dMemType_e_o;
     wire [31:0]	extendedImm_e_o;
     wire [31:0]	pcPlus4_e_o;
-    wire 	regWriteEn_e_o;
+    wire 	reg_write_en_e_o;
     wire [ 4:0]	rdIdx_e_o;
     wire [ 3:0]	resultSrc_e_o;
     wire 	instrIllegal_e_o;
@@ -130,19 +136,47 @@ module top(
     // TOP signals used for difftest
     assign pc = pc_instr_d_o;
     // assign instr = {{32'h0}, instruction_f_o}; // TODO: put right instr from WB
-    assign wb_idx = rd_idx_w_o;
     assign wb_data=write_back_data_w_o;
     assign id_instr=instruction_f_o;
     assign op_code=alu_op_d_o;
     assign src1 = rs1_d_o;
     assign src2 = rs2_d_o;
-    assign wb_src = resultSrc_d_o; 
-    assign alu_result=aluResult_e_o;
-    assign wb_en  = wb_en_pre; // used ass difftest signals
-    reg wb_en_pre;
+    assign id_wb_en  = reg_write_en_d_o;
+    assign exe_wb_en = reg_write_en_e_o;
+    assign mem_wb_en = reg_write_en_m_o;
+    // assign wb_wb_en  = reg_write_en_w_o;
+    assign wb_wb_en  = wb_d;
+    assign wb_idx    = rd_idx_w_o;
+    assign wb_src    = resultSrc_d_o; 
+    assign alu_result= aluResult_e_o;
+    reg wb_d;
     always @(posedge clk ) begin 
-        wb_en_pre <= reg_write_en_w_o;
+        if(~resetn) begin
+            wb_d <= 1'b0;
+        end
+        else begin
+            wb_d <= reg_write_en_m_o;    
+        end
     end
+
+    assign reg_en   = reg_write_en_w_o;
+    assign reg_idx  = rd_idx_w_o;
+    assign reg_data = write_back_data_w_o;
+     
+    // assign wb_en  = wb_en_d_d_d; // used ass difftest signals
+    // reg wb_en_d, wb_en_d_d, wb_en_d_d_d;
+    // always @(posedge clk ) begin 
+    //     if(~resetn) begin
+    //         wb_en_d     <= 1'b0;
+    //         wb_en_d_d   <= 1'b0;
+    //         wb_en_d_d_d <= 1'b0;
+    //     end
+    //     else begin
+    //         wb_en_d     <= reg_write_en_w_o;
+    //         wb_en_d_d   <= wb_en_d;
+    //         wb_en_d_d_d <= wb_en_d_d;
+    //     end
+    // end
     
 
     
@@ -251,7 +285,7 @@ module top(
         .rs1_e_o                ( rs1_e_o               ),
         .extended_imm_e_o  		( extendedImm_e_o  		),
         .pc_plus4_e_o      		( pcPlus4_e_o      		),
-        .reg_write_en_e_o   	( regWriteEn_e_o   		),
+        .reg_write_en_e_o   	( reg_write_en_e_o   		),
         .rd_idx_e_o        		( rdIdx_e_o        		),
         .result_src_e_o    		( resultSrc_e_o    		),
         .instr_illegal_e_o 		( instrIllegal_e_o 		),
@@ -272,7 +306,7 @@ module top(
         .dmem_type_e_i     		( dMemType_e_o     		),
         .extended_imm_e_i  		( extendedImm_e_o  		),
         .pc_plus_e_i      		( pcPlus4_e_o      		),
-        .reg_write_en_e_i   	( regWriteEn_e_o   		),
+        .reg_write_en_e_i   	( reg_write_en_e_o 		),
         .rd_idx_e_i        		( rdIdx_e_o        		),
         .result_src_e_i    		( resultSrc_e_o    		),
         .mem_read_data_m_o  	( mem_read_data_m_o  	),
