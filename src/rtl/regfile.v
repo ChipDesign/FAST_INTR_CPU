@@ -40,11 +40,11 @@ module regfile
     
     integer i;
     // set all registers to 0 on initialization
-    initial begin
-        for(i=0; i<REGFILE_DEPTH; i=i+1) begin
-            regfile_data[i] = 0;
-        end      
-    end
+    // initial begin
+    //     for(i=0; i<REGFILE_DEPTH; i=i+1) begin
+    //         regfile_data[i] = 0;
+    //     end      
+    // end
     // if resetn_i is asserted, reset all registers
     always @(posedge clk_i) begin 
         if(~resetn_i) begin
