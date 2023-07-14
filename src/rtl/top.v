@@ -17,30 +17,37 @@ time: 2023年 5月 6日 星期六 16时03分58秒 CST
 `include "regfile.v"
 `include "hazard.v"
 
+`define DIFFTEST
+
 module top(
     input  wire        clk,
     input  wire        resetn,
     // signals used by difftest
+    `ifdef DIFFTEST
     output wire [31:0] pc,
     input  wire [63:0] instr,
-    output wire [ 4:0] wb_idx,
-    output wire [31:0] wb_data,
     output wire [31:0] id_instr,
-    output wire [20:0] op_code,
-    output wire [31:0] src1,
-    output wire [31:0] src2,
-    output wire        id_wb_en,
-    output wire        exe_wb_en,
-    output wire        mem_wb_en,
-    output wire        wb_wb_en,
-    output wire [ 3:0] wb_src,
-    output wire [31:0] alu_result,
-    output wire        reg_en,
-    output wire [4:0]  reg_idx,
-    output wire [31:0] reg_data
+    output wire [31:0] imem_addr,
+    output wire        commit_en
+    `endif
     // signals used by difftest
 );
 
+    `ifdef DIFFTEST
+    assign pc = pc_instr_d_o;
+    assign id_instr=instruction_f_o;
+    // assign wb_wb_en  = reg_write_en_w_o;
+    assign commit_en  = wb_d;
+    reg wb_d;
+    always @(posedge clk ) begin 
+        if(~resetn) begin
+            wb_d <= 1'b0;
+        end
+        else begin
+            wb_d <= reg_write_en_m_o;    
+        end
+    end
+    `endif
     // =========================================================================
     // =============================== variables ===============================
     // =========================================================================
@@ -133,35 +140,6 @@ module top(
     // wire        redirection_e_i;
     // wire        ptnt_e_i;
     
-    // TOP signals used for difftest
-    assign pc = pc_instr_d_o;
-    // assign instr = {{32'h0}, instruction_f_o}; // TODO: put right instr from WB
-    assign wb_data=write_back_data_w_o;
-    assign id_instr=instruction_f_o;
-    assign op_code=alu_op_d_o;
-    assign src1 = rs1_d_o;
-    assign src2 = rs2_d_o;
-    assign id_wb_en  = reg_write_en_d_o;
-    assign exe_wb_en = reg_write_en_e_o;
-    assign mem_wb_en = reg_write_en_m_o;
-    // assign wb_wb_en  = reg_write_en_w_o;
-    assign wb_wb_en  = wb_d;
-    assign wb_idx    = rd_idx_w_o;
-    assign wb_src    = resultSrc_d_o; 
-    assign alu_result= aluResult_e_o;
-    reg wb_d;
-    always @(posedge clk ) begin 
-        if(~resetn) begin
-            wb_d <= 1'b0;
-        end
-        else begin
-            wb_d <= reg_write_en_m_o;    
-        end
-    end
-
-    assign reg_en   = reg_write_en_w_o;
-    assign reg_idx  = rd_idx_w_o;
-    assign reg_data = write_back_data_w_o;
      
     // assign wb_en  = wb_en_d_d_d; // used ass difftest signals
     // reg wb_en_d, wb_en_d_d, wb_en_d_d_d;
@@ -192,7 +170,8 @@ module top(
         .is_compress_d_i        (is_compress_d_i        ),
         .flush_i                ( flush_jal_d_o         ), // TODO: add flush from EXE
         .instruction_f_o 		( instruction_f_o 		),
-        .top_ins                ( instr)
+        .imemory_output         ( instr[31:0]          ),
+        .imem_addr              ( imem_addr)
     );
 
     // ID stage instance
@@ -247,6 +226,8 @@ module top(
         .div_last_d_o           ( div_last_d_o          ),
         .d_advance_d_o          ( d_advance_d_o         ),
         .d_init_d_o             ( d_init_d_o            ),
+        // DIFFTEST
+        // DIFFTEST
         .pc_instr_d_o           ( pc_instr_d_o          )
         //.CSR_data_d_i           ( CSR_data_c_o          ),
         //.CSR_data_d_o           ( CSR_data_d_o          ),
