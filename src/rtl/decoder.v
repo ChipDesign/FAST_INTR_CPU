@@ -108,7 +108,7 @@ module decoder(
             `OPCODE_OP_IMM: begin
                 imm_type_o = `IMM_I;
                 wb_src_o = `WBSRC_ALU;
-                wb_en_o = 1'b1;
+                wb_en_o = instruction_i != 32'h00000013;
                 case(funct3) 
                     3'b000: begin
                         alu_calculation = `ALUOP_ADD; // addi
