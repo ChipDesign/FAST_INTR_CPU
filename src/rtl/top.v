@@ -37,14 +37,16 @@ module top(
     assign pc = pc_instr_d_o;
     assign id_instr=instruction_f_o;
     // assign wb_wb_en  = reg_write_en_w_o;
-    assign commit_en  = wb_d;
-    reg wb_d;
+    assign commit_en  = wb_d_d;
+    reg wb_d, wb_d_d;
     always @(posedge clk ) begin 
         if(~resetn) begin
-            wb_d <= 1'b0;
+            wb_d   <= 1'b0;
+            wb_d_d <= 1'b0;
         end
         else begin
-            wb_d <= reg_write_en_m_o;    
+            wb_d   <= reg_write_en_m_o;    
+            wb_d_d <= wb_d;
         end
     end
     `endif
