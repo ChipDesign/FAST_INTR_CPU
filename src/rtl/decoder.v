@@ -20,6 +20,9 @@ time: 2023年 4月27日 星期四 09时09分22秒 CST
 */
 
 `include "definitions.vh"
+`ifdef DIFFTEST
+import "DPI-C" function void ebreak();
+`endif
 module decoder(
     input wire [31:0] instruction_i, // instruction from IF stage
     // ========= alu related signals =========
@@ -112,6 +115,7 @@ module decoder(
                 case(funct3) 
                     3'b000: begin
                         alu_calculation = `ALUOP_ADD; // addi
+                        // alu_calculation = `ALUOP_SLL; // slli
                     end
                     3'b001: begin
                         alu_calculation = `ALUOP_SLL; // slli
@@ -288,6 +292,13 @@ module decoder(
             default: instr_illegal_o = 1'b1;
         endcase
     end
-    
+`ifdef DIFFTEST
+wire inst_ebreak;    
+assign inst_ebreak = instruction_i == 32'h00000073; // 0x00000073 is ecall instruction
+
+always @(*) begin
+  if (inst_ebreak) ebreak();
+end
+`endif
 endmodule
 `endif
