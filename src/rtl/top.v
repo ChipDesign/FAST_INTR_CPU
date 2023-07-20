@@ -34,19 +34,34 @@ module top(
 );
 
     `ifdef DIFFTEST
+    reg resetn_d, resetn_d_d;
+    reg commit_en_exe, commit_en_mem, commit_en_wb, commit_en_delay;
+    wire commit_en_id;
     assign pc = pc_instr_d_o;
     assign id_instr=instruction_f_o;
-    // assign wb_wb_en  = reg_write_en_w_o;
-    assign commit_en  = wb_d;
-    reg wb_d;
+
+    always @(posedge clk ) begin 
+        resetn_d <= resetn;
+        resetn_d_d <= resetn_d;
+    end
+
+    assign commit_en_id = ~flush_d_i & resetn_d_d;
+    assign commit_en    = commit_en_delay;
     always @(posedge clk ) begin 
         if(~resetn) begin
-            wb_d   <= 1'b0;
+            commit_en_exe <= 0;    
+            commit_en_mem <= 0;    
+            commit_en_wb  <= 0;    
+            commit_en_delay <= 0;    
         end
         else begin
-            wb_d   <= reg_write_en_w_o;    
+            commit_en_exe   <= commit_en_id;
+            commit_en_mem   <= commit_en_exe;
+            commit_en_wb    <= commit_en_mem;
+            commit_en_delay <= commit_en_wb;
         end
     end
+    
     `endif
     // =========================================================================
     // =============================== variables ===============================
