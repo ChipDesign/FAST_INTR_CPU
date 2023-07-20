@@ -21,6 +21,7 @@ module pipelineEXE (
     input wire        taken_d_i, // sbp(static branch predictor) taken decision
     input wire [31:0] prediction_pc_d_i, // sbp prediction pc 
     input wire        jalr_d_i,       // instruction is jalr
+    input wire        btype_d_i,       // instruction is branch type instruction 
 
     // TODO: Hazard must add some flush logic when EXE find ID is wrong
     input             flush_e_i,
@@ -128,7 +129,7 @@ module pipelineEXE (
     end
 
     assign redirection_e_o = st_e_i? redirection_r :
-                                    (taken_d_i^alu_taken)|(jalr_d_i&~taken_d_i);
+                                    ( btype_d_i & taken_d_i^alu_taken)|(jalr_d_i&~taken_d_i);
     assign redirection_pc_e_o =st_e_i? redirection_pc_r :  
                                 ({32{~taken_d_i&alu_taken}}&prediction_pc_d_i)|
                                 ({32{~taken_d_i&jalr_d_i}})&(alu_calculation&~1);

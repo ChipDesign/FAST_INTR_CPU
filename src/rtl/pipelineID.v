@@ -58,7 +58,8 @@ module pipelineID(
     output reg [20:0] alu_op_d_o,         // ALU Operation
     output reg [31:0] rs1_d_o,           // ALU operand 1
     output reg [31:0] rs2_d_o,           // ALU operand 2
-    output reg        jalr_d_o,         // instruction is branch type instruction
+    output reg        jalr_d_o,         // instruction is jalr 
+    output reg        btype_d_o,         // instruction is branch type instruction
     output wire [31:0] pc_instr_d_o,     // instruction PC
     output reg [31:0] pc_next_d_o,      // next instruction pc 
     output reg [31:0] prediction_pc_d_o,   // pass to exe stage
@@ -165,6 +166,7 @@ module pipelineID(
             rd_idx_d_o        <= 5'b0;         
             alu_op_d_o        <= 21'h0;      
             jalr_d_o          <= 1'b0;
+            btype_d_o         <= 1'b0;
             rs1_d_o           <= 32'h0;        
             rs2_d_o           <= 32'h0;        
             sbp_taken_d_o     <= 1'b0;
@@ -186,6 +188,7 @@ module pipelineID(
             alu_op_d_o        <= aluOperation_o;      
             sbp_taken_d_o     <= taken;
             jalr_d_o          <= branchJALR_o;
+            btype_d_o         <= branchBType_o;
             flush_jal_d_o     <= branchJAL_o;
             mul_state_d_o     <= mul_state;
             d_advance_d_o     <= d_advance;
@@ -221,7 +224,9 @@ module pipelineID(
     end
     
     // calculate redirection pc to IF stage
-    assign taken_d_o       = ({~resetn_delay | flush_i} & 1'b1) | ptnt_e_i | redirection_e_i | taken;
+    // assign taken_d_o       = ({~resetn_delay | flush_i} & 1'b1) | ptnt_e_i | redirection_e_i | taken;
+    // assign taken_d_o       = ({~resetn_delay} & 1'b1) | ptnt_e_i | redirection_e_i | taken;
+    assign taken_d_o       = ~resetn_delay | ptnt_e_i | redirection_e_i | taken;
     assign redirection_d_o = ({32{~resetn_delay | flush_i}} & 32'h80000000)|
     // assign redirection_d_o = ({32{~resetn | flush_i}} & 32'h80000000)|
                              ({32{ptnt_e_i & ~branchJAL_o}} & pc_next)| // sbp taken, alu not taken

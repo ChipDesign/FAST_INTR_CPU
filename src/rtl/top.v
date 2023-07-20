@@ -37,16 +37,14 @@ module top(
     assign pc = pc_instr_d_o;
     assign id_instr=instruction_f_o;
     // assign wb_wb_en  = reg_write_en_w_o;
-    assign commit_en  = wb_d_d;
-    reg wb_d, wb_d_d;
+    assign commit_en  = wb_d;
+    reg wb_d;
     always @(posedge clk ) begin 
         if(~resetn) begin
             wb_d   <= 1'b0;
-            wb_d_d <= 1'b0;
         end
         else begin
-            wb_d   <= reg_write_en_m_o;    
-            wb_d_d <= wb_d;
+            wb_d   <= reg_write_en_w_o;    
         end
     end
     `endif
@@ -93,6 +91,7 @@ module top(
     wire 	instrIllegal_d_o;
     wire     rs1_depended_h_o;
     wire    jalr_d_o;
+    wire    btype_d_o;
     wire    flush_jal_d_o;
     wire [1:0] mul_state_d_o;
     wire    d_advance_d_o;
@@ -191,7 +190,7 @@ module top(
         .rd_idx_w_i        		( rd_idx_w_o       		),
         .write_back_data_w_i 	( write_back_data_w_o 	),
         .rs1_depended_h_i   	( rs1_depended_h_o   	),
-        .flush_i                ( flush_d_i             ), // TODO: temp flush, replaced by hazard flush
+        .flush_i                ( flush_d_i             ),
         .src1_sel_d_i           ( src1_sel_d_i          ),
         .src2_sel_d_i           ( src2_sel_d_i          ),
         .bypass_e_o             ( bypass_e_o            ),
@@ -203,6 +202,7 @@ module top(
         .is_compressed_d_o      ( is_compress_d_i       ),
         .alu_op_d_o         	( alu_op_d_o         	),
         .jalr_d_o               ( jalr_d_o              ),
+        .btype_d_o              ( btype_d_o             ),
         .rs1_d_o           		( rs1_d_o           	),
         .rs2_d_o           		( rs2_d_o           	),
         .dmem_type_d_o      	( dmem_type_d_o      	),
@@ -254,6 +254,7 @@ module top(
         .redirection_e_o        ( redirection_e_o       ),
         .redirection_pc_e_o     ( redirection_pc_e_o    ),
         .jalr_d_i               ( jalr_d_o              ),
+        .btype_d_i              ( btype_d_o             ),
         .dmem_type_d_i     		( dmem_type_d_o     	),
         .reg_write_en_d_i   	( reg_write_en_d_o   	),
         .rd_idx_d_i        		( rd_idx_d_o        	),
