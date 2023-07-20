@@ -5,7 +5,7 @@ file: register file in ID stage
 author: fujie
 time: 2023年 4月28日 星期五 16时16分32秒 CST
 */
-import "DPI-C" function void set_gpr_ptr(input logic [63:0] a []); // add DPI-C function
+import "DPI-C" function void set_gpr_ptr(input logic [31:0] a []); // add DPI-C function
 module regfile 
     #(parameter REG_DATA_WIDTH      = 32,
       parameter REGFILE_ADDR_WIDTH  = 5,
