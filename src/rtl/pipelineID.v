@@ -60,7 +60,9 @@ module pipelineID(
     output reg [31:0] rs2_d_o,           // ALU operand 2
     output reg        jalr_d_o,         // instruction is jalr 
     output reg        btype_d_o,         // instruction is branch type instruction
+    `ifdef DIFFTEST
     output wire [31:0] pc_instr_d_o,     // instruction PC
+    `endif
     output reg [31:0] pc_next_d_o,      // next instruction pc 
     output reg [31:0] prediction_pc_d_o,   // pass to exe stage
     output reg        sbp_taken_d_o,       // pass to exe stage
@@ -135,8 +137,9 @@ module pipelineID(
 // ============================ implementation =============================
 // =========================================================================
 
-   // DIFFTEST
-   assign pc_instr_d_o = pc_instr; 
+    `ifdef DIFFTEST
+    assign pc_instr_d_o = pc_instr; 
+    `endif
 
     // // ebreak 
     // wire [2:0] func3 = instru_32bits[14:12];

@@ -34,10 +34,10 @@ module top(
 );
 
     `ifdef DIFFTEST
+    // instruction commit
     reg resetn_d, resetn_d_d;
     reg commit_en_exe, commit_en_mem, commit_en_wb, commit_en_delay;
     wire commit_en_id;
-    assign pc = pc_instr_d_o;
     assign id_instr=instruction_f_o;
 
     always @(posedge clk ) begin 
@@ -61,7 +61,24 @@ module top(
             commit_en_delay <= commit_en_wb;
         end
     end
-    
+    // pass pc to top 
+    assign pc = pc_instr_delay;
+    wire [31:0] pc_instr_d_o; 
+    reg  [31:0] pc_instr_e_o, pc_instr_m_o, pc_instr_w_o, pc_instr_delay;
+    always @(posedge clk ) begin 
+        if(~resetn) begin
+            pc_instr_e_o <= 32'h80000000;
+            pc_instr_m_o <= 32'h80000000;
+            pc_instr_w_o <= 32'h80000000;
+            pc_instr_delay <= 32'h80000000;
+        end
+        else begin
+            pc_instr_e_o <= pc_instr_d_o;
+            pc_instr_m_o <= pc_instr_e_o;
+            pc_instr_w_o <= pc_instr_m_o;
+            pc_instr_delay <=pc_instr_w_o;
+        end
+    end
     `endif
     // =========================================================================
     // =============================== variables ===============================
@@ -144,8 +161,6 @@ module top(
     wire [ 4:0]	rd_idx_w_o;
     wire [31:0]	write_back_data_w_o;
 
-    // pass pc to top 
-    wire [31:0] pc_instr_d_o, pc_instr_e_o, pc_instr_m_o, pc_instr_w_o;
 
     // =========================================================================
     // ============================ implementation =============================
@@ -244,8 +259,10 @@ module top(
         .d_advance_d_o          ( d_advance_d_o         ),
         .d_init_d_o             ( d_init_d_o            ),
         // DIFFTEST
-        // DIFFTEST
+        `ifdef DIFFTEST
         .pc_instr_d_o           ( pc_instr_d_o          )
+        `endif
+        // DIFFTEST
         //.CSR_data_d_i           ( CSR_data_c_o          ),
         //.CSR_data_d_o           ( CSR_data_d_o          ),
         //.CSR_addr_d_o           ( CSR_addr_d_o          ),
@@ -289,9 +306,7 @@ module top(
         .result_src_e_o    		( resultSrc_e_o    		),
         .instr_illegal_e_o 		( instrIllegal_e_o 		),
         .real_taken_e_o         ( real_taken_e_o        ),
-        .bypass_e_o             ( bypass_e_o            ),
-        .pc_instr_d_i           ( pc_instr_d_o          ),
-        .pc_instr_e_o           ( pc_instr_e_o          )
+        .bypass_e_o             ( bypass_e_o            )
         //.CSR_wen_e_o            ( CSR_wen_e_o           )
     );
 
@@ -315,9 +330,7 @@ module top(
         .reg_write_en_m_o   	( reg_write_en_m_o   	),
         .rd_idx_m_o        		( rd_idx_m_o        	),
         .result_src_m_o    		( result_src_m_o    	),
-        .bypass_m_o             ( bypass_m_o            ),
-        .pc_instr_e_i           ( pc_instr_e_o          ),
-        .pc_instr_m_o           ( pc_instr_m_o          )
+        .bypass_m_o             ( bypass_m_o            )
     );
 
     // WB stage instance
@@ -334,9 +347,7 @@ module top(
         .result_src_m_i     	( result_src_m_o     	),
         .reg_write_en_w_o    	( reg_write_en_w_o    	),
         .rd_idx_w_o          	( rd_idx_w_o         	),
-        .write_back_data_w_o 	( write_back_data_w_o 	),
-        .pc_instr_m_i           ( pc_instr_m_o          ),
-        .pc_instr_w_o           ( pc_instr_w_o          )
+        .write_back_data_w_o 	( write_back_data_w_o 	)
     );
 
     hazard hu(

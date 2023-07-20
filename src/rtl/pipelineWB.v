@@ -20,28 +20,17 @@ module pipelineWB (
     input wire reg_write_en_m_i,
     input wire [4:0] rd_idx_m_i,  // RF write back register index, passed from MEM stage
     input wire [3:0] result_src_m_i,    // select signal to choose one of the four inputs
-    input wire [31:0] pc_instr_m_i,
 
     /* write back data to ID stage */
     output wire reg_write_en_w_o, // write back to RF enable
     output wire [4:0] rd_idx_w_o,   // RF write register index
-    output wire [31:0] write_back_data_w_o, // data write to RF in ID 
-    output reg [31:0] pc_instr_w_o
+    output wire [31:0] write_back_data_w_o // data write to RF in ID 
 );
 
 
 // =========================================================================
 // ============================ implementation =============================
 // =========================================================================
-always @(posedge clk) begin 
-    if(resetn) begin
-        pc_instr_w_o <= 32'h80000000;
-    end
-    else begin
-        pc_instr_w_o <= pc_instr_m_i;    
-    end
-end
-
     assign reg_write_en_w_o = reg_write_en_m_i;
     assign rd_idx_w_o       = rd_idx_m_i;
     assign write_back_data_w_o = ({32{result_src_m_i[0]}}&alu_result_m_i)|
