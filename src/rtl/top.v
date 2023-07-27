@@ -39,6 +39,7 @@ module top(
     reg commit_en_exe, commit_en_mem, commit_en_wb, commit_en_delay;
     wire commit_en_id;
     assign id_instr=instruction_f_o;
+    // TODO: add stall logic consideration for instruction commit
 
     always @(posedge clk ) begin 
         resetn_d <= resetn;
@@ -145,7 +146,7 @@ module top(
     wire [ 3:0]	resultSrc_e_o;
     wire 	instrIllegal_e_o;
     wire [31:0] bypass_e_o;
-    wire [31:0] rs1_e_o;
+    wire [31:0] rs2_e_o;
 
     // MEM stage instance signals
     wire [31:0]	mem_read_data_m_o;
@@ -298,7 +299,7 @@ module top(
         .div_last_d_o           ( div_last_d_o          ),
         .alu_result_e_o    		( aluResult_e_o    		),
         .dmem_type_e_o     		( dMemType_e_o     		),
-        .rs1_e_o                ( rs1_e_o               ),
+        .rs2_e_o                ( rs2_e_o               ),
         .extended_imm_e_o  		( extendedImm_e_o  		),
         .pc_plus4_e_o      		( pcPlus4_e_o      		),
         .reg_write_en_e_o   	( reg_write_en_e_o   		),
@@ -315,7 +316,7 @@ module top(
         //ports
         .clk             		( clk             		),
         .resetn           		( resetn           		),
-        .rs1_e_i                ( rs1_e_o               ),
+        .rs2_e_i                ( rs2_e_o               ),
         .alu_result_e_i    		( aluResult_e_o    		),
         .dmem_type_e_i     		( dMemType_e_o     		),
         .extended_imm_e_i  		( extendedImm_e_o  		),

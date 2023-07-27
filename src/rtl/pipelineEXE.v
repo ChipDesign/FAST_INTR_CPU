@@ -54,7 +54,7 @@ module pipelineEXE (
     output reg        reg_write_en_e_o,  // RF write enable                                                      
     output reg [ 4:0] rd_idx_e_o,          
     output reg [ 3:0] result_src_e_o,   // select signal to choose one of the four inputs
-    output reg [31:0] rs1_e_o,
+    output reg [31:0] rs2_e_o,
     output reg        instr_illegal_e_o, // instruction illegal
     output wire       real_taken_e_o,  
     output wire [31:0]      bypass_e_o
@@ -74,13 +74,15 @@ module pipelineEXE (
 // ============================ implementation =============================
 // =========================================================================
 
-    assign bypass_e_o=alu_calculation;
+    assign bypass_e_o = {32{result_src_d_i[0]}} & alu_calculation |
+                        {32{result_src_d_i[1]}} & extended_imm_d_i|
+                        {32{result_src_d_i[3]}} & pc_plus4_d_i;
     assign real_taken_e_o=alu_taken;
     // assign is_branch = alu_op_d_i[20];
     // pass through data to next stage
     always @(posedge clk ) begin 
         if(~resetn || flush_e_i) begin
-            rs1_e_o           <= 32'b0;
+            rs2_e_o           <= 32'b0;
             alu_result_e_o    <= 32'h0;
             dmem_type_e_o     <= 4'b0;
             extended_imm_e_o  <= 32'h0;
@@ -93,7 +95,7 @@ module pipelineEXE (
         end
         else if(st_e_i)
         begin
-            rs1_e_o           <= rs1_e_o;
+            rs2_e_o           <= rs2_e_o;
             alu_result_e_o    <= alu_result_e_o ;
             dmem_type_e_o     <= dmem_type_e_o;   
             extended_imm_e_o  <= extended_imm_e_o ;
@@ -105,7 +107,7 @@ module pipelineEXE (
             //CSR_data_e_o      <= CSR_data_e_o ;
         end
         else begin
-            rs1_e_o           <= rs1_d_i;
+            rs2_e_o           <= rs2_d_i;
             alu_result_e_o    <= alu_calculation;
             dmem_type_e_o     <= dmem_type_d_i;   
             extended_imm_e_o  <= extended_imm_d_i;
