@@ -153,6 +153,7 @@ module decoder(
             end
             `OPCODE_STORE : begin
                 imm_type_o = `IMM_S;
+                rs2_sel_o = `RS2SEL_RF; // store instruction src2 is register type
                 alu_calculation = `ALUOP_ADD;
                 wb_en_o = 1'b0;
                 case(funct3) 
@@ -294,7 +295,7 @@ module decoder(
     end
 `ifdef DIFFTEST
 wire inst_ebreak;    
-assign inst_ebreak = instruction_i == 32'h00000073; // 0x00000073 is ecall instruction
+assign inst_ebreak = instruction_i == 32'h00000073;
 
 always @(*) begin
   if (inst_ebreak) ebreak();
