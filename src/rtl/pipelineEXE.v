@@ -16,6 +16,7 @@ module pipelineEXE (
     input wire [20:0] alu_op_d_i,          // ALU Operation
     input wire [31:0] rs1_d_i,            // ALU operand 1
     input wire [31:0] rs2_d_i,            // ALU operand 2
+    input wire [31:0] rs2_reg_d_i,       // src2 read from register file
     input wire [31:0] extended_imm_d_i,  
     input wire [31:0] pc_plus4_d_i,
     input wire        taken_d_i, // sbp(static branch predictor) taken decision
@@ -47,14 +48,15 @@ module pipelineEXE (
     /* signals passed to MEM stage */
     // MEM stage signals
     output reg [31:0] alu_result_e_o,   // alu calculation result                                               
-    output reg [ 3:0] dmem_type_e_o,      // load/store types
+    output wire [31:0] alu_calculation_e_o,   // alu calculation result                                               
+    output wire [ 3:0] dmem_type_e_o,      // load/store types
     // WB stage signals 
     output reg [31:0] extended_imm_e_o, // extended imm, for 'lui' instruction                                 ,
     output reg [31:0] pc_plus4_e_o,     // rd=pc+4, for `jal` instruction                                       
     output reg        reg_write_en_e_o,  // RF write enable                                                      
     output reg [ 4:0] rd_idx_e_o,          
     output reg [ 3:0] result_src_e_o,   // select signal to choose one of the four inputs
-    output reg [31:0] rs2_e_o,
+    output wire [31:0] rs2_e_o,
     output reg        instr_illegal_e_o, // instruction illegal
     output wire       real_taken_e_o,  
     output wire [31:0]      bypass_e_o
@@ -74,17 +76,18 @@ module pipelineEXE (
 // ============================ implementation =============================
 // =========================================================================
 
+    assign alu_calculation_e_o = alu_calculation;
     assign bypass_e_o = {32{result_src_d_i[0]}} & alu_calculation |
                         {32{result_src_d_i[1]}} & extended_imm_d_i|
                         {32{result_src_d_i[3]}} & pc_plus4_d_i;
     assign real_taken_e_o=alu_taken;
+    assign rs2_e_o = rs2_reg_d_i;
+    assign dmem_type_e_o=dmem_type_d_i;
     // assign is_branch = alu_op_d_i[20];
     // pass through data to next stage
     always @(posedge clk ) begin 
         if(~resetn || flush_e_i) begin
-            rs2_e_o           <= 32'b0;
             alu_result_e_o    <= 32'h0;
-            dmem_type_e_o     <= 4'b0;
             extended_imm_e_o  <= 32'h0;
             pc_plus4_e_o      <= 32'h0;
             reg_write_en_e_o  <= 1'b0;
@@ -95,9 +98,7 @@ module pipelineEXE (
         end
         else if(st_e_i)
         begin
-            rs2_e_o           <= rs2_e_o;
             alu_result_e_o    <= alu_result_e_o ;
-            dmem_type_e_o     <= dmem_type_e_o;   
             extended_imm_e_o  <= extended_imm_e_o ;
             pc_plus4_e_o      <= pc_plus4_e_o;
             reg_write_en_e_o  <= reg_write_en_e_o;
@@ -107,9 +108,7 @@ module pipelineEXE (
             //CSR_data_e_o      <= CSR_data_e_o ;
         end
         else begin
-            rs2_e_o           <= rs2_d_i;
             alu_result_e_o    <= alu_calculation;
-            dmem_type_e_o     <= dmem_type_d_i;   
             extended_imm_e_o  <= extended_imm_d_i;
             pc_plus4_e_o      <= pc_plus4_d_i;
             reg_write_en_e_o  <= reg_write_en_d_i;

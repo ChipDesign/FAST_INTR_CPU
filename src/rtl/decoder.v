@@ -153,7 +153,6 @@ module decoder(
             end
             `OPCODE_STORE : begin
                 imm_type_o = `IMM_S;
-                rs2_sel_o = `RS2SEL_RF; // store instruction src2 is register type
                 alu_calculation = `ALUOP_ADD;
                 wb_en_o = 1'b0;
                 case(funct3) 

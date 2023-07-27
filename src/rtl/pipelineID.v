@@ -58,6 +58,7 @@ module pipelineID(
     output reg [20:0] alu_op_d_o,         // ALU Operation
     output reg [31:0] rs1_d_o,           // ALU operand 1
     output reg [31:0] rs2_d_o,           // ALU operand 2
+    output reg [31:0] rs2_reg_d_o,       
     output reg        jalr_d_o,         // instruction is jalr 
     output reg        btype_d_o,         // instruction is branch type instruction
     `ifdef DIFFTEST
@@ -172,6 +173,7 @@ module pipelineID(
             btype_d_o         <= 1'b0;
             rs1_d_o           <= 32'h0;        
             rs2_d_o           <= 32'h0;        
+            rs2_reg_d_o           <= 32'h0;        
             sbp_taken_d_o     <= 1'b0;
             dmem_type_d_o     <= 4'b0;   
             instr_illegal_d_o <= 1'b0;
@@ -208,6 +210,9 @@ module pipelineID(
             else begin
                 rs1_d_o <= pc_instr; // alu source from pc+4
             end
+            rs2_reg_d_o <= ({32{src2_sel_d_i==2'b0}}&rs2_data_o)|
+                        ({32{src2_sel_d_i==2'b1}}&bypass_e_o)|
+                        ({32{src2_sel_d_i==2'b10}}&bypass_m_o); // alu operand2 from RF
             if(rs2_sel_o == `RS2SEL_RF) begin
                 rs2_d_o <= ({32{src2_sel_d_i==2'b0}}&rs2_data_o)|
                             ({32{src2_sel_d_i==2'b1}}&bypass_e_o)|

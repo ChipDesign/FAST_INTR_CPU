@@ -115,6 +115,7 @@ module top(
     wire [20:0]	alu_op_d_o;
     wire [31:0]	rs1_d_o;
     wire [31:0]	rs2_d_o;
+    wire [31:0]	rs2_reg_d_o;
     wire [ 3:0]	dmem_type_d_o;
     wire [31:0]	extended_imm_d_o;
     wire [31:0]	pc_plus4_d_o;
@@ -138,6 +139,7 @@ module top(
     wire        redirection_e_o;
     wire [31:0] redirection_pc_e_o;      
     wire [31:0]	aluResult_e_o;
+    wire [31:0]	alu_calculation_e_o;
     wire [ 3:0]	dMemType_e_o;
     wire [31:0]	extendedImm_e_o;
     wire [31:0]	pcPlus4_e_o;
@@ -236,6 +238,7 @@ module top(
         .btype_d_o              ( btype_d_o             ),
         .rs1_d_o           		( rs1_d_o           	),
         .rs2_d_o           		( rs2_d_o           	),
+        .rs2_reg_d_o           	( rs2_reg_d_o          	),
         .dmem_type_d_o      	( dmem_type_d_o      	),
         .extended_imm_d_o   	( extended_imm_d_o   	),
         .pc_next_d_o        	( pc_plus4_d_o       	),
@@ -279,6 +282,7 @@ module top(
         .alu_op_d_i        		( alu_op_d_o        	),
         .rs1_d_i          		( rs1_d_o          		),
         .rs2_d_i          		( rs2_d_o          		),
+        .rs2_reg_d_i       		( rs2_reg_d_o          	),
         .extended_imm_d_i  		( extended_imm_d_o  	),
         .pc_plus4_d_i      		( pc_plus4_d_o      	),
         .taken_d_i              ( sbp_taken_d_o         ),
@@ -298,6 +302,7 @@ module top(
         .mul_state_d_o          ( mul_state_d_o         ),
         .div_last_d_o           ( div_last_d_o          ),
         .alu_result_e_o    		( aluResult_e_o    		),
+        .alu_calculation_e_o   	( alu_calculation_e_o	),
         .dmem_type_e_o     		( dMemType_e_o     		),
         .rs2_e_o                ( rs2_e_o               ),
         .extended_imm_e_o  		( extendedImm_e_o  		),
@@ -318,6 +323,7 @@ module top(
         .resetn           		( resetn           		),
         .rs2_e_i                ( rs2_e_o               ),
         .alu_result_e_i    		( aluResult_e_o    		),
+        .alu_calculation_e_i   	( alu_calculation_e_o  	),
         .dmem_type_e_i     		( dMemType_e_o     		),
         .extended_imm_e_i  		( extendedImm_e_o  		),
         .pc_plus_e_i      		( pcPlus4_e_o      		),
