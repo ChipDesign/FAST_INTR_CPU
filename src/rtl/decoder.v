@@ -83,6 +83,7 @@ module decoder(
         instr_illegal_o = 1'b0; // suppose instruction is legal by default.
         wb_src_o = `WBSRC_ALU;  // suppose write back source is from ALU 
         wb_en_o = 1'b0; // suppose write back is not enable 
+        dmem_type_o = `DMEM_NO;
         case(opcode) 
             `OPCODE_LOAD  : begin
                 imm_type_o = `IMM_I;

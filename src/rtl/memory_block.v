@@ -20,7 +20,7 @@ reg [ DATA_WIDTH-1:0] m_array[1023: 0]; // the memory is 816*32, each line in me
 
 // write data
 always @(posedge clk) begin
-    if(~web & write_en) 
+    if(~web & write_en & ~ceb) 
         m_array[A] <= D;
 end 
 
