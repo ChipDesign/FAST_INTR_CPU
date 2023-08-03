@@ -43,6 +43,8 @@ module pipelineID(
     // signals for bypass
     input wire [1:0]  src1_sel_d_i,src2_sel_d_i,
     input wire [31:0] bypass_e_o,bypass_m_o,
+    // stall signals
+    input wire        stall_i,
     /* redirection info passed back to IF stage */
     output wire [31:0] redirection_d_o,
     output wire        taken_d_o,
@@ -261,7 +263,8 @@ module pipelineID(
         end
         else if(taken_reg) begin
             pc_instr <= pc_taken;    
-        end else begin
+        end 
+        else if(~stall_i)begin
             pc_instr <= pc_next;    
         end
     end
@@ -337,7 +340,6 @@ module pipelineID(
     assign is_m_d_o=aluOperation_o [10]|aluOperation_o [11]|aluOperation_o [12]|aluOperation_o [13];
     assign is_b_d_o=branchBType_o;
     assign is_j_d_o=branchJAL_o|branchJALR_o;
-    assign is_load_d_o=1'b0;//TODO load instruction unidentified
     assign dst_en_d_o=wb_en_o;
     assign r_dst_d_o=rd_index;
     assign r_src1_d_o=rs1_index;
@@ -356,6 +358,7 @@ module pipelineID(
         .branchBType_o  		( branchBType_o  		),
         .branchJAL_o    		( branchJAL_o    		),
         .branchJALR_o   		( branchJALR_o   		),
+        .is_load_o              ( is_load_d_o           ),
         .dmem_type_o     		( dmem_type_o     		),
         .wb_src_o        		( wb_src_o        		),
         .wb_en_o         		( wb_en_o         		),

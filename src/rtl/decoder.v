@@ -36,6 +36,7 @@ module decoder(
     output reg branchBType_o, // to show the instruction is BType instruction
     output reg branchJAL_o,
     output reg branchJALR_o,
+    output reg is_load_o,
     // ========= load store signals =========
     output reg [3:0] dmem_type_o, // data memory type
     // =========  =========
@@ -80,6 +81,7 @@ module decoder(
         branchBType_o = 1'b0;  
         branchJAL_o = 1'b0;
         branchJALR_o = 1'b0;
+        is_load_o = 1'b0;
         instr_illegal_o = 1'b0; // suppose instruction is legal by default.
         wb_src_o = `WBSRC_ALU;  // suppose write back source is from ALU 
         wb_en_o = 1'b0; // suppose write back is not enable 
@@ -90,6 +92,7 @@ module decoder(
                 alu_calculation = `ALUOP_ADD;
                 wb_src_o = `WBSRC_MEM;
                 wb_en_o = 1'b1;
+                is_load_o = 1'b1;
                 case(funct3) 
                     3'b000: begin
                         dmem_type_o = `DMEM_LB;

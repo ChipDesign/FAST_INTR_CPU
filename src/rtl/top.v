@@ -46,7 +46,7 @@ module top(
         resetn_d_d <= resetn_d;
     end
 
-    assign commit_en_id = ~flush_d_i & resetn_d_d;
+    assign commit_en_id = ~flush_d_i & resetn_d_d & ~fd_st_f_i;
     assign commit_en    = commit_en_delay;
     always @(posedge clk ) begin 
         if(~resetn) begin
@@ -226,6 +226,7 @@ module top(
         .flush_i                ( flush_d_i             ),
         .src1_sel_d_i           ( src1_sel_d_i          ),
         .src2_sel_d_i           ( src2_sel_d_i          ),
+        .stall_i                ( fd_st_f_i             ),
         .bypass_e_o             ( bypass_e_o            ),
         .bypass_m_o             ( bypass_m_o            ),
         .redirection_d_o   		( redirection_d_o   	),
