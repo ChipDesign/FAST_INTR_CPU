@@ -1,5 +1,9 @@
 `ifndef __DEFINITIONS__
 `define __DEFINITIONS__
+
+    // enable DIFFTEST 
+    `define DIFFTEST
+
     // ALU Operations
     `define ALU_ADD           5'b00000
     `define ALU_ADDI          5'b00001

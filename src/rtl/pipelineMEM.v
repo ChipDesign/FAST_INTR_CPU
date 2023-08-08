@@ -25,6 +25,7 @@ module pipelineMEM (
     input wire [ 4:0] rd_idx_e_i,          
     input wire [ 3:0] result_src_e_i,   
     input wire        instr_illegal_e_i, // instruction illegal, used by CSR unit
+    input wire [31:0] pc_instr_e_i,
 
     /* signals to passed to WB stage */
     output reg [31:0] mem_read_data_m_o,  // data read from D-memory 
@@ -34,6 +35,7 @@ module pipelineMEM (
     output reg        reg_write_en_m_o,   // RF write enable
     output reg [ 4:0] rd_idx_m_o,            // RF write back register index, passed from MEM stage
     output reg [ 3:0] result_src_m_o,    // select signal to choose one of the four inputs
+    output reg [31:0] pc_instr_m_o,
     output wire [31:0] bypass_m_o
     // TODO: signals to communicate with Data Memory
     // TODO: add CSR Unit signals
@@ -53,6 +55,7 @@ module pipelineMEM (
             pc_plus4_m_o      <= 32'h0;
             extended_imm_m_o  <= 32'h0;
             rd_idx_m_o        <= 5'h0;
+            pc_instr_m_o      <= 32'h80000000;
         end
         else begin
             // pass signals to MEM stage
@@ -63,6 +66,7 @@ module pipelineMEM (
             pc_plus4_m_o      <= pc_plus4_e_i;
             extended_imm_m_o  <= extended_imm_e_i;
             rd_idx_m_o        <= rd_idx_e_i;
+            pc_instr_m_o      <= pc_instr_e_i;
         end
     end
 

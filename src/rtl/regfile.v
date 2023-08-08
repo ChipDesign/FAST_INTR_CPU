@@ -5,6 +5,7 @@ file: register file in ID stage
 author: fujie
 time: 2023年 4月28日 星期五 16时16分32秒 CST
 */
+import "DPI-C" function void set_gpr_ptr(input logic [31:0] a []); // add DPI-C function
 module regfile 
     #(parameter REG_DATA_WIDTH      = 32,
       parameter REGFILE_ADDR_WIDTH  = 5,
@@ -39,11 +40,11 @@ module regfile
     
     integer i;
     // set all registers to 0 on initialization
-    initial begin
-        for(i=0; i<REGFILE_DEPTH; i=i+1) begin
-            regfile_data[i] = 0;
-        end      
-    end
+    // initial begin
+    //     for(i=0; i<REGFILE_DEPTH; i=i+1) begin
+    //         regfile_data[i] = 0;
+    //     end      
+    // end
     // if resetn_i is asserted, reset all registers
     always @(posedge clk_i) begin 
         if(~resetn_i) begin
@@ -70,6 +71,8 @@ module regfile
                 regfile_data[rd_addr_i] <= rd_wr_data_i;
         end
     end 
+
+    initial set_gpr_ptr(regfile_data);
     
 endmodule
 `endif

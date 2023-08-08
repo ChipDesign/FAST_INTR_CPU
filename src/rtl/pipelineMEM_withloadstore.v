@@ -17,8 +17,9 @@ module pipelineMEM_withloadstore (
     /* signals passed from EXE stage */
     // MEM stage signals
     input wire [31:0] alu_result_e_i,   
+    input wire [31:0] alu_calculation_e_i,   
     input wire [ 3:0] dmem_type_e_i, // load/store types
-    input wire [31:0] rs1_e_i,       // memory write data
+    input wire [31:0] rs2_e_i,       // memory write data
     // TODO: add D-memory write data, rs1[31:0]
     // WB stage signals
     input wire [31:0] extended_imm_e_i,  
@@ -36,6 +37,7 @@ module pipelineMEM_withloadstore (
     output reg [ 4:0] rd_idx_m_o,            // RF write back register index, passed from MEM stage
     output reg [ 3:0] result_src_m_o,    // select signal to choose one of the four inputs
     output wire [31:0] bypass_m_o
+    // PC passed to top
     // TODO: signals to communicate with Data Memory
     // TODO: add CSR Unit signals
 );
@@ -63,7 +65,7 @@ module pipelineMEM_withloadstore (
 // =========================================================================
 // ============================ implementation =============================
 // =========================================================================
-    assign dmem_addr = alu_result_e_i[11:2];
+    assign dmem_addr = alu_calculation_e_i[11:2];
     assign ceb =  dmem_type_e_i == `DMEM_NO;
     assign web = (dmem_type_e_i == `DMEM_LB) |
                  (dmem_type_e_i == `DMEM_LH) |
@@ -113,40 +115,40 @@ module pipelineMEM_withloadstore (
         case(dmem_type_e_i)
 
             `DMEM_SW: begin
-                dmem_write_data = rs1_e_i;
+                dmem_write_data = rs2_e_i;
                 byte_en     = 4'b1111;
             end
 
             `DMEM_SB: begin
                 // determine which byte to write to based on last two bits of address
-                case(alu_result_e_i[1:0]) 
+                case(alu_calculation_e_i[1:0]) 
                     2'b00: begin
-                        dmem_write_data = { {24{1'b0}}, rs1_e_i[7:0] }; 
+                        dmem_write_data = { {24{1'b0}}, rs2_e_i[7:0] }; 
                         byte_en = 4'b0001;
                     end
                     2'b01: begin
-                        dmem_write_data = { {16{1'b0}}, rs1_e_i[7:0],  { 8{1'b0}} };
+                        dmem_write_data = { {16{1'b0}}, rs2_e_i[7:0],  { 8{1'b0}} };
                         byte_en = 4'b0010;
                     end
                     2'b10: begin
-                        dmem_write_data = { {8{1'b0}},  rs1_e_i[7:0], {16{1'b0}} };
+                        dmem_write_data = { {8{1'b0}},  rs2_e_i[7:0], {16{1'b0}} };
                         byte_en = 4'b0100;
                     end
                     2'b11: begin
-                       dmem_write_data = { rs1_e_i[7:0], {24{1'b0}} };
+                       dmem_write_data = { rs2_e_i[7:0], {24{1'b0}} };
                        byte_en = 4'b1000;
                     end
                 endcase
             end 
 
             `DMEM_SH: begin
-                case(alu_result_e_i[1:0])
+                case(alu_calculation_e_i[1:0])
                     2'b00: begin
-                       dmem_write_data = { {16{1'b0}}, rs1_e_i[15:0] };
+                       dmem_write_data = { {16{1'b0}}, rs2_e_i[15:0] };
                        byte_en = 4'b0011;
                     end
                     default: begin
-                       dmem_write_data = { rs1_e_i[15:0], {16{1'b0}} };
+                       dmem_write_data = { rs2_e_i[15:0], {16{1'b0}} };
                        byte_en = 4'b1100;
                     end
                 endcase 

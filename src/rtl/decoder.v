@@ -20,6 +20,9 @@ time: 2023年 4月27日 星期四 09时09分22秒 CST
 */
 
 `include "definitions.vh"
+`ifdef DIFFTEST
+import "DPI-C" function void ebreak();
+`endif
 module decoder(
     input wire [31:0] instruction_i, // instruction from IF stage
     // ========= alu related signals =========
@@ -33,8 +36,9 @@ module decoder(
     output reg branchBType_o, // to show the instruction is BType instruction
     output reg branchJAL_o,
     output reg branchJALR_o,
+    output reg is_load_o,
     // ========= load store signals =========
-    output reg [2:0] dmem_type_o, // data memory type
+    output reg [3:0] dmem_type_o, // data memory type
     // =========  =========
     // output reg regWriteEnD,
     output reg [3:0] wb_src_o, // write back select
@@ -77,15 +81,18 @@ module decoder(
         branchBType_o = 1'b0;  
         branchJAL_o = 1'b0;
         branchJALR_o = 1'b0;
+        is_load_o = 1'b0;
         instr_illegal_o = 1'b0; // suppose instruction is legal by default.
         wb_src_o = `WBSRC_ALU;  // suppose write back source is from ALU 
         wb_en_o = 1'b0; // suppose write back is not enable 
+        dmem_type_o = `DMEM_NO;
         case(opcode) 
             `OPCODE_LOAD  : begin
                 imm_type_o = `IMM_I;
                 alu_calculation = `ALUOP_ADD;
                 wb_src_o = `WBSRC_MEM;
                 wb_en_o = 1'b1;
+                is_load_o = 1'b1;
                 case(funct3) 
                     3'b000: begin
                         dmem_type_o = `DMEM_LB;
@@ -108,10 +115,11 @@ module decoder(
             `OPCODE_OP_IMM: begin
                 imm_type_o = `IMM_I;
                 wb_src_o = `WBSRC_ALU;
-                wb_en_o = 1'b1;
+                wb_en_o = instruction_i != 32'h00000013;
                 case(funct3) 
                     3'b000: begin
                         alu_calculation = `ALUOP_ADD; // addi
+                        // alu_calculation = `ALUOP_SLL; // slli
                     end
                     3'b001: begin
                         alu_calculation = `ALUOP_SLL; // slli
@@ -170,7 +178,7 @@ module decoder(
                 rs2_sel_o = `RS2SEL_RF;
                 wb_src_o = `WBSRC_ALU;
                 wb_en_o = 1'b1;
-                if(instruction_i[25]) begin // R type instruction
+                if(~instruction_i[25]) begin // R type instruction
                     case(funct3) 
                         3'b000: begin
                             case(funct7) 
@@ -288,6 +296,13 @@ module decoder(
             default: instr_illegal_o = 1'b1;
         endcase
     end
-    
+`ifdef DIFFTEST
+wire inst_ebreak;    
+assign inst_ebreak = instruction_i == 32'h00000073;
+
+always @(*) begin
+  if (inst_ebreak) ebreak();
+end
+`endif
 endmodule
 `endif

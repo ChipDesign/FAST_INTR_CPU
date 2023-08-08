@@ -1,4 +1,6 @@
-module cgen(
+`ifndef __CGENMOS__
+`define __CGENMOS__
+module cgen_mos(
 ain,bin,cin,cout);
 
 input ain,bin,cin;
@@ -28,3 +30,4 @@ nmos n4(w4,w3,ain);
 nmos n5(cout,gnd,w4);
 
 endmodule
+`endif

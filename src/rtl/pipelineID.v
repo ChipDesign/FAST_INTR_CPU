@@ -13,6 +13,7 @@ main components:
 author: fujie
 time: 2023年 4月28日 星期五 15时52分49秒 CST
 */
+// import "DPI-C" function void ebreak(); // add DPI-C
 `include "definitions.vh"
 `include "decoder.v"
 `include "staticBranchPredictor.v"
@@ -42,6 +43,8 @@ module pipelineID(
     // signals for bypass
     input wire [1:0]  src1_sel_d_i,src2_sel_d_i,
     input wire [31:0] bypass_e_o,bypass_m_o,
+    // stall signals
+    input wire        stall_i,
     /* redirection info passed back to IF stage */
     output wire [31:0] redirection_d_o,
     output wire        taken_d_o,
@@ -57,12 +60,17 @@ module pipelineID(
     output reg [20:0] alu_op_d_o,         // ALU Operation
     output reg [31:0] rs1_d_o,           // ALU operand 1
     output reg [31:0] rs2_d_o,           // ALU operand 2
-    output reg        jalr_d_o,         // instruction is branch type instruction
+    output reg [31:0] rs2_reg_d_o,       
+    output reg        jalr_d_o,         // instruction is jalr 
+    output reg        btype_d_o,         // instruction is branch type instruction
+    `ifdef DIFFTEST
+    output wire [31:0] pc_instr_d_o,     // instruction PC
+    `endif
     output reg [31:0] pc_next_d_o,      // next instruction pc 
     output reg [31:0] prediction_pc_d_o,   // pass to exe stage
     output reg        sbp_taken_d_o,       // pass to exe stage
     // MEM stage signals
-    output reg [ 2:0] dmem_type_d_o,      // load/store types
+    output reg [ 3:0] dmem_type_d_o,      // load/store types
     // WB stage signals
     output reg [31:0] extended_imm_d_o,  
     // output reg [31:0] pc_plus4_d_o,      // TODO: depressed, use pc_next_d_o instead
@@ -95,7 +103,7 @@ module pipelineID(
     wire 	    branchBType_o;
     wire 	    branchJAL_o;
     wire 	    branchJALR_o;
-    wire [ 2:0]	dmem_type_o;
+    wire [ 3:0]	dmem_type_o;
     wire [ 3:0]	wb_src_o;
     wire 	    wb_en_o;
     wire 	    decoder_instr_illegal;
@@ -132,8 +140,21 @@ module pipelineID(
 // ============================ implementation =============================
 // =========================================================================
 
+    `ifdef DIFFTEST
+    assign pc_instr_d_o = pc_instr; 
+    `endif
+
+    // // ebreak 
+    // wire [2:0] func3 = instru_32bits[14:12];
+    // wire [6:0] func7 = instru_32bits[31:25];
+    // wire [6:0] op    = instru_32bits[6:0];
+    // reg inst_ebreak =  op[6] &  op[5] &  op[4] & ~op[3] & ~op[2] & ~func3[2] & ~func3[1] & ~func3[0] & ~func7[5] & ~func7[0] & ~instru_32bits[21] &  instru_32bits[20]; // ebreak 断点
+    // always @(*) begin
+    //   if (inst_ebreak) ebreak();
+    // end
     // pass compress info to IF, used by FIFO pop operation
-    assign is_compressed_d_o = resetn_delay & is_compressed_o;
+    // assign is_compressed_d_o = resetn_delay & is_compressed_o;
+    assign is_compressed_d_o = is_compressed_o;
 
     // index for rd, rs1, rs2
     assign rd_index  = instru_32bits[11: 7];
@@ -151,10 +172,12 @@ module pipelineID(
             rd_idx_d_o        <= 5'b0;         
             alu_op_d_o        <= 21'h0;      
             jalr_d_o          <= 1'b0;
+            btype_d_o         <= 1'b0;
             rs1_d_o           <= 32'h0;        
             rs2_d_o           <= 32'h0;        
+            rs2_reg_d_o           <= 32'h0;        
             sbp_taken_d_o     <= 1'b0;
-            dmem_type_d_o     <= 3'b0;   
+            dmem_type_d_o     <= 4'b0;   
             instr_illegal_d_o <= 1'b0;
             flush_jal_d_o     <= 1'b0;
             fin_d_o           <= 1'b0;
@@ -162,7 +185,7 @@ module pipelineID(
             d_advance_d_o     <= 1'b0;
             d_init_d_o        <= 1'b0;
             div_last_d_o      <= 1'b0;
-            prediction_pc_d_o <= 32'h0;
+            prediction_pc_d_o <= 32'h80000000;
         end
         else if(enable) begin
             reg_write_en_d_o  <= wb_en_o; 
@@ -172,6 +195,7 @@ module pipelineID(
             alu_op_d_o        <= aluOperation_o;      
             sbp_taken_d_o     <= taken;
             jalr_d_o          <= branchJALR_o;
+            btype_d_o         <= branchBType_o;
             flush_jal_d_o     <= branchJAL_o;
             mul_state_d_o     <= mul_state;
             d_advance_d_o     <= d_advance;
@@ -186,8 +210,11 @@ module pipelineID(
                             ({32{src1_sel_d_i==2'b10}}&bypass_m_o);  // alu operand1 from RF
             end
             else begin
-                rs1_d_o <= pc_next; // alu source from pc+4
+                rs1_d_o <= pc_instr; // alu source from pc+4
             end
+            rs2_reg_d_o <= ({32{src2_sel_d_i==2'b0}}&rs2_data_o)|
+                        ({32{src2_sel_d_i==2'b1}}&bypass_e_o)|
+                        ({32{src2_sel_d_i==2'b10}}&bypass_m_o); // alu operand2 from RF
             if(rs2_sel_o == `RS2SEL_RF) begin
                 rs2_d_o <= ({32{src2_sel_d_i==2'b0}}&rs2_data_o)|
                             ({32{src2_sel_d_i==2'b1}}&bypass_e_o)|
@@ -207,8 +234,11 @@ module pipelineID(
     end
     
     // calculate redirection pc to IF stage
-    assign taken_d_o       = ({~resetn_delay | flush_i} & 1'b1) | ptnt_e_i | redirection_e_i | taken;
-    assign redirection_d_o = ({32{~resetn_delay | flush_i}} & 32'h0)|
+    // assign taken_d_o       = ({~resetn_delay | flush_i} & 1'b1) | ptnt_e_i | redirection_e_i | taken;
+    // assign taken_d_o       = ({~resetn_delay} & 1'b1) | ptnt_e_i | redirection_e_i | taken;
+    assign taken_d_o       = ~resetn_delay | ptnt_e_i | redirection_e_i | taken;
+    assign redirection_d_o = ({32{~resetn_delay | flush_i}} & 32'h80000000)|
+    // assign redirection_d_o = ({32{~resetn | flush_i}} & 32'h80000000)|
                              ({32{ptnt_e_i & ~branchJAL_o}} & pc_next)| // sbp taken, alu not taken
                              ({32{ptnt_e_i &  branchJAL_o}} & redirection_pc)| // sbp taken, alu not taken, following by JAL 
                              ({32{ redirection_e_i}}  & redirection_pc_e_i)| // pc from EXE
@@ -218,22 +248,23 @@ module pipelineID(
     always @(posedge clk ) begin 
         if(~resetn) begin
             taken_reg <= 1'b1;
-            pc_taken  <= 32'h0;
+            pc_taken  <= 32'h80000000;
         end
         else begin
             taken_reg <= taken_d_o;
             pc_taken  <= redirection_d_o;
         end
     end
-    assign pc_next = ({32{ is_compressed_o}} & pc_instr + 32'h2)| 
-                     ({32{~is_compressed_o}} & pc_instr + 32'h4);
+    assign pc_next = ({32{ is_compressed_d_o}} & pc_instr + 32'h2)| 
+                     ({32{~is_compressed_d_o}} & pc_instr + 32'h4);
     always @(posedge clk ) begin 
         if(~resetn) begin
-            pc_instr <= 32'h0;    
+            pc_instr <= 32'h80000000;    
         end
         else if(taken_reg) begin
             pc_instr <= pc_taken;    
-        end else begin
+        end 
+        else if(~stall_i)begin
             pc_instr <= pc_next;    
         end
     end
@@ -309,7 +340,6 @@ module pipelineID(
     assign is_m_d_o=aluOperation_o [10]|aluOperation_o [11]|aluOperation_o [12]|aluOperation_o [13];
     assign is_b_d_o=branchBType_o;
     assign is_j_d_o=branchJAL_o|branchJALR_o;
-    assign is_load_d_o=1'b0;//TODO load instruction unidentified
     assign dst_en_d_o=wb_en_o;
     assign r_dst_d_o=rd_index;
     assign r_src1_d_o=rs1_index;
@@ -328,6 +358,7 @@ module pipelineID(
         .branchBType_o  		( branchBType_o  		),
         .branchJAL_o    		( branchJAL_o    		),
         .branchJALR_o   		( branchJALR_o   		),
+        .is_load_o              ( is_load_d_o           ),
         .dmem_type_o     		( dmem_type_o     		),
         .wb_src_o        		( wb_src_o        		),
         .wb_en_o         		( wb_en_o         		),
@@ -368,6 +399,7 @@ module pipelineID(
         .rd_addr_i    		( rd_idx_w_i  	        ),
         .rd_wr_data_i 		( write_back_data_w_i 	),
         .rd_wr_en_i   		( reg_write_en_w_i   	)
+        // DIFFTEST
     );
 
     // static branch predictor instance

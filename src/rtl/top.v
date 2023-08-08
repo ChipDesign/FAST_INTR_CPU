@@ -17,11 +17,70 @@ time: 2023年 5月 6日 星期六 16时03分58秒 CST
 `include "regfile.v"
 `include "hazard.v"
 
+`define DIFFTEST
+
 module top(
-    input wire clk,
-    input wire resetn
+    input  wire        clk,
+    input  wire        resetn,
+    // signals used by difftest
+    `ifdef DIFFTEST
+    output wire [31:0] pc,
+    input  wire [63:0] instr,
+    output wire [31:0] id_instr,
+    output wire [31:0] imem_addr,
+    output wire        commit_en
+    `endif
+    // signals used by difftest
 );
 
+    `ifdef DIFFTEST
+    // instruction commit
+    reg resetn_d, resetn_d_d;
+    reg commit_en_exe, commit_en_mem, commit_en_wb, commit_en_delay;
+    wire commit_en_id;
+    assign id_instr=instruction_f_o;
+    // TODO: add stall logic consideration for instruction commit
+
+    always @(posedge clk ) begin 
+        resetn_d <= resetn;
+        resetn_d_d <= resetn_d;
+    end
+
+    assign commit_en_id = ~flush_d_i & resetn_d_d & ~fd_st_f_i;
+    assign commit_en    = commit_en_delay;
+    always @(posedge clk ) begin 
+        if(~resetn) begin
+            commit_en_exe <= 0;    
+            commit_en_mem <= 0;    
+            commit_en_wb  <= 0;    
+            commit_en_delay <= 0;    
+        end
+        else begin
+            commit_en_exe   <= commit_en_id;
+            commit_en_mem   <= commit_en_exe;
+            commit_en_wb    <= commit_en_mem;
+            commit_en_delay <= commit_en_wb;
+        end
+    end
+    // pass pc to top 
+    assign pc = pc_instr_delay;
+    wire [31:0] pc_instr_d_o; 
+    reg  [31:0] pc_instr_e_o, pc_instr_m_o, pc_instr_w_o, pc_instr_delay;
+    always @(posedge clk ) begin 
+        if(~resetn) begin
+            pc_instr_e_o <= 32'h80000000;
+            pc_instr_m_o <= 32'h80000000;
+            pc_instr_w_o <= 32'h80000000;
+            pc_instr_delay <= 32'h80000000;
+        end
+        else begin
+            pc_instr_e_o <= pc_instr_d_o;
+            pc_instr_m_o <= pc_instr_e_o;
+            pc_instr_w_o <= pc_instr_m_o;
+            pc_instr_delay <=pc_instr_w_o;
+        end
+    end
+    `endif
     // =========================================================================
     // =============================== variables ===============================
     // =========================================================================
@@ -56,7 +115,8 @@ module top(
     wire [20:0]	alu_op_d_o;
     wire [31:0]	rs1_d_o;
     wire [31:0]	rs2_d_o;
-    wire [ 2:0]	dmem_type_d_o;
+    wire [31:0]	rs2_reg_d_o;
+    wire [ 3:0]	dmem_type_d_o;
     wire [31:0]	extended_imm_d_o;
     wire [31:0]	pc_plus4_d_o;
     wire 	reg_write_en_d_o;
@@ -65,6 +125,7 @@ module top(
     wire 	instrIllegal_d_o;
     wire     rs1_depended_h_o;
     wire    jalr_d_o;
+    wire    btype_d_o;
     wire    flush_jal_d_o;
     wire [1:0] mul_state_d_o;
     wire    d_advance_d_o;
@@ -78,15 +139,16 @@ module top(
     wire        redirection_e_o;
     wire [31:0] redirection_pc_e_o;      
     wire [31:0]	aluResult_e_o;
+    wire [31:0]	alu_calculation_e_o;
     wire [ 3:0]	dMemType_e_o;
     wire [31:0]	extendedImm_e_o;
     wire [31:0]	pcPlus4_e_o;
-    wire 	regWriteEn_e_o;
+    wire 	reg_write_en_e_o;
     wire [ 4:0]	rdIdx_e_o;
     wire [ 3:0]	resultSrc_e_o;
     wire 	instrIllegal_e_o;
     wire [31:0] bypass_e_o;
-    wire [31:0] rs1_e_o;
+    wire [31:0] rs2_e_o;
 
     // MEM stage instance signals
     wire [31:0]	mem_read_data_m_o;
@@ -102,6 +164,7 @@ module top(
     wire [ 4:0]	rd_idx_w_o;
     wire [31:0]	write_back_data_w_o;
 
+
     // =========================================================================
     // ============================ implementation =============================
     // =========================================================================
@@ -110,6 +173,22 @@ module top(
     // wire [31:0] redirection_pc_e_i;
     // wire        redirection_e_i;
     // wire        ptnt_e_i;
+    
+     
+    // assign wb_en  = wb_en_d_d_d; // used ass difftest signals
+    // reg wb_en_d, wb_en_d_d, wb_en_d_d_d;
+    // always @(posedge clk ) begin 
+    //     if(~resetn) begin
+    //         wb_en_d     <= 1'b0;
+    //         wb_en_d_d   <= 1'b0;
+    //         wb_en_d_d_d <= 1'b0;
+    //     end
+    //     else begin
+    //         wb_en_d     <= reg_write_en_w_o;
+    //         wb_en_d_d   <= wb_en_d;
+    //         wb_en_d_d_d <= wb_en_d_d;
+    //     end
+    // end
     
 
     
@@ -124,7 +203,9 @@ module top(
         .taken_d_i       		( taken_d_o       		),
         .is_compress_d_i        (is_compress_d_i        ),
         .flush_i                ( flush_jal_d_o         ), // TODO: add flush from EXE
-        .instruction_f_o 		( instruction_f_o 		)
+        .instruction_f_o 		( instruction_f_o 		),
+        .imemory_output         ( instr[31:0]          ),
+        .imem_addr              ( imem_addr)
     );
 
     // ID stage instance
@@ -142,9 +223,10 @@ module top(
         .rd_idx_w_i        		( rd_idx_w_o       		),
         .write_back_data_w_i 	( write_back_data_w_o 	),
         .rs1_depended_h_i   	( rs1_depended_h_o   	),
-        .flush_i                ( flush_d_i             ), // TODO: temp flush, replaced by hazard flush
+        .flush_i                ( flush_d_i             ),
         .src1_sel_d_i           ( src1_sel_d_i          ),
         .src2_sel_d_i           ( src2_sel_d_i          ),
+        .stall_i                ( fd_st_f_i             ),
         .bypass_e_o             ( bypass_e_o            ),
         .bypass_m_o             ( bypass_m_o            ),
         .redirection_d_o   		( redirection_d_o   	),
@@ -154,8 +236,10 @@ module top(
         .is_compressed_d_o      ( is_compress_d_i       ),
         .alu_op_d_o         	( alu_op_d_o         	),
         .jalr_d_o               ( jalr_d_o              ),
+        .btype_d_o              ( btype_d_o             ),
         .rs1_d_o           		( rs1_d_o           	),
         .rs2_d_o           		( rs2_d_o           	),
+        .rs2_reg_d_o           	( rs2_reg_d_o          	),
         .dmem_type_d_o      	( dmem_type_d_o      	),
         .extended_imm_d_o   	( extended_imm_d_o   	),
         .pc_next_d_o        	( pc_plus4_d_o       	),
@@ -170,7 +254,7 @@ module top(
         .is_load_d_o            ( is_load_d_o           ),
         .dst_en_d_o             ( dst_en_d_o            ),
         .fin_d_o                ( fin_d_o               ),
-        .fin_w_d_o              ( fin_w_d_o               ),
+        .fin_w_d_o              ( fin_w_d_o             ),
         .pre_taken_d_o          ( pre_taken_d_o         ),
         .r_dst_d_o              ( r_dst_d_o             ),
         .r_src1_d_o             ( r_src1_d_o            ),
@@ -178,7 +262,12 @@ module top(
         .mul_state_d_o          ( mul_state_d_o         ),
         .div_last_d_o           ( div_last_d_o          ),
         .d_advance_d_o          ( d_advance_d_o         ),
-        .d_init_d_o             ( d_init_d_o            )
+        .d_init_d_o             ( d_init_d_o            ),
+        // DIFFTEST
+        `ifdef DIFFTEST
+        .pc_instr_d_o           ( pc_instr_d_o          )
+        `endif
+        // DIFFTEST
         //.CSR_data_d_i           ( CSR_data_c_o          ),
         //.CSR_data_d_o           ( CSR_data_d_o          ),
         //.CSR_addr_d_o           ( CSR_addr_d_o          ),
@@ -194,6 +283,7 @@ module top(
         .alu_op_d_i        		( alu_op_d_o        	),
         .rs1_d_i          		( rs1_d_o          		),
         .rs2_d_i          		( rs2_d_o          		),
+        .rs2_reg_d_i       		( rs2_reg_d_o          	),
         .extended_imm_d_i  		( extended_imm_d_o  	),
         .pc_plus4_d_i      		( pc_plus4_d_o      	),
         .taken_d_i              ( sbp_taken_d_o         ),
@@ -202,6 +292,7 @@ module top(
         .redirection_e_o        ( redirection_e_o       ),
         .redirection_pc_e_o     ( redirection_pc_e_o    ),
         .jalr_d_i               ( jalr_d_o              ),
+        .btype_d_i              ( btype_d_o             ),
         .dmem_type_d_i     		( dmem_type_d_o     	),
         .reg_write_en_d_i   	( reg_write_en_d_o   	),
         .rd_idx_d_i        		( rd_idx_d_o        	),
@@ -212,11 +303,12 @@ module top(
         .mul_state_d_o          ( mul_state_d_o         ),
         .div_last_d_o           ( div_last_d_o          ),
         .alu_result_e_o    		( aluResult_e_o    		),
+        .alu_calculation_e_o   	( alu_calculation_e_o	),
         .dmem_type_e_o     		( dMemType_e_o     		),
-        .rs1_e_o                ( rs1_e_o               ),
+        .rs2_e_o                ( rs2_e_o               ),
         .extended_imm_e_o  		( extendedImm_e_o  		),
         .pc_plus4_e_o      		( pcPlus4_e_o      		),
-        .reg_write_en_e_o   	( regWriteEn_e_o   		),
+        .reg_write_en_e_o   	( reg_write_en_e_o   		),
         .rd_idx_e_o        		( rdIdx_e_o        		),
         .result_src_e_o    		( resultSrc_e_o    		),
         .instr_illegal_e_o 		( instrIllegal_e_o 		),
@@ -230,12 +322,13 @@ module top(
         //ports
         .clk             		( clk             		),
         .resetn           		( resetn           		),
-        .rs1_e_i                ( rs1_e_o               ),
+        .rs2_e_i                ( rs2_e_o               ),
         .alu_result_e_i    		( aluResult_e_o    		),
+        .alu_calculation_e_i   	( alu_calculation_e_o  	),
         .dmem_type_e_i     		( dMemType_e_o     		),
         .extended_imm_e_i  		( extendedImm_e_o  		),
         .pc_plus_e_i      		( pcPlus4_e_o      		),
-        .reg_write_en_e_i   	( regWriteEn_e_o   		),
+        .reg_write_en_e_i   	( reg_write_en_e_o 		),
         .rd_idx_e_i        		( rdIdx_e_o        		),
         .result_src_e_i    		( resultSrc_e_o    		),
         .mem_read_data_m_o  	( mem_read_data_m_o  	),
@@ -251,6 +344,8 @@ module top(
     // WB stage instance
     pipelineWB u_pipelineWB(
         //ports
+        .clk             		( clk             		),
+        .resetn           		( resetn           		),
         .alu_result_m_i     	( alu_result_m_o     	),
         .mem_read_data_m_i  	( mem_read_data_m_o   	),
         .extended_imm_m_i   	( extended_imm_m_o   	),

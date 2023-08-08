@@ -1,3 +1,5 @@
+`ifndef __MULTI__
+`define __MULTI__
 `include "multi16.v"
 module multi(
 ain,bin,ss,su,uu,state,prod,clk);
@@ -58,3 +60,4 @@ multi16 m16(
 
 
 endmodule
+`endif

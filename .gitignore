@@ -28,7 +28,7 @@ src/rtl/obj_dir/
 *.log
 .stamp.verilate
 *.bak
-test*
+# test*
 *.vvp
 demo/
 *.gtkw

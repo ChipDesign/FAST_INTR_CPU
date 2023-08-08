@@ -1,6 +1,8 @@
+`ifndef __LONGDIVBAD__
+`define __LONGDIVBAD__
 `include "CSA32.v"
 
-module long_div(dividend,divisor,clk,rstn,en,rem,quot,uns,fin);
+module long_div_bad(dividend,divisor,clk,rstn,en,rem,quot,uns,fin);
 
 input[31:0] dividend,divisor;
 input uns,clk,en,rstn;
@@ -97,3 +99,4 @@ CSA35 csa(
 
 
 endmodule
+`endif

@@ -2,6 +2,9 @@
 `define __PIPELINEIFWITHFIFO__
 `include "imemory.v"
 `include "fifo5x16.v"
+
+`define DIFFTEST
+// `include "temp_sram.v"
 module pipelineIF_withFIFO
 (
     input wire        clk,
@@ -10,15 +13,18 @@ module pipelineIF_withFIFO
     /* redirectionPC from static branch predictor in ID stage */
     input wire [31:0] redirection_d_i,
     input wire        taken_d_i,
-    // input wire [31:0] redirection_e_i,
-    // input wire        taken_e_i,
     input wire        is_compress_d_i, // 16 bits or 32 bits
     input             flush_i,
 
+    // DIFFTEST
+    `ifdef DIFFTEST
+    input wire [31:0] imemory_output,
+    output wire [31:0] imem_addr,
+    `endif 
     /* output signals to ID stage */
     output wire [31:0] instruction_f_o
-);
 
+);
     // =========================================================================
     // ============================== variables ================================
     // =========================================================================
@@ -39,7 +45,6 @@ module pipelineIF_withFIFO
     // =========================================================================
     // ============================ implementation =============================
     // =========================================================================
-
     always @(posedge clk ) begin 
         resetn_delay1  <= resetn;
         resetn_delay2  <= resetn_delay1;
@@ -52,7 +57,6 @@ module pipelineIF_withFIFO
     assign instru_valid = resetn & resetn_delay1 & resetn_delay2 & ~flush_i;
     assign instruction_f_o = ({32{~instru_valid}} & 32'h13)|
                              ({32{instru_valid}} & ir);
-
     // instruction memory instance
     assign web = 1; // only read from I-Memory
     assign sram_addr = mem_addr[10:1];
@@ -65,6 +69,15 @@ module pipelineIF_withFIFO
     assign drain_cnt = ({2{enable & resetn & resetn_delay1 & resetn_delay2 & ~taken_d_delay1}}) & 
                        (({2{is_compress_d_i}} & 2'b01)|({2{~is_compress_d_i}}&2'b10));
 
+    `ifdef DIFFTEST
+    reg [31:0] sram_output_reg;
+    always @(posedge clk ) begin 
+        // delay one cycle because I-Memory has 1 cycle read delay but c function don't has delay
+        sram_output_reg <= imemory_output; 
+    end
+    assign sram_output = {sram_output_reg[15:0], sram_output_reg[31:16]}; // read I-Memory through DPI-C, TOOD: fix this reorder
+    assign imem_addr   = mem_addr;
+    `else
     // I-Memory instance
     imemory u_imemory(
         //ports
@@ -75,6 +88,7 @@ module pipelineIF_withFIFO
         .A      		( sram_addr  	),
         .Q      		( sram_output  	)
     );
+    `endif
 
     // 5x16 FIFO instance
     // TODO: add flush in FIFO
@@ -90,6 +104,5 @@ module pipelineIF_withFIFO
         .mem_rq    		( ceb        		),
         .ir        		( ir            	)
     );
-
 endmodule
 `endif

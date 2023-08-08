@@ -11,6 +11,8 @@ time: 2023年 5月 5日 星期五 11时06分55秒 CST
 module pipelineWB (
     // input wire resetn, // no reset need in WB stage
     /* input data passed from MEM stage */
+    input wire        clk,
+    input wire        resetn,
     input wire [31:0] alu_result_m_i,   // alu calculation result
     input wire [31:0] mem_read_data_m_i, // delared as wire, becased the D-memory has 1 cycle delay when reading
     input wire [31:0] extended_imm_m_i,  // extended imm, for 'lui' instruction
@@ -35,22 +37,5 @@ module pipelineWB (
                                  ({32{result_src_m_i[1]}}&extended_imm_m_i)|
                                  ({32{result_src_m_i[2]}}&mem_read_data_m_i)|
                                  ({32{result_src_m_i[3]}}&pc_plus4_m_i);
-    // always@(*)begin 
-    //     case(result_src_m_i) 
-    //         `WBSRC_ALU: begin
-    //             write_back_data_w_o = alu_result_m_i; // choose alu result to write back
-    //         end
-    //         `WBSRC_IMM: begin
-    //             write_back_data_w_o = extended_imm_m_i; // choose extended immdiate to write back
-    //         end
-    //         `WBSRC_MEM: begin
-    //             write_back_data_w_o = mem_read_data_m_i;// choose data memory output to write back
-    //         end
-    //         `WBSRC_PC: begin
-    //             write_back_data_w_o = pc_plus4_m_i;// choose pc+4 to write back
-    //         end
-    //         default: write_back_data_w_o = alu_result_m_i;
-    //     endcase
-    // end
 endmodule
 `endif

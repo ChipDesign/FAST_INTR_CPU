@@ -1,3 +1,5 @@
+`ifndef __LONGDIV__
+`define __LONGDIV__
 `include "CSA32.v"
 module long_div (
           clk, 
@@ -54,8 +56,8 @@ assign quot = dvd;
 // in case remainder = 0, and dividend is negative; still keep same sub/add as previous. 
 assign sub      = sign_quot; // not use "sign_rem" ^ sign_dvs, use "sign_dvd" ^ sign_dvs 
 assign dvs_ivt  = {35{sub}} ^ {{3{sign_dvs}}, dvs};
-assign rem_sub1 = {rem[34:2], dvd[31:30]} + dvs_ivt + sub; 
-assign rem_sub2 = {rem[34:2], dvd[31:30]} + {dvs_ivt[33:0], sub} + sub;
+assign rem_sub1 = {rem[34:2], dvd[31:30]} + dvs_ivt + {35{sub}}; 
+assign rem_sub2 = {rem[34:2], dvd[31:30]} + {dvs_ivt[33:0], sub} + {35{sub}};
 
 CSA35 csa_35 (
 	.ain   ({rem[34:2], dvd[31:30]}),
@@ -65,7 +67,7 @@ CSA35 csa_35 (
 	.cout (sub3_pc)
 );
 
-assign rem_sub3 = sub3_ps + {sub3_pc[33:0], sub} + sub;
+assign rem_sub3 = sub3_ps + {sub3_pc[33:0], sub} + {35{sub}};
 //remainder sign conversion for quotient evaluation
 assign sign_rem1 = (rem_sub1[34] ^ sign_dvd) & ~(rem_sub1 == 35'h0);
 assign sign_rem2 = (rem_sub2[34] ^ sign_dvd) & ~(rem_sub2 == 35'h0);
@@ -87,4 +89,4 @@ end
 assign remd = rem[31:0];
 
 endmodule
-
+`endif

@@ -1,8 +1,10 @@
+`ifndef __SHIFTER32__
+`define __SHIFTER32__
 module shifter32#(parameter DATA_WIDTH=32, parameter SHIFT_WIDTH=5) (
         input [DATA_WIDTH-1:0] d_in,
         input [SHIFT_WIDTH-1:0] shift,
         input arithOrLogic, // SRA or SRL
-        input leftOrRight, // shift left or right
+        input leftOrRight, // shift left or right, 1 for right, 0 for left
         output [DATA_WIDTH-1:0] d_out);
 
 
@@ -13,7 +15,7 @@ module shifter32#(parameter DATA_WIDTH=32, parameter SHIFT_WIDTH=5) (
     wire msbFill;  // is shift right arithmatic, fill the msb with d[DATA_WIDTH-1], otherwish fill msb with 0.
     wire [DATA_WIDTH-1: 0] shifter_d_in, shifter_d_out; // we only implement shift right in shift array, shift left is finishing by turning over the input and turning over the output of the shift array.
 
-    assign msbFill=arithOrLogic?0:d_in[DATA_WIDTH-1];
+    assign msbFill=leftOrRight ? (arithOrLogic?0:d_in[DATA_WIDTH-1]) : 0;
     assign shifter_d_in=leftOrRight? d_in :{d_in[0], d_in[1], d_in[2], d_in[3], d_in[4], d_in[5], d_in[6], d_in[7], d_in[8], d_in[9], d_in[10], d_in[11], d_in[12], d_in[13], d_in[14], d_in[15], d_in[16], d_in[17], d_in[18], d_in[19], d_in[20], d_in[21], d_in[22], d_in[23], d_in[24], d_in[25], d_in[26], d_in[27], d_in[28], d_in[29], d_in[30], d_in[31]};
 
     // shift array logic begin
@@ -194,3 +196,4 @@ module shifter32#(parameter DATA_WIDTH=32, parameter SHIFT_WIDTH=5) (
 
     assign d_out=leftOrRight? shifter_d_out: {shifter_d_out[0], shifter_d_out[1], shifter_d_out[2], shifter_d_out[3], shifter_d_out[4], shifter_d_out[5], shifter_d_out[6], shifter_d_out[7], shifter_d_out[8], shifter_d_out[9], shifter_d_out[10], shifter_d_out[11], shifter_d_out[12], shifter_d_out[13], shifter_d_out[14], shifter_d_out[15], shifter_d_out[16], shifter_d_out[17], shifter_d_out[18], shifter_d_out[19], shifter_d_out[20], shifter_d_out[21], shifter_d_out[22], shifter_d_out[23], shifter_d_out[24], shifter_d_out[25], shifter_d_out[26], shifter_d_out[27], shifter_d_out[28], shifter_d_out[29], shifter_d_out[30], shifter_d_out[31]};
 endmodule
+`endif
