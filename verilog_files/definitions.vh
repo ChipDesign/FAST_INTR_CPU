@@ -65,10 +65,11 @@
     `define RS2SEL_IMM      1'b1 
 
     // write back source
-    `define WBSRC_ALU      4'b0001 
-    `define WBSRC_IMM      4'b0010
-    `define WBSRC_MEM      4'b0100
-    `define WBSRC_PC       4'b1000
+    `define WBSRC_ALU      5'b00001 
+    `define WBSRC_IMM      5'b00010
+    `define WBSRC_MEM      5'b00100
+    `define WBSRC_PC       5'b01000
+    `define WBSRC_CSR      5'b10000
 
     // data memory type
     `define DMEM_SB  4'b0001
