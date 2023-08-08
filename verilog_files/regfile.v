@@ -39,7 +39,7 @@ module regfile
     
     integer i;
     // set all registers to 0 on initialization
-    initial begin
+    initial begin// TODO : change initial to reset
         for(i=0; i<REGFILE_DEPTH; i=i+1) begin
             regfile_data[i] = 0;
         end      

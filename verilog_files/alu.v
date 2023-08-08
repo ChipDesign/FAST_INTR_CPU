@@ -20,6 +20,7 @@ output branch_taken;
 
 wire add_op,sub_op,sll_op,srl_op,sra_op,or_op,and_op,xor_op,slt_op,sltu_op;
 wire mul_op,mulh_op,mulhu_op,mulhsu_op,div_op,divu_op,rem_op,remu_op;
+wire beq,blt,branch;
 
 wire[31:0] sft_ans,div_ans,rem_ans,log_ans,mul_low,mul_high;
 wire [32:0] add_ans;

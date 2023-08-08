@@ -37,13 +37,15 @@ module decoder(
     output reg [2:0] dmem_type_o, // data memory type
     // =========  =========
     // output reg regWriteEnD,
-    output reg [3:0] wb_src_o, // write back select
+    output reg [4:0] wb_src_o, // write back select
     output reg wb_en_o,  // write back enable
     //========== CSR instruction ==========
     output reg [11:0] csr_addr_o,
     output reg csr_read_o,
     output reg csr_op_inv_o,
+    output reg csr_no_cal_o,
     output reg csr_zimm_en_o,
+    output reg csr_write_o,
     output reg [31:0] csr_zimm_o,
     // ========= illegal instruction =========
     output reg instr_illegal_o
@@ -113,9 +115,7 @@ module decoder(
                     end
                     3'b101: begin
                         dmem_type_o = `DMEM_LHU;
-                    endcsr_op_inv_o=1'b1;
-                    csr_read_o=1'b0;
-                    csr_write_o=1'b1;
+                    end
                     default: instr_illegal_o = 1'b1;
                 endcase
             end
@@ -301,11 +301,10 @@ module decoder(
             end
             `OPCODE_SYSTEM:
             begin
-                wb_en_o=1'b1;
-                case(instruction_i[12:14])
+                case(instruction_i[14:12])
                 3'b011: begin//csrrc
                     wb_en_o=1'b1;
-                    wb_src_o=`WBSRC_ALU;//TODO ALU FOR CSR
+                    wb_src_o=`WBSRC_CSR;
                     alu_calculation=`ALUOP_AND;
                     csr_op_inv_o=1'b1;
                     csr_read_o=1'b1;
@@ -313,7 +312,7 @@ module decoder(
                 end
                 3'b111: begin//csrrci
                     wb_en_o=1'b1;
-                    wb_src_o=`WBSRC_ALU;//TODO ALU FOR CSR
+                    wb_src_o=`WBSRC_CSR;
                     alu_calculation=`ALUOP_AND;
                     csr_op_inv_o=1'b1;
                     csr_read_o=1'b1;
@@ -321,6 +320,45 @@ module decoder(
                     csr_zimm_en_o=1'b1;
                     csr_zimm_o={27'b0,instruction_i};
                 end
+                3'b010: begin//csrrs
+                    wb_en_o=1'b1;
+                    wb_src_o=`WBSRC_CSR;
+                    alu_calculation=`ALUOP_OR;
+                    csr_op_inv_o=1'b0;
+                    csr_read_o=1'b1;
+                    csr_write_o=1'b1;
+                end
+                3'b110: begin//csrrsi
+                    wb_en_o=1'b1;
+                    wb_src_o=`WBSRC_CSR;
+                    alu_calculation=`ALUOP_OR;
+                    csr_op_inv_o=1'b0;
+                    csr_read_o=1'b1;
+                    csr_write_o=1'b1;
+                    csr_zimm_en_o=1'b1;
+                    csr_zimm_o={27'b0,instruction_i};
+                end
+                3'b001: begin//csrrw
+                    wb_en_o=1'b1;
+                    wb_src_o=`WBSRC_CSR;
+                    alu_calculation=`ALUOP_AND;
+                    csr_op_inv_o=1'b0;
+                    csr_read_o=1'b1;
+                    csr_write_o=1'b1;
+                    csr_no_cal_o=1'b1;
+                end
+                3'b101: begin//csrrwi
+                    wb_en_o=1'b1;
+                    wb_src_o=`WBSRC_CSR;
+                    alu_calculation=`ALUOP_AND;
+                    csr_op_inv_o=1'b0;
+                    csr_read_o=1'b1;
+                    csr_write_o=1'b1;
+                    csr_no_cal_o=1'b1;
+                    csr_zimm_en_o=1'b1;
+                    csr_zimm_o={27'b0,instruction_i};
+                end
+                endcase
             end
             default: instr_illegal_o = 1'b1;
         endcase

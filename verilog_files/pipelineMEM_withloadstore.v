@@ -25,7 +25,8 @@ module pipelineMEM_withloadstore (
     input wire [31:0] pc_plus_e_i,      
     input wire        reg_write_en_e_i,         
     input wire [ 4:0] rd_idx_e_i,          
-    input wire [ 3:0] result_src_e_i,   
+    input wire [ 4:0] result_src_e_i,
+    input wire [31:0] CSR_data_e_i,   
 
     /* signals to passed to WB stage */
     output reg [31:0] mem_read_data_m_o,  // data read from D-memory 
@@ -34,10 +35,10 @@ module pipelineMEM_withloadstore (
     output reg [31:0] pc_plus_m_o,      // rd=pc+4, for `jal` instruction
     output reg        reg_write_en_m_o,   // RF write enable
     output reg [ 4:0] rd_idx_m_o,            // RF write back register index, passed from MEM stage
-    output reg [ 3:0] result_src_m_o,    // select signal to choose one of the four inputs
-    output wire [31:0] bypass_m_o
+    output reg [ 4:0] result_src_m_o,    // select signal to choose one of the four inputs
+    output wire [31:0] bypass_m_o,
+    output reg [31:0] CSR_data_m_o
     // TODO: signals to communicate with Data Memory
-    // TODO: add CSR Unit signals
 );
 
 // =========================================================================
@@ -78,12 +79,13 @@ module pipelineMEM_withloadstore (
     //*********************************
     always @(posedge clk ) begin 
         if(~resetn) begin
-            result_src_m_o    <= 4'b0000;
+            result_src_m_o    <= 5'b00000;
             alu_result_m_o    <= 32'h0;
             pc_plus_m_o       <= 32'h0;
             extended_imm_m_o  <= 32'h0;
             reg_write_en_m_o  <= 1'b0;
             rd_idx_m_o        <= 5'h0;
+            CSR_data_m_o      <= 32'b0;
         end
         else begin
             // pass signals to MEM stage
@@ -93,6 +95,7 @@ module pipelineMEM_withloadstore (
             extended_imm_m_o  <= extended_imm_e_i;
             reg_write_en_m_o  <= reg_write_en_e_i;
             rd_idx_m_o        <= rd_idx_e_i;
+            CSR_data_m_o      <= CSR_data_e_i;
         end
     end
 
@@ -100,7 +103,8 @@ module pipelineMEM_withloadstore (
     assign bypass_m_o = ({32{result_src_e_i[0]}}&alu_result_e_i)|
                                  ({32{result_src_e_i[1]}}&extended_imm_e_i)|
                                  ({32{result_src_e_i[2]}}&read_data)|
-                                 ({32{result_src_e_i[3]}}&pc_plus_e_i);
+                                 ({32{result_src_e_i[3]}}&pc_plus_e_i)|
+                                 ({32{result_src_e_i[4]}}&CSR_data_e_i);
 
     //*********************************    
     //        DATA MEM STORES
