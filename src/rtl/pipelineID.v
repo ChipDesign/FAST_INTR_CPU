@@ -236,7 +236,7 @@ module pipelineID(
     // calculate redirection pc to IF stage
     // assign taken_d_o       = ({~resetn_delay | flush_i} & 1'b1) | ptnt_e_i | redirection_e_i | taken;
     // assign taken_d_o       = ({~resetn_delay} & 1'b1) | ptnt_e_i | redirection_e_i | taken;
-    assign taken_d_o       = ~resetn_delay | ptnt_e_i | redirection_e_i | taken;
+    assign taken_d_o       = ~resetn_delay | ptnt_e_i | redirection_e_i | (~flush_i & taken );
     assign redirection_d_o = ({32{~resetn_delay | flush_i}} & 32'h80000000)|
     // assign redirection_d_o = ({32{~resetn | flush_i}} & 32'h80000000)|
                              ({32{ptnt_e_i & ~branchJAL_o}} & pc_next)| // sbp taken, alu not taken
