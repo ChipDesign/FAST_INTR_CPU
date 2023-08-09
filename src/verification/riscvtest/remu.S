@@ -11,7 +11,7 @@
 #include "test_macros.h"
 
 #RVTEST_RV32U
-RVTEST_CODE_BEGIN
+#RVTEST_CODE_BEGIN
 
   #-------------------------------------------------------------
   # Arithmetic tests
