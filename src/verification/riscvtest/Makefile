@@ -1,6 +1,6 @@
 # EXEC = test
 # EXEC = fence_i
-EXEC = andi
+# EXEC = andi
 # EXEC = ori
 # EXEC = xori
 # EXEC = addi
@@ -40,6 +40,8 @@ EXEC = andi
 # EXEC = sh
 # EXEC = sw
 
+EXEC = mul
+
 # default to compile all file into bin file
 SRC = ${EXEC}.S
 
@@ -49,9 +51,10 @@ include rule.mk
 
 # compile all files
 # lb lh lw lbu lhu sb sh sw 
-ASM= addi slti sltiu xori ori andi slli srli srai auipc lui\
-	 add sub slt sltu xor or and sll srl sra\
-	 jalr jal beq bne blt bge bltu bgeu\
+# ASM= addi slti sltiu xori ori andi slli srli srai auipc lui\
+# 	 add sub slt sltu xor or and sll srl sra\
+# 	 jalr jal beq bne blt bge bltu bgeu\
+ASM = div divu mul mulh mulhsu mulhu rem remu rvc
 
 getAll:
 	for i in ${ASM}; do \
