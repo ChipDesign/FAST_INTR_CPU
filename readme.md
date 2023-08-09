@@ -16,3 +16,7 @@
 2. 支持Difftest测试
 3. 支持中断嵌套、中断尾链
 4. 采用ITCM、DTCM，可配置I-Cache
+
+# MCU验证
+1. [验证目录](src/verification/)
+2. [验证说明](src/verification/README.md)
