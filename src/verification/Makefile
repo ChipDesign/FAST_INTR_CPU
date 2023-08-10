@@ -42,47 +42,49 @@ LDFLAGS += -ldl
 # ARGS ?=/home/fujie/Developer/git_repos/diff/demo2/npc/build/top
 
 # Command to execute NPC
-# IMG ?=/home/fujie/Developer/git_repos/riscv-operating-system-mooc/code/asm/riscvtest/test.bin
-# IMG ?=/home/fujie/Developer/git_repos/riscv-operating-system-mooc/code/asm/riscvtest/addi.bin
-# IMG ?=/home/fujie/Developer/git_repos/riscv-operating-system-mooc/code/asm/riscvtest/slti.bin
-# IMG ?=/home/fujie/Developer/git_repos/riscv-operating-system-mooc/code/asm/riscvtest/sltiu.bin
-# IMG ?=/home/fujie/Developer/git_repos/riscv-operating-system-mooc/code/asm/riscvtest/xori.bin
-# IMG ?=/home/fujie/Developer/git_repos/riscv-operating-system-mooc/code/asm/riscvtest/ori.bin
-# IMG ?=/home/fujie/Developer/git_repos/riscv-operating-system-mooc/code/asm/riscvtest/andi.bin
-# IMG ?=/home/fujie/Developer/git_repos/riscv-operating-system-mooc/code/asm/riscvtest/slli.bin
-# IMG ?=/home/fujie/Developer/git_repos/riscv-operating-system-mooc/code/asm/riscvtest/srli.bin
-# IMG ?=/home/fujie/Developer/git_repos/riscv-operating-system-mooc/code/asm/riscvtest/srai.bin
-# IMG ?=/home/fujie/Developer/git_repos/riscv-operating-system-mooc/code/asm/riscvtest/auipc.bin
-# IMG ?=/home/fujie/Developer/git_repos/riscv-operating-system-mooc/code/asm/riscvtest/lui.bin
+# IMG ?=riscvtest/test.bin
+# IMG ?=riscvtest/addi.bin
+# IMG ?=riscvtest/slti.bin
+# IMG ?=riscvtest/sltiu.bin
+# IMG ?=riscvtest/xori.bin
+# IMG ?=riscvtest/ori.bin
+# IMG ?=riscvtest/andi.bin
+# IMG ?=riscvtest/slli.bin
+# IMG ?=riscvtest/srli.bin
+# IMG ?=riscvtest/srai.bin
+# IMG ?=riscvtest/auipc.bin
+# IMG ?=riscvtest/lui.bin
 
-# IMG ?=/home/fujie/Developer/git_repos/riscv-operating-system-mooc/code/asm/riscvtest/add.bin
-# IMG ?=/home/fujie/Developer/git_repos/riscv-operating-system-mooc/code/asm/riscvtest/sub.bin
-# IMG ?=/home/fujie/Developer/git_repos/riscv-operating-system-mooc/code/asm/riscvtest/slt.bin
-# IMG ?=/home/fujie/Developer/git_repos/riscv-operating-system-mooc/code/asm/riscvtest/sltu.bin
-# IMG ?=/home/fujie/Developer/git_repos/riscv-operating-system-mooc/code/asm/riscvtest/xor.bin
-# IMG ?=/home/fujie/Developer/git_repos/riscv-operating-system-mooc/code/asm/riscvtest/or.bin
-# IMG ?=/home/fujie/Developer/git_repos/riscv-operating-system-mooc/code/asm/riscvtest/and.bin
-# IMG ?=/home/fujie/Developer/git_repos/riscv-operating-system-mooc/code/asm/riscvtest/sll.bin
-# IMG ?=/home/fujie/Developer/git_repos/riscv-operating-system-mooc/code/asm/riscvtest/srl.bin
-# IMG ?=/home/fujie/Developer/git_repos/riscv-operating-system-mooc/code/asm/riscvtest/sra.bin
+# IMG ?=riscvtest/add.bin
+# IMG ?=riscvtest/sub.bin
+# IMG ?=riscvtest/slt.bin
+# IMG ?=riscvtest/sltu.bin
+# IMG ?=riscvtest/xor.bin
+# IMG ?=riscvtest/or.bin
+# IMG ?=riscvtest/and.bin
+# IMG ?=riscvtest/sll.bin
+# IMG ?=riscvtest/srl.bin
+# IMG ?=riscvtest/sra.bin
 
-# IMG ?=/home/fujie/Developer/git_repos/riscv-operating-system-mooc/code/asm/riscvtest/jalr.bin
-# IMG ?=/home/fujie/Developer/git_repos/riscv-operating-system-mooc/code/asm/riscvtest/jal.bin
-# IMG ?=/home/fujie/Developer/git_repos/riscv-operating-system-mooc/code/asm/riscvtest/beq.bin
-IMG ?=/home/fujie/Developer/git_repos/riscv-operating-system-mooc/code/asm/riscvtest/bne.bin
-# IMG ?=/home/fujie/Developer/git_repos/riscv-operating-system-mooc/code/asm/riscvtest/blt.bin
-# IMG ?=/home/fujie/Developer/git_repos/riscv-operating-system-mooc/code/asm/riscvtest/bge.bin
-# IMG ?=/home/fujie/Developer/git_repos/riscv-operating-system-mooc/code/asm/riscvtest/bltu.bin
-# IMG ?=/home/fujie/Developer/git_repos/riscv-operating-system-mooc/code/asm/riscvtest/bgeu.bin
+# IMG ?=riscvtest/jalr.bin
+# IMG ?=riscvtest/jal.bin
+# IMG ?=riscvtest/beq.bin
+# IMG ?=riscvtest/bne.bin
+# IMG ?=riscvtest/blt.bin
+# IMG ?=riscvtest/bge.bin
+# IMG ?=riscvtest/bltu.bin
+# IMG ?=riscvtest/bgeu.bin
 
-# IMG ?=/home/fujie/Developer/git_repos/riscv-operating-system-mooc/code/asm/riscvtest/lb.bin
-# IMG ?=/home/fujie/Developer/git_repos/riscv-operating-system-mooc/code/asm/riscvtest/lh.bin
-# IMG ?=/home/fujie/Developer/git_repos/riscv-operating-system-mooc/code/asm/riscvtest/lw.bin
-# IMG ?=/home/fujie/Developer/git_repos/riscv-operating-system-mooc/code/asm/riscvtest/lbu.bin
-# IMG ?=/home/fujie/Developer/git_repos/riscv-operating-system-mooc/code/asm/riscvtest/lhu.bin
-# IMG ?=/home/fujie/Developer/git_repos/riscv-operating-system-mooc/code/asm/riscvtest/sb.bin
-# IMG ?=/home/fujie/Developer/git_repos/riscv-operating-system-mooc/code/asm/riscvtest/sh.bin
-# IMG ?=/home/fujie/Developer/git_repos/riscv-operating-system-mooc/code/asm/riscvtest/sw.bin
+# IMG ?=riscvtest/lb.bin
+# IMG ?=riscvtest/lh.bin
+# IMG ?=riscvtest/lw.bin
+# IMG ?=riscvtest/lbu.bin
+# IMG ?=riscvtest/lhu.bin
+# IMG ?=riscvtest/sb.bin
+# IMG ?=riscvtest/sh.bin
+# IMG ?=riscvtest/sw.bin
+
+IMG ?=riscvtest/mul.bin
 
 ARGS_DIFF = --diff=so/riscv32-spike-so
 # ARGS_DIFF = --diff=./so/riscv64-spike-so
@@ -129,12 +131,13 @@ ${BIN_ALL}: $(VSRCS) $(CSRCS)
 		$(addprefix -LIBS, $(LIBS)) \
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN_ALL))
 
-asm = addi slti sltiu xori ori andi slli srli srai auipc lui \
-      add sub slt slt xor or and sll srl sra \
-      jalr jal beq bne blt bge bltu bgeu \
-      lb lh lw lbu lhu sb sh sw \
-#div divu divuw divw mul mulh mulhsu mulhu mulw rem remu remuw remw \
-#rvc 
+# asm = addi slti sltiu xori ori andi slli srli srai auipc lui \
+#       add sub slt slt xor or and sll srl sra \
+#       jalr jal beq bne blt bge bltu bgeu \
+#       lb lh lw lbu lhu sb sh sw \
+#       rvc
+# asm = div divu mul mulh mulhsu mulhu rem remu
+asm=mul
 
 image_path=./riscvtest/
 result= $(addprefix ${image_path}, ${asm})
@@ -144,7 +147,7 @@ test_all: $(BIN_ALL)
 	@echo "==========make test_all =============="
 	@echo "==========make test_all =============="
 	@echo "==========make test_all =============="
-	@-rm result.log
+	@-rm -rf result.log
 	for i in ${asm_images}; do $^ $(ARGS) $(ARGS_DIFF) $${i}; done
 # TEST_ALL >>>>>>>>>>>>>>>>
 
@@ -166,19 +169,21 @@ clean:
 	rm -rf $(BUILD_DIR)
 
 # >>> install files from MCU_HOME >>>
-MCU_HOME ?=/home/fujie/Developer/git_repos/FAST_INTR_CPU
-MCU_SRC_DIR = ${MCU_HOME}/src/rtl
+MCU_SRC_DIR = ../rtl
 VSRC_DIR ?=./vsrc
 MCU_FILES = $(shell find $(MCU_SRC_DIR) -name "*.v" -or -name "*.vh") 
 MCU_RTL=$(filter-out %tb.v, $(MCU_FILES))
 install:
-	@echo "copy mcu rtl files from Fast_Interrupt_MCU"
+	@echo "Copy RTL codes to verification folder"
 	@cp ${MCU_RTL} ${VSRC_DIR}
 # <<< install files from MCU_HOME <<< 
 # >>> uninstall files from MCU_HOME >>>
 uninstall:
 	@echo "remove mcu rtl files from "
 	@-rm ${VSRC_DIR}/*
+copy_back:
+	@echo "copy verified files back to rtl folder"
+	@cp ${VSRC_DIR}/* ${MCU_SRC_DIR}
 # <<< uninstall files from MCU_HOME <<< 
 
 .PHONY: default all clean run sim install uninstall gdb
