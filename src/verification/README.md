@@ -42,4 +42,5 @@
    ```bash
    make test_all 
    ```
+   所有测试集通过的情况会记录在`result.log`文件中
 > PS: <u>测试一个测试集</u>跟<u>测试所有测试集</u>，需要编译的difftest有些许不同，因此在切换测试模式之前，需要先`make clean`
