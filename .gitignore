@@ -37,3 +37,4 @@ demo/
 *.bin
 *.metals
 src/verification/asm/generated/*
+src/verification/build/obj_dir/

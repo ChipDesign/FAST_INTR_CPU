@@ -131,13 +131,13 @@ ${BIN_ALL}: $(VSRCS) $(CSRCS)
 		$(addprefix -LIBS, $(LIBS)) \
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN_ALL))
 
-# asm = addi slti sltiu xori ori andi slli srli srai auipc lui \
-#       add sub slt slt xor or and sll srl sra \
-#       jalr jal beq bne blt bge bltu bgeu \
-#       lb lh lw lbu lhu sb sh sw \
+asm = addi slti sltiu xori ori andi slli srli srai auipc lui \
+      add sub slt slt xor or and sll srl sra \
+      jalr jal beq bne blt bge bltu bgeu \
+      lb lh lw lbu lhu sb sh sw \
+	  div divu mul mulh mulhsu mulhu rem remu
 #       rvc
-# asm = div divu mul mulh mulhsu mulhu rem remu
-asm=mul
+# asm=mul
 
 image_path=./riscvtest/
 result= $(addprefix ${image_path}, ${asm})
@@ -175,15 +175,15 @@ MCU_FILES = $(shell find $(MCU_SRC_DIR) -name "*.v" -or -name "*.vh")
 MCU_RTL=$(filter-out %tb.v, $(MCU_FILES))
 install:
 	@echo "Copy RTL codes to verification folder"
-	@cp ${MCU_RTL} ${VSRC_DIR}
+	cp ${MCU_RTL} ${VSRC_DIR}
 # <<< install files from MCU_HOME <<< 
 # >>> uninstall files from MCU_HOME >>>
 uninstall:
 	@echo "remove mcu rtl files from "
-	@-rm ${VSRC_DIR}/*
+	-rm ${VSRC_DIR}/*
 copy_back:
 	@echo "copy verified files back to rtl folder"
-	@cp ${VSRC_DIR}/* ${MCU_SRC_DIR}
+	cp ${VSRC_DIR}/* ${MCU_SRC_DIR}
 # <<< uninstall files from MCU_HOME <<< 
 
 .PHONY: default all clean run sim install uninstall gdb

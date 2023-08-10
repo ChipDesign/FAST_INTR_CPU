@@ -54,11 +54,14 @@ include rule.mk
 # ASM= addi slti sltiu xori ori andi slli srli srai auipc lui\
 # 	 add sub slt sltu xor or and sll srl sra\
 # 	 jalr jal beq bne blt bge bltu bgeu\
-ASM = div divu mul mulh mulhsu mulhu rem remu rvc
+
+ASM=div divu mul mulh mulhsu mulhu rem remu rvc
 
 getAll:
+	@echo "Compile all ASM files"
+	@echo ${ASM}
 	for i in ${ASM}; do \
-	    echo $$i;	\
+		# echo $$i;	\
 		${CC} ${CFLAGS} $$i.S -Ttext=0x80000000 -o $$i.elf;\
-		${OBJCOPY} -O binary $$i.elf $$i.bin;\
+		${OBJCOPY} -O binary $$i.elf $$i.bin; \
 	done
