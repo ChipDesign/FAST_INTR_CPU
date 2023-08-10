@@ -85,13 +85,13 @@ begin
   begin
   
   
-    if((~flush)&(is_d|is_m))
-    begin
-      Linst_st_keep<=1'b1;
-    end
-    else if(fin)
+    if(fin)
     begin
       Linst_st_keep<=1'b0;
+    end
+    else if((~flush)&(is_d|is_m))
+    begin
+      Linst_st_keep<=1'b1;
     end
     
     
