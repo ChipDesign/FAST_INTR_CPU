@@ -40,7 +40,8 @@
    - `c`可以执行所有指令，直到所有指令执行完毕、或者出现错误
 3. 回归测试（测试所有测试集）：
    ```bash
-   make test_all 
+   make test_all
    ```
    所有测试集通过的情况会记录在`result.log`文件中
-> PS: <u>测试一个测试集</u>跟<u>测试所有测试集</u>，需要编译的difftest有些许不同，因此在切换测试模式之前，需要先`make clean`
+   > PS: <u>测试一个测试集</u>跟<u>测试所有测试集</u>，需要编译的difftest有些许不同，因此在切换测试模式之前，需要先`make clean`
+4. 查看波形：`make waveform`，即可通过gtkwave打开仿真生成的波形

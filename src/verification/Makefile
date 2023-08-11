@@ -84,19 +84,17 @@ LDFLAGS += -ldl
 # IMG ?=riscvtest/sh.bin
 # IMG ?=riscvtest/sw.bin
 
-IMG ?=riscvtest/mul.bin
+# IMG ?=riscvtest/div.bin
+# IMG ?=riscvtest/divu.bin
+# IMG ?=riscvtest/mul.bin
+IMG ?=riscvtest/mulh.bin
+# IMG ?=riscvtest/mulhsu.bin
+# IMG ?=riscvtest/mulhu.bin
+# IMG ?=riscvtest/rem.bin
+# IMG ?=riscvtest/remu.bin
 
 ARGS_DIFF = --diff=so/riscv32-spike-so
-# ARGS_DIFF = --diff=./so/riscv64-spike-so
-# ARGS_DIFF = --diff=/home/fujie/Developer/git_repos/ysyx/ysyx-workbench/nemu/tools/spike-diff/build/riscv32-spike-so
-# ARGS_DIFF = --diff=/home/fujie/Developer/git_repos/diff/riscv64-spike-so
-
-# ARGS_DIFF = --diff=/home/fujie/Developer/git_repos/diff/riscv64-spike-so
-# ARGS_DIFF = --diff=/home/fujie/Developer/git_repos/diff/so/nemu/tools/spike-diff/build/spike-so
-# ARGS_DIFF = --diff=/home/fujie/Developer/git_repos/diff/so/shifeng/nemu/tools/spike-diff/build/riscv32-spike-so
-# ARGS_DIFF = --diff=/home/fujie/Developer/git_repos/diff/xs-env/NEMU/build/riscv64-nemu-interpreter-so
-
-# ARGS_DIFF = --diff=/home/s/ysyx-workbench/nemu/build/riscv64-nemu-interpreter-so
+# ARGS_DIFF = --diff=/so/riscv64-spike-so
 
 $(BIN): $(VSRCS) $(CSRCS)
 	@echo "==========make bin =============="
@@ -184,6 +182,8 @@ uninstall:
 copy_back:
 	@echo "copy verified files back to rtl folder"
 	cp ${VSRC_DIR}/* ${MCU_SRC_DIR}
+waveform:
+	gtkwave dump.vcd &
 # <<< uninstall files from MCU_HOME <<< 
 
-.PHONY: default all clean run sim install uninstall gdb
+.PHONY: default all clean run sim install uninstall gdb copy_back waveform
