@@ -43,24 +43,24 @@
     `define IMM_NO          3'b110
 
     // ALU Operations types
-    `define ALUOP_ADD         18'b000000000000000001
-    `define ALUOP_SUB         18'b000000000000000010
-    `define ALUOP_SLL         18'b000000000000000100
-    `define ALUOP_SRL         18'b000000000000001000
-    `define ALUOP_SRA         18'b000000000000010000
-    `define ALUOP_OR          18'b000000000000100000
-    `define ALUOP_AND         18'b000000000001000000
-    `define ALUOP_XOR         18'b000000000010000000
-    `define ALUOP_SLT         18'b000000000100000000 
-    `define ALUOP_SLTU        18'b000000001000000000 
-    `define ALUOP_MUL         18'b000000010000000000 
-    `define ALUOP_MULH        18'b000000100000000000 
-    `define ALUOP_MULHU       18'b000001000000000000 
-    `define ALUOP_MULHSU      18'b000010000000000000 
-    `define ALUOP_DIV         18'b000100000000000000 
-    `define ALUOP_DIVU        18'b001000000000000000 
-    `define ALUOP_REM         18'b010000000000000000 
-    `define ALUOP_REMU        18'b100000000000000000 
+    `define ALUOP_ADD         18'h00001
+    `define ALUOP_SUB         18'h00002
+    `define ALUOP_SLL         18'h00004
+    `define ALUOP_SRL         18'h00008
+    `define ALUOP_SRA         18'h00010
+    `define ALUOP_OR          18'h00020
+    `define ALUOP_AND         18'h00040
+    `define ALUOP_XOR         18'h00080
+    `define ALUOP_SLT         18'h00100 
+    `define ALUOP_SLTU        18'h00200 
+    `define ALUOP_MUL         18'h00400 
+    `define ALUOP_MULH        18'h00800 
+    `define ALUOP_MULHU       18'h01000 
+    `define ALUOP_MULHSU      18'h02000 
+    `define ALUOP_DIV         18'h04000 
+    `define ALUOP_DIVU        18'h08000 
+    `define ALUOP_REM         18'h10000 
+    `define ALUOP_REMU        18'h20000 
 
     // alu source seletct
     `define RS1SEL_RF       1'b0 
