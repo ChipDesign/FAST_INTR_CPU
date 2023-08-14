@@ -106,6 +106,7 @@ module pipelineID(
     wire [ 3:0]	dmem_type_o;
     wire [ 3:0]	wb_src_o;
     wire 	    wb_en_o;
+    wire        wb_en_mul_div;
     wire 	    decoder_instr_illegal;
     // compress decoder instance signals 
     wire [31:0]	instr_o;
@@ -188,7 +189,7 @@ module pipelineID(
             prediction_pc_d_o <= 32'h80000000;
         end
         else if(enable) begin
-            reg_write_en_d_o  <= wb_en_o; 
+            reg_write_en_d_o  <= wb_en_mul_div; 
             result_src_d_o    <= wb_src_o;  
             extended_imm_d_o  <= imm_o;
             rd_idx_d_o        <= rd_index; 
@@ -334,13 +335,18 @@ module pipelineID(
 
     assign fin_w_d_o= fin;
 
+    // write back enable with mul and div operation
+    assign wb_en_mul_div = (~is_m_d_o & ~is_d_d_o & wb_en_o)|
+                           ( is_m_d_o & (mul_state==2'b11))|
+                           ( is_m_d_o & div_last);
+    
     //singals to hazard unit
     assign pre_taken_d_o= taken;
-    assign is_d_d_o= aluOperation_o [14]|aluOperation_o [15]|aluOperation_o [16]|aluOperation_o [17];
-    assign is_m_d_o=aluOperation_o [10]|aluOperation_o [11]|aluOperation_o [12]|aluOperation_o [13];
+    assign is_d_d_o= aluOperation_o [14]|aluOperation_o [15]|aluOperation_o [16]|aluOperation_o [17]; // is div operation
+    assign is_m_d_o=aluOperation_o [10]|aluOperation_o [11]|aluOperation_o [12]|aluOperation_o [13];  // is mul operation
     assign is_b_d_o=branchBType_o;
     assign is_j_d_o=branchJAL_o|branchJALR_o;
-    assign dst_en_d_o=wb_en_o;
+    assign dst_en_d_o=wb_en_mul_div;
     assign r_dst_d_o=rd_index;
     assign r_src1_d_o=rs1_index;
     assign r_src2_d_o=rs2_index;
