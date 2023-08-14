@@ -41,8 +41,8 @@ assign slt_op=		ALUop[8];
 assign sltu_op= 	ALUop[9];
 assign mul_op=		ALUop[10];
 assign mulh_op= 	ALUop[11];
-assign mulhsu_op=	ALUop[12];
-assign mulhu_op=	ALUop[13];
+assign mulhu_op=	ALUop[12];
+assign mulhsu_op=	ALUop[13];
 assign div_op=		ALUop[14];
 assign divu_op=	ALUop[15];
 assign rem_op=		ALUop[16];
@@ -58,7 +58,7 @@ assign ALUout=  ({32{sub_op|add_op}}&add_ans[31:0])|
 		({32{rem_op|remu_op}}&rem_ans)|
 		({32{div_op|divu_op}}&div_ans) |
 		({32{mul_op}}&mul_low) |
-		({32{mulh_op|mulhsu_op|mulhu_op}}&mul_low) |
+		({32{mulh_op|mulhsu_op|mulhu_op}}&mul_high) | // bug fix: choose msb, not lsb
 		({32{or_op|and_op|xor_op}}&log_ans) |
 		({32{sll_op|srl_op|sra_op}}&sft_ans) |
 		({32{sltu_op|slt_op}}&{31'b0,add_ans[32]});
