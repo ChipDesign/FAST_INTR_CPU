@@ -40,7 +40,15 @@
 # EXEC = sh
 # EXEC = sw
 
-EXEC = mul
+EXEC = div
+# EXEC = divu
+# EXEC = mul
+# EXEC = mulh
+# EXEC = mulhsu
+# EXEC = mulhu
+# EXEC = rem
+# EXEC = remu
+# EXEC = rvc
 
 # default to compile all file into bin file
 SRC = ${EXEC}.S
