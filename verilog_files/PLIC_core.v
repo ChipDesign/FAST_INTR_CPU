@@ -1,20 +1,24 @@
 module PLIC_core(
     input wire clk,
     input wire rstn,
-    input wire [31:0] int_req [3:0],
+    input wire [127:0] int_req_pack,
     input wire gateway_notif,
     input wire reg_wen,
     input wire reg_ren,
     input wire [23:0] reg_addr,
     input wire [31:0] reg_wdata,
     
-    output wire notif,
+    output reg notif,
     output reg [31:0] reg_rdata,
     output reg [127:0] int_end
 );
 
+wire [31:0] int_req [3:0];
 reg [31:0] priority [127:0];
 reg [31:0] threshold,claim;
+reg pending_clear;
+reg gateway_notif1;
+reg [31:0] pri_winner;
 
 reg [31:0] pending [3:0];
 reg [31:0] enable [3:0];
@@ -28,18 +32,28 @@ wire claim_read;
 
 reg [31:0] pri_en [127:0];
 
-assign notif=(|pending[0])|(|pending[1])|(|pending[2])|(|pending[3]);
+always@(posedge clk)
+begin
+    notif=(~(pri_winner<threshold))&(|pending[0])|(|pending[1])|(|pending[2])|(|pending[3]);
+end
 assign claim_read=reg_ren&(reg_addr==24'h200004);
+
+assign int_req[0]=int_req_pack[31:0];
+assign int_req[1]=int_req_pack[63:32];
+assign int_req[2]=int_req_pack[95:64];
+assign int_req[3]=int_req_pack[127:96];
+
+
 
 integer i,j,k;
 
 // priority change
 
-assign priority_index<=reg_addr[11:2];
+assign priority_index=reg_addr[11:2];
 
 always@(posedge clk)
 begin
-    if(rstn)
+     if(~rstn)
     begin
         for(i=0;i<128;i=i+1)
         begin
@@ -60,7 +74,7 @@ end
 
 always@(posedge clk)
 begin
-    if(rstn)
+     if(~rstn)
     begin
         for(j=0;j<4;j=j+1)
         begin
@@ -69,9 +83,12 @@ begin
     end
     else
     begin
-        for(j=0;j<4;j=j+1)
+        if(gateway_notif)
         begin
-            pending[j] = (pending[j]|int_req[j]);
+            for(j=0;j<4;j=j+1)
+            begin
+                pending[j] = (pending[j]|int_req[j]);
+            end
         end
         if(claim_read)
         begin
@@ -81,12 +98,11 @@ begin
 
 end
 
-
 //enable
 
 always@(posedge clk)
 begin
-    if(rstn)
+     if(~rstn)
     begin
         for(k=0;k<32;k=k+1)
         begin
@@ -109,7 +125,7 @@ end
 
 always@(posedge clk)
 begin
-    if(rstn)
+     if(~rstn)
     begin
         threshold <= 32'b0;
     end
@@ -122,24 +138,22 @@ end
 //claim
 always@(posedge clk)
 begin
-    if(rstn)
+     if(~rstn)
     begin
         claim <= 32'b0;
         pending_clear <= 1'b0;
-    end
-    else if(gateway_notif)
-    begin
-        if(pri_sort[126]>threshold)
-        begin
-            claim<=ID_sort[126];
-        end
-        pending_clear<=0;
     end
     else if(reg_wen&(reg_addr==24'h200004))
     begin
         claim <= reg_wdata;
         pending_clear <= 1'b1;
     end
+    else if(pri_sort[126]>=threshold)
+    begin
+        claim<=ID_sort[126];
+        pending_clear<=0;
+    end
+    
     else
     begin
         pending_clear <= 1'b0;
@@ -150,7 +164,7 @@ integer iend;
 
 always@(posedge clk)
 begin
-    if(rstn)
+     if(~rstn)
     begin
         int_end<=128'b0;
     end
@@ -179,10 +193,10 @@ always @ (*)
 begin
     for(l0=0;l0<32;l0=l0+1)
     begin
-        pri_en[l0]=priority[l0]&{32{enable[0][l0-:1]}};
-        pri_en[l0+32]=priority[l0+32]&{32{enable[1][l0-:1]}};
-        pri_en[l0+64]=priority[l0+64]&{32{enable[2][l0-:1]}};
-        pri_en[l0+96]=priority[l0+96]&{32{enable[3][l0-:1]}};
+        pri_en[l0]=priority[l0]&{32{(pending[0][l0-:1])&(enable[0][l0-:1])}};
+        pri_en[l0+32]=priority[l0+32]&{32{(pending[0][l0-:1])&(enable[1][l0-:1])}};
+        pri_en[l0+64]=priority[l0+64]&{32{(pending[0][l0-:1])&(enable[2][l0-:1])}};
+        pri_en[l0+96]=priority[l0+96]&{32{(pending[0][l0-:1])&(enable[3][l0-:1])}};
     end
     for(l1=0;l1<64;l1=l1+1)
     begin
@@ -215,6 +229,7 @@ begin
     ID_sort[125]=(pri_sort[122]>pri_sort[123])?ID_sort[122]:ID_sort[123];
     pri_sort[126]=(pri_sort[124]>pri_sort[125])?pri_sort[124]:pri_sort[125];
     ID_sort[126]=(pri_sort[124]>pri_sort[125])?ID_sort[124]:ID_sort[125];
+    pri_winner=pri_sort[126];
 end
 
 integer bit;
@@ -234,35 +249,52 @@ always@(*)
 begin
     if(reg_ren)
     begin
-    case(reg_addr[23:12]):
-        12'h000:
-            if(reg_addr==0)
+    case(reg_addr[23:12])
+        12'b0:
+            if(reg_addr[11:9]==0)
             begin
-                reg_rdata<=32'b0;
+                if(reg_addr[8:2!=0])
+                begin
+                reg_rdata <= priority[reg_addr[8:2]];
+                end
+                else
+                begin
+                    reg_rdata<= 32'b0;
+                end
             end
-            else if(reg_addr[11:4]==0)
+        12'b1:
+            if(reg_addr[11:4]==0)
             begin
-                reg_rdata<=priority[reg_addr[11:2]];
+                reg_rdata <= pending[reg_addr[3:2]];
             end
-        12'h001:
-            if(reg_addr[11:9]=0)
+            else
             begin
-                reg_rdata<=pending[reg_addr[3:2]];
+                reg_rdata<= 32'b0;
             end
         12'h002:
-            if(reg_addr[11:9]=0)
+            if(reg_addr[11:4]==0)
             begin
-                reg_rdata<=enable[reg_addr[3:2]];
+                reg_rdata <= enable[reg_addr[3:2]];
+            end
+            else
+            begin
+                reg_rdata<= 32'b0;
             end
         12'h200:
             if(reg_addr[11:0]==0)
             begin
-                reg_rdata<= threshold;
+                reg_rdata <= threshold;
             end
             else if(reg_addr[11:0]==4)
             begin
-                reg_rdata<= claim;
+                reg_rdata <= claim;
             end
+            else
+            begin
+                reg_rdata<= 32'b0;
+            end
+        default:
+            reg_rdata<=32'b0;
     endcase
     end
 end

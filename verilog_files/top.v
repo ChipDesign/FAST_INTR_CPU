@@ -108,6 +108,10 @@ module top(
     wire [ 4:0]	rd_idx_w_o;
     wire [31:0]	write_back_data_w_o;
 
+    //PLIC signals
+    wire eip_notif;
+    wire [23:0] PLIC_addr;
+
     // =========================================================================
     // ============================ implementation =============================
     // =========================================================================
@@ -333,7 +337,18 @@ module top(
         .context_ptr            (                       )
     );
 
- 
+    PLIC_top_unmod PLIC(
+        .clk(clk),
+        .rstn(resetn),
+        .intr_bundle(test_bundle),
+        .core_wen(),
+        .core_addr(PLIC_addr),
+        .core_wdata(),
+        .core_ren(),
+    
+        .core_rdata(),
+        .plic_notif(eip_notif)
+    )
 
 endmodule
 `endif
