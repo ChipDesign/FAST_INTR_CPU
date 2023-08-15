@@ -1,3 +1,5 @@
+`include "PLIC_gateway.v"
+`include "PLIC_core.v"
 module PLIC_top_unmod(
     input wire clk,
     input wire rstn,
@@ -17,7 +19,7 @@ wire [127:0] int_end;
 wire [127:0] int_req;
 
 wire gateway_notif;
-reg [127:0] int_req_last;
+reg [127:0] int_req_last,int_end_last;
 
 genvar intr;
 generate
@@ -39,19 +41,21 @@ begin
     if(~rstn)
     begin
         int_req_last<=128'b0;
+        int_end_last<=128'b0;
     end
     else
     begin
         int_req_last<=int_req;
+        int_end_last<=int_end;
     end
 end
 
-assign gateway_notif=|(int_req^int_req_last);
+assign gateway_notif=|((int_req|int_end_last)^int_req_last);
 
 PLIC_core plic_core(
     .clk(clk),
     .rstn(rstn),
-    .int_req(int_req),
+    .int_req_pack(int_req),
     .gateway_notif(gateway_notif),
     .reg_wen(core_wen),
     .reg_ren(core_ren),

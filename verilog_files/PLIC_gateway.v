@@ -4,13 +4,13 @@ module PLIC_gateway(
     input wire int_sig,
     input wire int_end,
 
-    output wire int_req,
+    output wire int_req
 );
 
 
 reg pending;
 
-always@(posedge clk or posedge pulse)
+always@(posedge clk)
 begin
     if(~rstn)
     begin
