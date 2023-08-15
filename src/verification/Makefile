@@ -84,10 +84,10 @@ LDFLAGS += -ldl
 # IMG ?=riscvtest/sh.bin
 # IMG ?=riscvtest/sw.bin
 
-# IMG ?=riscvtest/div.bin
+IMG ?=riscvtest/div.bin
 # IMG ?=riscvtest/divu.bin
 # IMG ?=riscvtest/mul.bin
-IMG ?=riscvtest/mulh.bin
+# IMG ?=riscvtest/mulh.bin
 # IMG ?=riscvtest/mulhsu.bin
 # IMG ?=riscvtest/mulhu.bin
 # IMG ?=riscvtest/rem.bin
