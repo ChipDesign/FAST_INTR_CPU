@@ -184,7 +184,7 @@ module decoder(
                 rs2_sel_o = `RS2SEL_RF;
                 wb_src_o = `WBSRC_ALU;
                 wb_en_o = 1'b1;
-                if(instruction_i[25]) begin // R type instruction
+                if(~instruction_i[25]) begin // R type instruction
                     case(funct3) 
                         3'b000: begin
                             case(funct7) 

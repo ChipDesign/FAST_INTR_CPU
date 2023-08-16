@@ -52,7 +52,7 @@ assign quot = dvd;
 // restoring divison
 // keep remainder sign same as dividend,  
 // in case remainder = 0, and dividend is negative; still keep same sub/add as previous. 
-assign sub      = sign_quot; // not use "sign_rem" ^ sign_dvs, use "sign_dvd" ^ sign_dvs 
+assign sub      = ~sign_quot; // not use "sign_rem" ^ sign_dvs, use "sign_dvd" ^ sign_dvs 
 assign dvs_ivt  = {35{sub}} ^ {{3{sign_dvs}}, dvs};
 assign rem_sub1 = {rem[34:2], dvd[31:30]} + dvs_ivt + sub; 
 assign rem_sub2 = {rem[34:2], dvd[31:30]} + {dvs_ivt[33:0], sub} + sub;
