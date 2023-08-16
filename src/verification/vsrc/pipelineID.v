@@ -131,10 +131,10 @@ module pipelineID(
     wire d_init;
     wire d_advance;
     wire [1:0] mul_next_state;
-    wire [3:0] div_next_state;
+    wire [4:0] div_next_state;
 
     reg [1:0] mul_state;
-    reg [3:0] div_state;
+    reg [4:0] div_state;
     reg div_last;
     reg fin;
 // =========================================================================
@@ -282,7 +282,7 @@ module pipelineID(
         if(~resetn)
         begin
             mul_state<=2'b0;
-            div_state<=4'b0;
+            div_state<=5'b0;
             div_last<=0;
         end
   
@@ -302,7 +302,7 @@ module pipelineID(
   
         else if(aluOperation_o [14]|aluOperation_o [15]|aluOperation_o [16]|aluOperation_o [17])
         begin
-            if(div_state==4'b1111)
+            if(div_state==5'b10000)
             begin
                 div_last<=1'b1;
             end
@@ -330,8 +330,8 @@ module pipelineID(
     assign div_next_state= div_state+4'b1;
     assign mul_next_state= mul_state+2'b1;
 
-    assign d_init=(aluOperation_o [14]|aluOperation_o [15]|aluOperation_o [16]|aluOperation_o [17])&(div_state==4'b0)&(~div_last);
-    assign d_advance=(aluOperation_o [14]|aluOperation_o [15]|aluOperation_o [16]|aluOperation_o [17])&(~(div_state==4'b0));
+    assign d_init=(aluOperation_o [14]|aluOperation_o [15]|aluOperation_o [16]|aluOperation_o [17])&(div_state==5'b0)&(~div_last);
+    assign d_advance=(aluOperation_o [14]|aluOperation_o [15]|aluOperation_o [16]|aluOperation_o [17])&(~(div_state==5'b0));
 
     assign fin_w_d_o= fin;
 
