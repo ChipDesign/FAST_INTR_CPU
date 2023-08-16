@@ -336,7 +336,7 @@ module top(
         .epc_ret                (                       ),
         .context_ptr            (                       )
     );
-
+/*
     PLIC_top_unmod PLIC(
         .clk(clk),
         .rstn(resetn),
@@ -349,6 +349,6 @@ module top(
         .core_rdata(),
         .plic_notif(eip_notif)
     )
-
+*/
 endmodule
 `endif
