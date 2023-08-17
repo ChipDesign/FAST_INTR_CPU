@@ -62,7 +62,7 @@ module top_tb ();
                 $display("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
             end
         end
-        if(counter==40)begin
+        if(counter==100)begin
             $finish();
         end
 
