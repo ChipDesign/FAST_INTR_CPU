@@ -1,12 +1,9 @@
-##include ../Makefile # fujie: comment this
-
-# TOPNAME = ysyx_22040663_top
 TOPNAME = top
 INC_PATH ?=
 
 VERILATOR = verilator
 # VERILATOR_CFLAGS += -Wall --trace # write by myself
-VERILATOR_CFLAGS +=  --trace # write by myself
+VERILATOR_CFLAGS +=  --trace # enable waveform 
 VERILATOR_CFLAGS += -MMD --build -cc --trace\
 	-O3 --x-assign fast --x-initial fast --noassert
 
@@ -43,7 +40,7 @@ LDFLAGS += -ldl
 
 # Command to execute NPC
 # IMG ?=riscvtest/test.bin
-# IMG ?=riscvtest/addi.bin
+IMG ?=riscvtest/addi.bin
 # IMG ?=riscvtest/slti.bin
 # IMG ?=riscvtest/sltiu.bin
 # IMG ?=riscvtest/xori.bin
@@ -84,7 +81,7 @@ LDFLAGS += -ldl
 # IMG ?=riscvtest/sh.bin
 # IMG ?=riscvtest/sw.bin
 
-IMG ?=riscvtest/div.bin
+# IMG ?=riscvtest/div.bin
 # IMG ?=riscvtest/divu.bin
 # IMG ?=riscvtest/mul.bin
 # IMG ?=riscvtest/mulh.bin

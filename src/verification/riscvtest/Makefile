@@ -1,6 +1,6 @@
 # EXEC = test
 # EXEC = fence_i
-# EXEC = andi
+EXEC = andi
 # EXEC = ori
 # EXEC = xori
 # EXEC = addi
@@ -40,7 +40,7 @@
 # EXEC = sh
 # EXEC = sw
 
-EXEC = div
+# EXEC = div
 # EXEC = divu
 # EXEC = mul
 # EXEC = mulh

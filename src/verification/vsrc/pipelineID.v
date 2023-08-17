@@ -290,7 +290,7 @@ module pipelineID(
         else if(aluOperation_o [10]|aluOperation_o [11]|aluOperation_o [12]|aluOperation_o [13])
         begin
             mul_state<=mul_next_state;
-            if(mul_state==2'b11)
+            if(mul_state==2'b10)
             begin
                 fin<=1'b1;
             end
