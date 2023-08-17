@@ -46,11 +46,12 @@ always@(posedge clk) begin
 		dvd <= dividend;
 	else if (e_advance)
     dvd <= {dvd[29:0], quot_1, quot_0}; // store quotient here
-  else if (e_last & sign_quot)                     
-    dvd <= dvd + 1; // to convert negative quotent from 1's complement to 2's complement   
+  // else if (e_last & sign_quot)                     
+  //   dvd <= dvd + 1; // to convert negative quotent from 1's complement to 2's complement   
 end 
 
-assign quot = dvd; 
+// assign quot = dvd; 
+assign quot = dvd + {31'b0, sign_quot}; 
 // restoring divison
 // keep remainder sign same as dividend,  
 // in case remainder = 0, and dividend is negative; still keep same sub/add as previous. 
