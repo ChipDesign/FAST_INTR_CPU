@@ -276,7 +276,7 @@ module pipelineID(
     end
 
     //mul&div control signals
-
+    reg div_temp_last;
     always@(posedge clk)
     begin
         if(~resetn)
@@ -285,12 +285,12 @@ module pipelineID(
             div_state<=5'b0;
             div_last<=0;
         end
-  
+        
   
         else if(aluOperation_o [10]|aluOperation_o [11]|aluOperation_o [12]|aluOperation_o [13])
         begin
             mul_state<=mul_next_state;
-            if(mul_state==2'b10)
+            if(mul_state==2'b11)
             begin
                 fin<=1'b1;
             end
@@ -302,23 +302,40 @@ module pipelineID(
   
         else if(aluOperation_o [14]|aluOperation_o [15]|aluOperation_o [16]|aluOperation_o [17])
         begin
-            if(div_state==5'b10000)
-            begin
-                div_last<=1'b1;
-            end
-    
-    
             if(div_last)
             begin
         	    div_last<=1'b0;
-        	    fin<=1'b1;
+        	    fin<=1'b0;
+            end
+            else if(div_state==5'b1111)
+            begin
+                div_last<=1'b1;
+                fin<=1'b1;
+                div_state<=div_next_state;
+            end
+            else if(div_state==5'b1110)
+            begin
+                if(~div_temp_last)
+                begin
+                    div_temp_last<=1'b1;
+                    fin<=1'b0;
+                    div_state<=div_state;
+                end
+                else
+                begin
+    	            div_state<=div_next_state; 
+      	            fin<=1'b0;
+                    div_temp_last<=1'b0;
+                end
             end
             else 
             begin
     	        div_state<=div_next_state; 
       	        fin<=1'b0;
+                div_temp_last<=0;
             end
         end
+        
   
         else begin
             fin<=1'b0;
@@ -338,7 +355,7 @@ module pipelineID(
     // write back enable with mul and div operation
     assign wb_en_mul_div = (~is_m_d_o & ~is_d_d_o & wb_en_o)|
                            ( is_m_d_o & (mul_state==2'b11))|
-                           ( is_m_d_o & div_last);
+                           ( is_d_d_o & div_last);
     
     //singals to hazard unit
     assign pre_taken_d_o= taken;
