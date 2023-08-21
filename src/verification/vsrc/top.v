@@ -33,54 +33,6 @@ module top(
     // signals used by difftest
 );
 
-    `ifdef DIFFTEST
-    // instruction commit
-    reg resetn_d, resetn_d_d;
-    reg commit_en_exe, commit_en_mem, commit_en_wb, commit_en_delay;
-    wire commit_en_id;
-    assign id_instr=instruction_f_o;
-    // TODO: add stall logic consideration for instruction commit
-
-    always @(posedge clk ) begin 
-        resetn_d <= resetn;
-        resetn_d_d <= resetn_d;
-    end
-
-    assign commit_en_id = ~flush_d_i & resetn_d_d & ~fd_st_f_i;
-    assign commit_en    = commit_en_delay;
-    always @(posedge clk ) begin 
-        if(~resetn) begin
-            commit_en_exe <= 0;    
-            commit_en_mem <= 0;    
-            commit_en_wb  <= 0;    
-            commit_en_delay <= 0;    
-        end
-        else begin
-            commit_en_exe   <= commit_en_id;
-            commit_en_mem   <= commit_en_exe;
-            commit_en_wb    <= commit_en_mem;
-            commit_en_delay <= commit_en_wb;
-        end
-    end
-    // pass pc to top 
-    assign pc = pc_instr_delay;
-    wire [31:0] pc_instr_d_o; 
-    reg  [31:0] pc_instr_e_o, pc_instr_m_o, pc_instr_w_o, pc_instr_delay;
-    always @(posedge clk ) begin 
-        if(~resetn) begin
-            pc_instr_e_o <= 32'h80000000;
-            pc_instr_m_o <= 32'h80000000;
-            pc_instr_w_o <= 32'h80000000;
-            pc_instr_delay <= 32'h80000000;
-        end
-        else begin
-            pc_instr_e_o <= pc_instr_d_o;
-            pc_instr_m_o <= pc_instr_e_o;
-            pc_instr_w_o <= pc_instr_m_o;
-            pc_instr_delay <=pc_instr_w_o;
-        end
-    end
-    `endif
     // =========================================================================
     // =============================== variables ===============================
     // =========================================================================
@@ -136,8 +88,6 @@ module top(
     wire    sbp_taken_d_o;
     
     // EXE instance
-    wire        redirection_e_o;
-    wire [31:0] redirection_pc_e_o;      
     wire [31:0]	aluResult_e_o;
     wire [31:0]	alu_calculation_e_o;
     wire [ 3:0]	dMemType_e_o;
@@ -168,30 +118,55 @@ module top(
     // =========================================================================
     // ============================ implementation =============================
     // =========================================================================
+    `ifdef DIFFTEST
+    // instruction commit
+    reg resetn_d, resetn_d_d;
+    reg commit_en_exe, commit_en_mem, commit_en_wb, commit_en_delay;
+    wire commit_en_id;
+    assign id_instr=instruction_f_o;
+    // TODO: add stall logic consideration for instruction commit
 
-    //TODO: delete this when EXE add these signals
-    // wire [31:0] redirection_pc_e_i;
-    // wire        redirection_e_i;
-    // wire        ptnt_e_i;
-    
-     
-    // assign wb_en  = wb_en_d_d_d; // used ass difftest signals
-    // reg wb_en_d, wb_en_d_d, wb_en_d_d_d;
-    // always @(posedge clk ) begin 
-    //     if(~resetn) begin
-    //         wb_en_d     <= 1'b0;
-    //         wb_en_d_d   <= 1'b0;
-    //         wb_en_d_d_d <= 1'b0;
-    //     end
-    //     else begin
-    //         wb_en_d     <= reg_write_en_w_o;
-    //         wb_en_d_d   <= wb_en_d;
-    //         wb_en_d_d_d <= wb_en_d_d;
-    //     end
-    // end
-    
+    always @(posedge clk ) begin 
+        resetn_d <= resetn;
+        resetn_d_d <= resetn_d;
+    end
 
-    
+    assign commit_en_id = ~flush_d_i & resetn_d_d & ~fd_st_f_i;
+    assign commit_en    = commit_en_delay;
+    always @(posedge clk ) begin 
+        if(~resetn) begin
+            commit_en_exe <= 0;    
+            commit_en_mem <= 0;    
+            commit_en_wb  <= 0;    
+            commit_en_delay <= 0;    
+        end
+        else begin
+            commit_en_exe   <= commit_en_id;
+            commit_en_mem   <= commit_en_exe;
+            commit_en_wb    <= commit_en_mem;
+            commit_en_delay <= commit_en_wb;
+        end
+    end
+    // pass pc to top 
+    wire [31:0] pc_instr_d_o; 
+    reg  [31:0] pc_instr_e_o, pc_instr_m_o, pc_instr_w_o, pc_instr_delay;
+    assign pc = pc_instr_delay;
+    always @(posedge clk ) begin 
+        if(~resetn) begin
+            pc_instr_e_o <= 32'h80000000;
+            pc_instr_m_o <= 32'h80000000;
+            pc_instr_w_o <= 32'h80000000;
+            pc_instr_delay <= 32'h80000000;
+        end
+        else begin
+            pc_instr_e_o <= pc_instr_d_o;
+            pc_instr_m_o <= pc_instr_e_o;
+            pc_instr_w_o <= pc_instr_m_o;
+            pc_instr_delay <=pc_instr_w_o;
+        end
+    end
+    `endif
+
     // pipeline resetn signals
     // IF stage instance
     pipelineIF_withFIFO u_pipeline_withFIFO(
