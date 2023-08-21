@@ -33,8 +33,10 @@ begin
   begin
     ans_temp<={mul16ans,32'b0}+ans;
   end
-
 end
+
+wire [63:0] real_calculation;
+assign real_calculation = ({64{state==2'b11}} & {ans_temp+{mul16ans,32'b0}});
 
 assign ans=ans_temp;
 assign mul16ain=({16{~state[0]}}&ain[15:0]) | ({16{state[0]}}&ain[31:16]) ;
@@ -45,7 +47,8 @@ assign mul16us=ss&(state==2'b10);
 assign mul16ss=ss&(state==2'b11);
 
 
-assign prod=ans_temp;
+// assign prod=ans_temp;
+assign prod=real_calculation;
 
 multi16 m16(
 	.ain(mul16ain),

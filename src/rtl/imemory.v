@@ -8,7 +8,6 @@ time:   Fri May 26 09:22:03 CST 2023
 */
 module imemory( 
     input  wire clk, 
-    input  wire resetn,
     input  wire ceb,         // chip enable, if not enable, can't read from this memory 
     input  wire web,         // write/read, 0 for write, 1 for read
     input  wire [ 9:0] A,    // A for address 
@@ -38,7 +37,6 @@ module imemory(
     memory_block #(.DATA_WIDTH(16)) u_memory_block0(
         //ports
         .clk      		( clk      		),
-        .resetn   		( resetn   		),
         .ceb      		( ceb      		),
         .web      		( web      		),
         .write_en 		( 1'b0   		),
@@ -50,7 +48,6 @@ module imemory(
     memory_block #(.DATA_WIDTH(16)) u_memory_block1(
         //ports
         .clk      		( clk      		),
-        .resetn   		( resetn   		),
         .ceb      		( ceb      		),
         .web      		( web      		),
         .write_en 		( 1'b0   		),

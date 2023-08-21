@@ -37,7 +37,7 @@ always@(posedge clk) begin
   	dvs       <= divisor;
 		sign_dvs  <= sign_divisor;
 		sign_dvd  <= sign_dividend;
-		sign_quot <= sign_dvd ^ sign_dvs;
+		sign_quot <= sign_divisor ^ sign_dividend;
 	end 
 end 
 
@@ -46,28 +46,29 @@ always@(posedge clk) begin
 		dvd <= dividend;
 	else if (e_advance)
     dvd <= {dvd[29:0], quot_1, quot_0}; // store quotient here
-  else if (e_last & sign_quot)                     
-    dvd <= dvd + 1; // to convert negative quotent from 1's complement to 2's complement   
+  // else if (e_last & sign_quot)                     
+  //   dvd <= dvd + 1; // to convert negative quotent from 1's complement to 2's complement   
 end 
 
-assign quot = dvd; 
+// assign quot = dvd; 
+assign quot = dvd + {31'b0, sign_quot}; 
 // restoring divison
 // keep remainder sign same as dividend,  
 // in case remainder = 0, and dividend is negative; still keep same sub/add as previous. 
-assign sub      = sign_quot; // not use "sign_rem" ^ sign_dvs, use "sign_dvd" ^ sign_dvs 
+assign sub      = ~sign_quot; // not use "sign_rem" ^ sign_dvs, use "sign_dvd" ^ sign_dvs 
 assign dvs_ivt  = {35{sub}} ^ {{3{sign_dvs}}, dvs};
-assign rem_sub1 = {rem[34:2], dvd[31:30]} + dvs_ivt + {35{sub}}; 
-assign rem_sub2 = {rem[34:2], dvd[31:30]} + {dvs_ivt[33:0], sub} + {35{sub}};
+assign rem_sub1 = {rem[32:0], dvd[31:30]} + dvs_ivt + {{34'b0},{sub}};
+assign rem_sub2 = {rem[32:0], dvd[31:30]} + {dvs_ivt[33:0], sub} + {{34'b0},{sub}};
 
 CSA35 csa_35 (
-	.ain   ({rem[34:2], dvd[31:30]}),
+	.ain   ({rem[32:0], dvd[31:30]}),
 	.bin   ({dvs_ivt[33:0], sub}),
 	.cin   (dvs_ivt),
 	.sout (sub3_ps),
 	.cout (sub3_pc)
 );
 
-assign rem_sub3 = sub3_ps + {sub3_pc[33:0], sub} + {35{sub}};
+assign rem_sub3 = sub3_ps + {sub3_pc[33:0], sub} + {{34'b0},{sub}};
 //remainder sign conversion for quotient evaluation
 assign sign_rem1 = (rem_sub1[34] ^ sign_dvd) & ~(rem_sub1 == 35'h0);
 assign sign_rem2 = (rem_sub2[34] ^ sign_dvd) & ~(rem_sub2 == 35'h0);
@@ -80,7 +81,7 @@ always@(posedge clk) begin
   if(d_init) 
 		rem <= {35{sign_dividend}};
   else if (e_advance)
-    rem <= ({35{sign_rem1             }} & {rem[34:2], dvd[31:30]}) |
+    rem <= ({35{sign_rem1             }} & {rem[32:0], dvd[31:30]}) |
 		       ({35{~sign_rem1 & sign_rem2}} & rem_sub1) |
 			     ({35{~sign_rem2 & sign_rem3}} & rem_sub2) |
 			     ({35{~sign_rem3            }} & rem_sub3);

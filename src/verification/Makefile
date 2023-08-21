@@ -40,7 +40,7 @@ LDFLAGS += -ldl
 
 # Command to execute NPC
 # IMG ?=riscvtest/test.bin
-IMG ?=riscvtest/addi.bin
+# IMG ?=riscvtest/addi.bin
 # IMG ?=riscvtest/slti.bin
 # IMG ?=riscvtest/sltiu.bin
 # IMG ?=riscvtest/xori.bin
@@ -52,7 +52,7 @@ IMG ?=riscvtest/addi.bin
 # IMG ?=riscvtest/auipc.bin
 # IMG ?=riscvtest/lui.bin
 
-# IMG ?=riscvtest/add.bin
+IMG ?=riscvtest/add.bin
 # IMG ?=riscvtest/sub.bin
 # IMG ?=riscvtest/slt.bin
 # IMG ?=riscvtest/sltu.bin
@@ -90,7 +90,8 @@ IMG ?=riscvtest/addi.bin
 # IMG ?=riscvtest/rem.bin
 # IMG ?=riscvtest/remu.bin
 
-ARGS_DIFF = --diff=so/riscv32-spike-so
+# ARGS_DIFF = --diff=so/riscv32-spike-so
+ARGS_DIFF = --diff=/home/fujie/Developer/git_repos/diff/demo2/nemu/tools/spike-diff/build/riscv32imc-spike-so
 # ARGS_DIFF = --diff=/so/riscv64-spike-so
 
 $(BIN): $(VSRCS) $(CSRCS)

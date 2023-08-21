@@ -1,6 +1,6 @@
 # EXEC = test
 # EXEC = fence_i
-EXEC = andi
+# EXEC = andi
 # EXEC = ori
 # EXEC = xori
 # EXEC = addi
@@ -11,7 +11,7 @@ EXEC = andi
 # EXEC = srli
 # EXEC = srai
 
-# EXEC = add
+EXEC = add
 # EXEC = sub
 # EXEC = slt
 # EXEC = sltu

@@ -6,7 +6,6 @@ module memory_block
 )
 (
     input wire clk,        // clock
-    input wire resetn,     // reset
     input wire ceb,        // chip enable, if not enable, can't read from this memory
     input wire web,        // write/read, 0 for write, 1 for read
     input wire write_en,     // write enable
@@ -26,10 +25,6 @@ end
 
 // read data
 always @(posedge clk) begin
-    // if(~resetn) begin
-    //     Q <= 8'h0;    
-    // end
-    // else if(~ceb & web) begin
     if(~ceb & web) begin
         Q <= m_array[A];
     end

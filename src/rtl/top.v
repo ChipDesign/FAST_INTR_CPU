@@ -319,8 +319,6 @@ module top(
     // WB stage instance
     pipelineWB u_pipelineWB(
         //ports
-        .clk             		( clk             		),
-        .resetn           		( resetn           		),
         .alu_result_m_i     	( alu_result_m_o     	),
         .mem_read_data_m_i  	( mem_read_data_m_o   	),
         .extended_imm_m_i   	( extended_imm_m_o   	),
