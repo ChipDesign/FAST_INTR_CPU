@@ -85,7 +85,6 @@ module pipelineIF_withFIFO
     imemory u_imemory(
         //ports
         .clk    		( clk    		),
-        .resetn 		( resetn 		),
         .ceb    		( ~ceb    		),
         .web    		( web    		),
         .A      		( sram_addr  	),

@@ -11,8 +11,6 @@ time: 2023年 5月 5日 星期五 11时06分55秒 CST
 module pipelineWB (
     // input wire resetn, // no reset need in WB stage
     /* input data passed from MEM stage */
-    input wire        clk,
-    input wire        resetn,
     input wire [31:0] alu_result_m_i,   // alu calculation result
     input wire [31:0] mem_read_data_m_i, // delared as wire, becased the D-memory has 1 cycle delay when reading
     input wire [31:0] extended_imm_m_i,  // extended imm, for 'lui' instruction
