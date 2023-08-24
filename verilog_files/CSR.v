@@ -10,8 +10,7 @@ module CSR(
     input wire intr_happen,
     input wire inst_commit,
     input wire [31:0] extra_massage,
-    input wire intr_fin,
-    input wire ex_fin,
+    input wire trap_fin,
     input wire soft_pending,
     input wire time_pending,
     input wire ext_pending,
@@ -23,7 +22,10 @@ module CSR(
     output wire [31:0] rdata,
     output wire [31:0] trap_vector,
     output wire [31:0] epc_ret,
-    output wire [31:0] context_ptr
+    output wire [31:0] context_ptr,
+    output wire [31:0] mie,
+    output wire [31:0] mip,
+    output wire [31:0] mstatus
 );
 //TODO read write fence
 reg [31:0] CSRs [26:0];
@@ -51,10 +53,10 @@ always @(posedge clk)
 begin
    if(~resetn)
    begin
-        CSRs[5] <= 32'h0;//TODO: initialization
+        CSRs[5] <= 32'h8;//TODO: initialization
 	CSRs[9] <= 32'b0;//statush
    end
-   else if(waddr == 12'h300)
+   else if(wen&waddr == 12'h300)
    begin
 	CSRs[5] <= wdata;
    end
@@ -68,11 +70,11 @@ begin
     CSRs[5][7] <= CSRs[5][3];
     CSRs[5][12:11] <= 2'b11;
    end
-   else if(intr_fin|ex_fin)
+   else if(trap_fin)
    begin
 	CSRs[5][7] <= 1'b1;
     CSRs[5][3] <= CSRs[5][7];
-    CSRs[5][12:1] <= 2'b11;
+    CSRs[5][12:11] <= 2'b11;
    end
 end
 
@@ -183,18 +185,15 @@ begin
     begin
         CSRs[14][3]<= (cause_input == 32'h80000003);
       	CSRs[14][7]<= (cause_input == 32'h80000007);
-	CSRs[14][11]<= (cause_input == 32'h8000000b);	
+	    CSRs[14][11]<= (cause_input == 32'h8000000b);	
     end
-    else if(intr_fin)
+    else
     begin
-	CSRs[14][3]<= soft_pending; 
+	    CSRs[14][3]<= soft_pending; 
       	CSRs[14][7]<= time_pending;
-	CSRs[14][11]<= ext_pending;	
+	    CSRs[14][11]<= ext_pending;	
     end
-    else if(wen&waddr ==12'h344)
-    begin
-        CSRs[14] <= wdata&32'hffff0000;
-    end
+    
 end
 
 
@@ -312,6 +311,10 @@ begin
 	CSRs[22] <= wdata;
     end
 end
+
+assign mie=CSRs[7];
+assign mip=CSRs[14];
+assign mstatus=CSRs[5];
 
 assign event_trig3 = (event_happens==CSRs[22])&(event_happens!=0);
 assign context_ptr =CSRs[10];

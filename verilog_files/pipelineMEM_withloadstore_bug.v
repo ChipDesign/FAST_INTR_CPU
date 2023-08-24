@@ -17,17 +17,16 @@ module pipelineMEM_withloadstore (
     /* signals passed from EXE stage */
     // MEM stage signals
     input wire [31:0] alu_result_e_i,   
-    input wire [31:0] alu_calculation_e_i,   
     input wire [ 3:0] dmem_type_e_i, // load/store types
-    input wire [31:0] rs2_e_i,       // memory write data
-    input wire [31:0] CSR_data_e_i,
+    input wire [31:0] rs1_e_i,       // memory write data
     // TODO: add D-memory write data, rs1[31:0]
     // WB stage signals
     input wire [31:0] extended_imm_e_i,  
     input wire [31:0] pc_plus_e_i,      
     input wire        reg_write_en_e_i,         
     input wire [ 4:0] rd_idx_e_i,          
-    input wire [ 4:0] result_src_e_i,   
+    input wire [ 4:0] result_src_e_i,
+    input wire [31:0] CSR_data_e_i,   
 
     /* signals to passed to WB stage */
     output reg [31:0] mem_read_data_m_o,  // data read from D-memory 
@@ -39,9 +38,7 @@ module pipelineMEM_withloadstore (
     output reg [ 4:0] result_src_m_o,    // select signal to choose one of the four inputs
     output wire [31:0] bypass_m_o,
     output reg [31:0] CSR_data_m_o,
-    // PC passed to top
     // TODO: signals to communicate with Data Memory
-    // TODO: add CSR Unit signals
 
     //addr and data wires to PLIC unit
     output wire [23:0] PLIC_addr_m_o,
@@ -49,11 +46,13 @@ module pipelineMEM_withloadstore (
     output wire PLIC_wen_m_o,
     output wire PLIC_ren_m_o,
     input wire [31:0] PLIC_rdata_p_i
+
 );
 
 // =========================================================================
 // ====================+++======== variables ===============================
 // =========================================================================
+    wire [31:0] read_data_32;
     // D-memory Store
     reg [ 3:0] byte_en;
     reg [31:0] dmem_write_data;
@@ -61,38 +60,37 @@ module pipelineMEM_withloadstore (
     // D-memory Load
     reg  [ 3:0] mem_op;
     reg  [ 1:0] byte_addr;
-    wire [31:0] read_data_32;
     reg  [31:0] read_data;
     wire [31:0] dmem_read_data; // dmem output
+    wire dmem_load;
 
     // D-memory instance
     wire [ 9:0] dmem_addr;
     wire        ceb;
     wire        web;
-
+    
     //PLIC load
     wire plic_load;
-    reg eb_r;
-    
 
 
 // =========================================================================
 // ============================ implementation =============================
 // =========================================================================
+
 //addr space separation: 0-ffc:dmem
 //                       100000-3FFFFF:PLIC
 
 //TODO: forbid dmem write when PLIC write
 
-    assign plic_load=(alu_calculation_e_i[31:22]==0)&(alu_calculation_e_i[21:20]!=0)&(web);
-    assign dmem_load=(alu_calculation_e_i[31:12]==0)&(web);
+    assign plic_load=(alu_result_e_i[31:22]==0)&(alu_result_e_i[21:20]!=0)&(web);
+    assign dmem_load=(alu_result_e_i[31:12]==0)&(web);
 
-    assign PLIC_addr_m_o={24{(alu_calculation_e_i[31:22]==0)&(alu_calculation_e_i[21:20]!=0)}}&(alu_calculation_e_i[23:0]-24'h100000);
+    assign PLIC_addr_m_o={24{(alu_result_e_i[31:22]==0)&(alu_result_e_i[21:20]!=0)}}&(alu_result_e_i[23:0]-24'h100000);
     assign PLIC_ren_m_o=plic_load;
-    assign PLIC_wen_m_o=(alu_calculation_e_i[31:22]==0)&(alu_calculation_e_i[21:20]!=0)&(~web)&(~ceb);
+    assign PLIC_wen_m_o=(alu_result_e_i[31:22]==0)&(alu_result_e_i[21:20]!=0)&(~web)&(~ceb);
     assign PLIC_wdata_m_o=dmem_write_data;
 
-    assign dmem_addr = {10{alu_calculation_e_i[31:12]==0}}&alu_calculation_e_i[11:2];
+    assign dmem_addr = {10{alu_result_e_i[31:12]==0}}&alu_result_e_i[11:2];
     assign ceb =  dmem_type_e_i == `DMEM_NO;
     assign web = (dmem_type_e_i == `DMEM_LB) |
                  (dmem_type_e_i == `DMEM_LH) |
@@ -100,17 +98,6 @@ module pipelineMEM_withloadstore (
                  (dmem_type_e_i == `DMEM_LHU)|
                  (dmem_type_e_i == `DMEM_LW);
 
-    /*always@(posedge clk)
-    begin
-        if(~resetn)
-        begin
-            eb_r<=1'b0;
-        end
-        else
-        begin
-            eb_r<=(~web)&(~ceb);
-        end
-    end*/
 
 
     //*********************************    
@@ -156,40 +143,40 @@ module pipelineMEM_withloadstore (
         case(dmem_type_e_i)
 
             `DMEM_SW: begin
-                dmem_write_data = rs2_e_i;
+                dmem_write_data = rs1_e_i;
                 byte_en     = 4'b1111;
             end
 
             `DMEM_SB: begin
                 // determine which byte to write to based on last two bits of address
-                case(alu_calculation_e_i[1:0]) 
+                case(alu_result_e_i[1:0]) 
                     2'b00: begin
-                        dmem_write_data = { {24{1'b0}}, rs2_e_i[7:0] }; 
+                        dmem_write_data = { {24{1'b0}}, rs1_e_i[7:0] }; 
                         byte_en = 4'b0001;
                     end
                     2'b01: begin
-                        dmem_write_data = { {16{1'b0}}, rs2_e_i[7:0],  { 8{1'b0}} };
+                        dmem_write_data = { {16{1'b0}}, rs1_e_i[7:0],  { 8{1'b0}} };
                         byte_en = 4'b0010;
                     end
                     2'b10: begin
-                        dmem_write_data = { {8{1'b0}},  rs2_e_i[7:0], {16{1'b0}} };
+                        dmem_write_data = { {8{1'b0}},  rs1_e_i[7:0], {16{1'b0}} };
                         byte_en = 4'b0100;
                     end
                     2'b11: begin
-                       dmem_write_data = { rs2_e_i[7:0], {24{1'b0}} };
+                       dmem_write_data = { rs1_e_i[7:0], {24{1'b0}} };
                        byte_en = 4'b1000;
                     end
                 endcase
             end 
 
             `DMEM_SH: begin
-                case(alu_calculation_e_i[1:0])
+                case(alu_result_e_i[1:0])
                     2'b00: begin
-                       dmem_write_data = { {16{1'b0}}, rs2_e_i[15:0] };
+                       dmem_write_data = { {16{1'b0}}, rs1_e_i[15:0] };
                        byte_en = 4'b0011;
                     end
                     default: begin
-                       dmem_write_data = { rs2_e_i[15:0], {16{1'b0}} };
+                       dmem_write_data = { rs1_e_i[15:0], {16{1'b0}} };
                        byte_en = 4'b1100;
                     end
                 endcase 
@@ -212,9 +199,9 @@ module pipelineMEM_withloadstore (
         byte_addr <= alu_result_e_i[1:0];
         mem_read_data_m_o <= read_data;
     end
+
     assign read_data_32={32{dmem_load}}&dmem_read_data
                         |{32{plic_load}}&PLIC_rdata_p_i;
-
 
     always @(*) begin 
         case(mem_op) 
