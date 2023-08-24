@@ -39,7 +39,7 @@ module pipelineEXE (
     input wire [ 1:0] mul_state_d_o,
     //csr signals
     input wire [31:0] CSR_data_d_i,
-    input wire        CSR_wen_d_i,
+    //input wire        CSR_wen_d_i,
     
 
     input wire        st_e_i,
@@ -63,8 +63,8 @@ module pipelineEXE (
     output wire       real_taken_e_o,  
     output wire [31:0]      bypass_e_o,
     //csr signals
-    output reg [31:0]  CSR_data_e_o,
-    output wire        CSR_wen_e_o
+    output reg [31:0]  CSR_data_e_o
+   // output wire        CSR_wen_e_o
 );
 
 

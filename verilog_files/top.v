@@ -241,7 +241,7 @@ module top(
         .mul_state_d_o          ( mul_state_d_o         ),
         .div_last_d_o           ( div_last_d_o          ),
         .CSR_data_d_i           ( CSR_data_d_o          ),
-        .CSR_wen_d_i            ( CSR_wen_d_o           ),
+        //.CSR_wen_d_i            ( CSR_wen_d_o           ),
         .alu_result_e_o    		( aluResult_e_o    		),
         .alu_calculation_e_o    ( alu_calculation_e_o   ),
         .dmem_type_e_o     		( dMemType_e_o     		),
@@ -254,7 +254,7 @@ module top(
         .instr_illegal_e_o 		( instrIllegal_e_o 		),
         .real_taken_e_o         ( real_taken_e_o        ),
         .bypass_e_o             ( bypass_e_o            ),
-        .CSR_wen_e_o            ( CSR_wen_e_o           ),
+        //.CSR_wen_e_o            ( CSR_wen_e_o           ),
         .CSR_data_e_o           ( CSR_data_e_o          )
     );
 
@@ -339,10 +339,10 @@ module top(
     CSR csru(
         .raddr                  ( CSR_addr_d_o_w        ),
         .waddr                  ( CSR_addr_d_o          ),
-        .wdata                  ( aluResult_e_o         ),
+        .wdata                  ( alu_calculation_e_o   ),
         .resetn                 ( resetn                ),
         .clk                    ( clk                   ),
-        .wen                    ( CSR_wen_e_o           ),
+        .wen                    ( CSR_wen_d_o           ),
         
         .ex_happen              ( ex_happen             ),
         .intr_happen            ( intr_happen           ),

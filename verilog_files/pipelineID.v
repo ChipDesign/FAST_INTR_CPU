@@ -79,7 +79,7 @@ module pipelineID(
     //output CSR data
     output reg [31:0] CSR_data_d_o,
     output reg [11:0] CSR_addr_d_o,
-    output reg [11:0] CSR_addr_d_o_w,
+    output wire [11:0] CSR_addr_d_o_w,
     output reg        CSR_wen_d_o,
     //wire output to hazard unit
     output wire is_d_d_o,
@@ -372,6 +372,8 @@ module pipelineID(
     assign r_dst_d_o=rd_index;
     assign r_src1_d_o=rs1_index;
     assign r_src2_d_o=rs2_index;
+
+    assign CSR_addr_d_o_w= csr_addr_o;
    
 
 
