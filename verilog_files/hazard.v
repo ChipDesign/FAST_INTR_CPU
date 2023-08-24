@@ -8,7 +8,7 @@ r_dst,r_src1,r_src2,
 src1_sel,src2_sel,
 f_cmiss,m_cmiss,
 f_arrival,m_arrival,
-fd_st,de_st,em_st,mw_st,
+fd_st,de_st,em_st,
 flush_o,
 rs1_depended_h_o,ptnt_e_i,
 rstn,clk);
@@ -23,7 +23,7 @@ input rstn,clk;
 
 
 output[1:0] src1_sel,src2_sel;
-output fd_st,de_st,em_st,mw_st;
+output fd_st,de_st,em_st;
 output flush_o;
 output rs1_depended_h_o;
 output ptnt_e_i;

@@ -42,12 +42,12 @@ module pipelineID(
     // signals for bypass
     input wire [1:0]  src1_sel_d_i,src2_sel_d_i,
     input wire [31:0] bypass_e_o,bypass_m_o,
+    input wire        stall_i,
 
     //signals from csr
     input wire [31:0] CSR_data_d_i,
     /* redirection info passed back to IF stage */
     output wire [31:0] redirection_d_o,
-    output wire [31:0] prediction_pc_d_o,
     output wire        taken_d_o,
     output reg        flush_jal_d_o,  // flush pipeline because of jal instruction
     output wire        is_compressed_d_o,
@@ -61,11 +61,14 @@ module pipelineID(
     output reg [20:0] alu_op_d_o,         // ALU Operation
     output reg [31:0] rs1_d_o,           // ALU operand 1
     output reg [31:0] rs2_d_o,           // ALU operand 2
+    output reg [31:0] rs2_reg_d_o,
     output reg        jalr_d_o,         // instruction is branch type instruction
+    output reg        btype_d_o,
     output reg [31:0] pc_next_d_o,      // next instruction pc 
+    output reg [31:0] prediction_pc_d_o,
     output reg        sbp_taken_d_o,
     // MEM stage signals
-    output reg [ 2:0] dmem_type_d_o,      // load/store types
+    output reg [ 3:0] dmem_type_d_o,      // load/store types
     // WB stage signals
     output reg [31:0] extended_imm_d_o,  
     // output reg [31:0] pc_plus4_d_o,      // TODO: depressed, use pc_next_d_o instead
@@ -102,9 +105,10 @@ module pipelineID(
     wire 	    branchBType_o;
     wire 	    branchJAL_o;
     wire 	    branchJALR_o;
-    wire [ 2:0]	dmem_type_o;
+    wire [ 3:0]	dmem_type_o;
     wire [ 4:0]	wb_src_o;
     wire 	    wb_en_o;
+    wire        wb_en_mul_div;
     wire 	    decoder_instr_illegal;
     // compress decoder instance signals 
     wire [31:0]	instr_o;
@@ -118,7 +122,7 @@ module pipelineID(
     wire [31:0]	rs2_data_o;
     // static branch predictor instance signals
     wire [31:0]	redirection_pc;
-    wire 	sbp_taken;
+    wire 	taken;
 
     // instruction PC related variables
     reg        taken_reg;
@@ -146,7 +150,7 @@ module pipelineID(
 // =========================================================================
 
     // pass compress info to IF, used by FIFO pop operation
-    assign is_compressed_d_o = resetn_delay & is_compressed_o;
+    assign is_compressed_d_o = is_compressed_o;
 
     // index for rd, rs1, rs2
     assign rd_index  = instru_32bits[11: 7];
@@ -164,10 +168,12 @@ module pipelineID(
             rd_idx_d_o        <= 5'b0;         
             alu_op_d_o        <= 21'h0;      
             jalr_d_o          <= 1'b0;
+            btype_d_o         <= 1'b0;
             rs1_d_o           <= 32'h0;        
             rs2_d_o           <= 32'h0;
+            rs2_reg_d_o       <= 32'h0;
             sbp_taken_d_o     <= 1'b0;              
-            dmem_type_d_o     <= 3'b0;   
+            dmem_type_d_o     <= 4'b0;   
             instr_illegal_d_o <= 1'b0;
             flush_jal_d_o     <= 1'b0;
             fin_d_o           <= 1'b0;
@@ -175,24 +181,26 @@ module pipelineID(
             d_advance_d_o     <= 1'b0;
             d_init_d_o        <= 1'b0;
             div_last_d_o      <= 1'b0;
+            prediction_pc_d_o <= 32'h80000000;
             CSR_addr_d_o      <= 12'b0;
             CSR_data_d_o      <= 32'b0;
             CSR_wen_d_o       <= 1'b0;
         end
         else if(enable) begin
-            reg_write_en_d_o  <= wb_en_o; 
+            reg_write_en_d_o  <= wb_en_mul_div; 
             result_src_d_o    <= wb_src_o;  
             extended_imm_d_o  <= imm_o;
             rd_idx_d_o        <= rd_index; 
             alu_op_d_o        <= aluOperation_o;      
             jalr_d_o          <= branchJALR_o;
-            sbp_taken_d_o     <= sbp_taken;
+            sbp_taken_d_o     <= taken;
             flush_jal_d_o     <= branchJAL_o;
             mul_state_d_o     <= mul_state;
             d_advance_d_o     <= d_advance;
             d_init_d_o        <= d_init;
             div_last_d_o      <= div_last;
             fin_d_o           <= fin;
+            prediction_pc_d_o <= redirection_pc;
             CSR_data_d_o      <= CSR_data_d_i;
             CSR_addr_d_o      <= csr_addr_o;
             CSR_wen_d_o       <= csr_write_o;
@@ -207,8 +215,12 @@ module pipelineID(
                             ({32{src1_sel_d_i==2'b10}}&bypass_m_o);  // alu operand1 from RF
             end
             else begin
-                rs1_d_o <= pc_next; // alu source from pc+4
+                rs1_d_o <= pc_instr; // alu source from pc+4
             end
+            rs2_reg_d_o <= ({32{src2_sel_d_i==2'b0}}&rs2_data_o)|
+                        ({32{src2_sel_d_i==2'b1}}&bypass_e_o)|
+                        ({32{src2_sel_d_i==2'b10}}&bypass_m_o); // alu operand2 from RF
+            
             if (csr_read_o)
                 rs2_d_o <= CSR_data_d_i&{32{csr_no_cal_o}};
             else if(rs2_sel_o == `RS2SEL_RF) begin
@@ -230,8 +242,8 @@ module pipelineID(
     end
     
     // calculate redirection pc to IF stage
-    assign taken_d_o       = ({~resetn_delay | flush_i} & 1'b1) | ptnt_e_i | redirection_e_i | sbp_taken;
-    assign redirection_d_o = ({32{~resetn_delay | flush_i}} & 32'h0)|//TODO 2 redirection select signal high in same time
+    assign taken_d_o       =  ~resetn_delay | ptnt_e_i | redirection_e_i | (~flush_i & taken );
+    assign redirection_d_o = ({32{~resetn_delay | flush_i}} & 32'h80000000)|//TODO 2 redirection select signal high in same time
                              ({32{ptnt_e_i & ~branchJAL_o}} & pc_next)| // sbp sbp_taken, alu not sbp_taken
                              ({32{ptnt_e_i &  branchJAL_o}} & redirection_pc)| // sbp sbp_taken, alu not sbp_taken, following by JAL 
                              ({32{ redirection_e_i}}  & redirection_pc_e_i)| // pc from EXE
@@ -241,7 +253,7 @@ module pipelineID(
     always @(posedge clk ) begin 
         if(~resetn) begin
             taken_reg <= 1'b1;
-            pc_taken  <= 32'h0;
+            pc_taken  <= 32'h80000000;
         end
         else begin
             taken_reg <= taken_d_o;
@@ -252,7 +264,7 @@ module pipelineID(
                      ({32{~is_compressed_o}} & pc_instr + 32'h4);
     always @(posedge clk ) begin 
         if(~resetn) begin
-            pc_instr <= 32'h0;    
+            pc_instr <= 32'h80000000;    
         end
         else if(taken_reg) begin
             pc_instr <= pc_taken;    
@@ -344,18 +356,23 @@ module pipelineID(
 
     assign fin_w_d_o= fin;
 
+    // write back enable with mul and div operation
+    assign wb_en_mul_div = (~is_m_d_o & ~is_d_d_o & wb_en_o)|
+                           ( is_m_d_o & (mul_state==2'b11))|
+                           ( is_m_d_o & div_last);
+    
     //singals to hazard unit
-    assign pre_taken_d_o= sbp_taken;
+    assign pre_taken_d_o= taken;
     assign is_d_d_o= aluOperation_o [14]|aluOperation_o [15]|aluOperation_o [16]|aluOperation_o [17];
     assign is_m_d_o=aluOperation_o [10]|aluOperation_o [11]|aluOperation_o [12]|aluOperation_o [13];
     assign is_b_d_o=branchBType_o;
     assign is_j_d_o=branchJAL_o|branchJALR_o;
-    assign is_load_d_o=1'b0;//TODO load instruction unidentified
-    assign dst_en_d_o=wb_en_o;
+    //assign is_load_d_o=1'b0;//TODO load instruction unidentified
+    assign dst_en_d_o=wb_en_mul_div;
     assign r_dst_d_o=rd_index;
     assign r_src1_d_o=rs1_index;
     assign r_src2_d_o=rs2_index;
-    assign prediction_pc_d_o=redirection_pc;
+   
 
 
 
@@ -370,6 +387,7 @@ module pipelineID(
         .branchBType_o  		( branchBType_o  		),
         .branchJAL_o    		( branchJAL_o    		),
         .branchJALR_o   		( branchJALR_o   		),
+        .is_load_o              ( is_load_d_o           ),
         .dmem_type_o     		( dmem_type_o     		),
         .wb_src_o        		( wb_src_o        		),
         .wb_en_o         		( wb_en_o         		),
@@ -430,7 +448,7 @@ module pipelineID(
         .pc            		( pc_instr         		),
         .rs1_depended   	( rs1_depended_h_i  	),
         .redirection_pc 	( redirection_pc 		),
-        .taken         		( sbp_taken             )
+        .taken         		( taken             )
     );
 
 endmodule

@@ -12,6 +12,7 @@ module top_tb ();
     integer index, counter;
     reg [7:0] itcm_mem [`ITCM_DEPTH*4-1:0]; // itcm in testbench
     integer i;
+    reg [127:0] test;
 
     // get x3 value
     assign x3 = u_top.u_pipelineID.u_regfile.regfile_data[3];
@@ -20,10 +21,14 @@ module top_tb ();
     initial begin
         clk<=0;
         counter <= 0;
+        test<= 128'b0;
             forever begin 
               #1; clk<=~clk;
         end
     end
+
+    
+
 
     // begin test
     always@(posedge clk) begin 
@@ -61,6 +66,10 @@ module top_tb ();
                 $display("~~~~~~~~~~#       #    #     #    ######~~~~~~~~~~~~~~~~");
                 $display("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
             end
+        end
+        //interrupt signal generate TODO: maybe put other place later
+        if(counter==50)begin
+            test<=128'h6;
         end
         if(counter==100)begin
             $finish();
@@ -104,7 +113,8 @@ module top_tb ();
     top u_top(
         //ports
         .clk    		( clk    		),
-        .resetn 		( resetn 		)
+        .resetn 		( resetn 		),
+        .test_input_intr_bundle (test)
     );
 
 endmodule

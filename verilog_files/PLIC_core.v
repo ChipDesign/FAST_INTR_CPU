@@ -160,6 +160,12 @@ begin
     end
 end
 
+wire [31:0] ID_temp,pri_temp;//TODO delete this temporary wire
+assign ID_temp= ID_sort[126];
+assign pri_temp= pri_sort[126];
+
+
+
 integer iend;
 
 always@(posedge clk)
@@ -200,35 +206,35 @@ begin
     end
     for(l1=0;l1<64;l1=l1+1)
     begin
-        pri_sort[l1]= (pri_en[2*l1]>pri_en[2*l1+1])?(pri_en[2*l1]):(pri_en[2*l1+1]);
-        ID_sort[l1]= (pri_en[2*l1]>pri_en[2*l1+1])?(2*l1):(2*l1+1);
+        pri_sort[l1]= (pri_en[2*l1]>=pri_en[2*l1+1])?(pri_en[2*l1]):(pri_en[2*l1+1]);
+        ID_sort[l1]= (pri_en[2*l1]>=pri_en[2*l1+1])?(2*l1):(2*l1+1);
     end
     for(l2=0;l2<32;l2=l2+1)
     begin
-        pri_sort[64+l2]=(pri_sort[2*l2]>pri_sort[2*l2+1])?pri_sort[2*l2]:pri_sort[2*l2+1];
-        ID_sort[64+l2]=(pri_sort[2*l2]>pri_sort[2*l2+1])?ID_sort[2*l2]:ID_sort[2*l2+1];
+        pri_sort[64+l2]=(pri_sort[2*l2]>=pri_sort[2*l2+1])?pri_sort[2*l2]:pri_sort[2*l2+1];
+        ID_sort[64+l2]=(pri_sort[2*l2]>=pri_sort[2*l2+1])?ID_sort[2*l2]:ID_sort[2*l2+1];
     end
     for(l3=0;l3<16;l3=l3+1)
     begin
-        pri_sort[96+l3]=(pri_sort[2*l3+64]>pri_sort[2*l3+65])?pri_sort[2*l3+64]:pri_sort[2*l3+65];
-        ID_sort[96+l3]=(pri_sort[2*l3+64]>pri_sort[2*l3+65])?ID_sort[2*l3+64]:ID_sort[2*l3+65];
+        pri_sort[96+l3]=(pri_sort[2*l3+64]>=pri_sort[2*l3+65])?pri_sort[2*l3+64]:pri_sort[2*l3+65];
+        ID_sort[96+l3]=(pri_sort[2*l3+64]>=pri_sort[2*l3+65])?ID_sort[2*l3+64]:ID_sort[2*l3+65];
     end
     for(l4=0;l4<8;l4=l4+1)
     begin
-        pri_sort[112+l4]=(pri_sort[2*l4+96]>pri_sort[2*l4+97])?pri_sort[2*l4+96]:pri_sort[2*l4+97];
-        ID_sort[112+l4]=(pri_sort[2*l4+96]>pri_sort[2*l4+97])?ID_sort[2*l4+96]:ID_sort[2*l4+97];
+        pri_sort[112+l4]=(pri_sort[2*l4+96]>=pri_sort[2*l4+97])?pri_sort[2*l4+96]:pri_sort[2*l4+97];
+        ID_sort[112+l4]=(pri_sort[2*l4+96]>=pri_sort[2*l4+97])?ID_sort[2*l4+96]:ID_sort[2*l4+97];
     end
     for(l5=0;l5<4;l5=l5+1)
     begin
-        pri_sort[120+l5]=(pri_sort[2*l5+112]>pri_sort[2*l5+113])?pri_sort[2*l5+112]:pri_sort[2*l5+113];
-        ID_sort[120+l5]=(pri_sort[2*l5+112]>pri_sort[2*l5+113])?ID_sort[2*l5+112]:ID_sort[2*l5+113];
+        pri_sort[120+l5]=(pri_sort[2*l5+112]>=pri_sort[2*l5+113])?pri_sort[2*l5+112]:pri_sort[2*l5+113];
+        ID_sort[120+l5]=(pri_sort[2*l5+112]>=pri_sort[2*l5+113])?ID_sort[2*l5+112]:ID_sort[2*l5+113];
     end
-    pri_sort[124]=(pri_sort[120]>pri_sort[121])?pri_sort[120]:pri_sort[121];
-    ID_sort[124]=(pri_sort[120]>pri_sort[121])?ID_sort[120]:ID_sort[121];
-    pri_sort[125]=(pri_sort[122]>pri_sort[123])?pri_sort[122]:pri_sort[123];
-    ID_sort[125]=(pri_sort[122]>pri_sort[123])?ID_sort[122]:ID_sort[123];
-    pri_sort[126]=(pri_sort[124]>pri_sort[125])?pri_sort[124]:pri_sort[125];
-    ID_sort[126]=(pri_sort[124]>pri_sort[125])?ID_sort[124]:ID_sort[125];
+    pri_sort[124]=(pri_sort[120]>=pri_sort[121])?pri_sort[120]:pri_sort[121];
+    ID_sort[124]=(pri_sort[120]>=pri_sort[121])?ID_sort[120]:ID_sort[121];
+    pri_sort[125]=(pri_sort[122]>=pri_sort[123])?pri_sort[122]:pri_sort[123];
+    ID_sort[125]=(pri_sort[122]>=pri_sort[123])?ID_sort[122]:ID_sort[123];
+    pri_sort[126]=(pri_sort[124]>=pri_sort[125])?pri_sort[124]:pri_sort[125];
+    ID_sort[126]=(pri_sort[124]>=pri_sort[125])?ID_sort[124]:ID_sort[125];
     pri_winner=pri_sort[126];
 end
 
