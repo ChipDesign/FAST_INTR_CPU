@@ -4,14 +4,14 @@
 module long_div (
           clk, 
           dividend, divisor, unsign, 
-          d_init, e_advance, e_last, 
+          d_init, e_advance, 
           quot, remd
           );
 
 input clk;
 input [31:0] dividend, divisor;
 input unsign;
-input d_init, e_advance, e_last; 
+input d_init, e_advance; 
 output[31:0] quot, remd;
 //-------------------------
 wire sign_divisor, sign_dividend;

@@ -68,8 +68,11 @@ module top_tb ();
             end
         end
         //interrupt signal generate TODO: maybe put other place later
-        if(counter==50)begin
+        if(counter==38)begin
             test<=128'h6;
+        end
+        if(counter==39)begin
+            test<=128'h0;
         end
         if(counter==100)begin
             $finish();

@@ -29,11 +29,12 @@ module top(
     // =============================== variables ===============================
     // =========================================================================
     // interrupt signals
-    wire [31:0] mip,mie,mstatus;
-    wire [31:0] trap_cause;
+    wire [31:0] mip_c_o,mie_c_o,mstatus_c_o,trap_vector_c_o;
+    wire [31:0] trap_cause_t_o;
+    wire [31:0] epc_ret;
     wire intr_happen,ex_happen,trap_fin;
-    wire trap_flush;
-    wire ext_pending,time_pending,soft_pending;
+    wire trap_flush_t_o;
+    wire time_pending,soft_pending;
     // hazard signals
     wire is_b_d_o;              
     wire is_j_d_o ;             
@@ -88,6 +89,8 @@ module top(
     wire [31:0] CSR_data_d_o;
     wire [11:0] CSR_addr_d_o;
     wire [11:0] CSR_addr_d_o_w;
+    wire mret_d_o;
+    wire [31:0] epc_source_d_o;
     
     // EXE instance
     wire [31:0]	aluResult_e_o;
@@ -102,6 +105,8 @@ module top(
     wire [31:0] bypass_e_o;
     wire [31:0] rs2_e_o;
      wire [31:0] CSR_data_e_o;
+     wire mret_e_o;
+     wire [31:0] epc_source_e_o;
 
     // MEM stage instance signals
     wire [31:0]	mem_read_data_m_o;
@@ -113,13 +118,17 @@ module top(
     wire [ 4:0]	result_src_m_o;
     wire [31:0] bypass_m_o;
      wire [31:0] CSR_data_m_o;
+    wire mret_m_o;
+    wire [31:0] epc_source_m_o;
+     
     // WB stage instance signals
     wire 	reg_write_en_w_o;
     wire [ 4:0]	rd_idx_w_o;
     wire [31:0]	write_back_data_w_o;
 
     //PLIC signals
-    wire eip_notif,PLIC_wen,PLIC_ren;
+    wire eip_notif;
+    wire PLIC_wen,PLIC_ren;
     wire [23:0] PLIC_addr;
     wire [31:0] PLIC_rdata,PLIC_wdata;
 
@@ -169,6 +178,8 @@ module top(
         .src1_sel_d_i           ( src1_sel_d_i          ),
         .src2_sel_d_i           ( src2_sel_d_i          ),
         .stall_i                ( fd_st_f_i             ),
+        .trap_vector_c_i        ( trap_vector_c_o       ),
+        .trap_flush_t_i         ( trap_flush_t_o        ),
         .bypass_e_o             ( bypass_e_o            ),
         .bypass_m_o             ( bypass_m_o            ),
         .redirection_d_o   		( redirection_d_o   	),
@@ -196,20 +207,22 @@ module top(
         .is_load_d_o            ( is_load_d_o           ),
         .dst_en_d_o             ( dst_en_d_o            ),
         .fin_d_o                ( fin_d_o               ),
-        .fin_w_d_o              ( fin_w_d_o               ),
+        .fin_w_d_o              ( fin_w_d_o             ),
         .pre_taken_d_o          ( pre_taken_d_o         ),
         .r_dst_d_o              ( r_dst_d_o             ),
         .r_src1_d_o             ( r_src1_d_o            ),
         .r_src2_d_o             ( r_src2_d_o            ),
         .mul_state_d_o          ( mul_state_d_o         ),
-        .div_last_d_o           ( div_last_d_o          ),
         .d_advance_d_o          ( d_advance_d_o         ),
         .d_init_d_o             ( d_init_d_o            ),
-        .CSR_data_d_i           ( CSR_data_c_o          ),
+        .CSR_data_c_i           ( CSR_data_c_o          ),
         .CSR_data_d_o           ( CSR_data_d_o          ),
         .CSR_addr_d_o           ( CSR_addr_d_o          ),
         .CSR_addr_d_o_w         ( CSR_addr_d_o_w        ),
-        .CSR_wen_d_o            ( CSR_wen_d_o           )
+        .CSR_wen_d_o            ( CSR_wen_d_o           ),
+        .epc_c_i                ( epc_ret               ),
+        .mret_d_o               ( mret_d_o              ),
+        .epc_source_d_o         ( epc_source_d_o        )
         
     );
 
@@ -227,6 +240,7 @@ module top(
         .taken_d_i              ( sbp_taken_d_o         ),
         .prediction_pc_d_i      ( prediction_pc_d_o     ),
         .flush_e_i              ( 1'b0                  ),
+        .trap_flush_t_i         ( trap_flush_t_o        ),
         .redirection_e_o        ( redirection_e_o       ),
         .redirection_pc_e_o     ( redirection_pc_e_o    ),
         .jalr_d_i               ( jalr_d_o              ),
@@ -239,8 +253,9 @@ module top(
         .d_advance_d_o          ( d_advance_d_o         ),
         .d_init_d_o             ( d_init_d_o            ),
         .mul_state_d_o          ( mul_state_d_o         ),
-        .div_last_d_o           ( div_last_d_o          ),
         .CSR_data_d_i           ( CSR_data_d_o          ),
+        .mret_d_i               ( mret_d_o              ),
+        .epc_source_d_i         ( epc_source_d_o        ),
         //.CSR_wen_d_i            ( CSR_wen_d_o           ),
         .alu_result_e_o    		( aluResult_e_o    		),
         .alu_calculation_e_o    ( alu_calculation_e_o   ),
@@ -255,7 +270,9 @@ module top(
         .real_taken_e_o         ( real_taken_e_o        ),
         .bypass_e_o             ( bypass_e_o            ),
         //.CSR_wen_e_o            ( CSR_wen_e_o           ),
-        .CSR_data_e_o           ( CSR_data_e_o          )
+        .CSR_data_e_o           ( CSR_data_e_o          ),
+        .mret_e_o               ( mret_e_o              ),
+        .epc_source_e_o         ( epc_source_e_o        )
     );
 
     // MEM stage instance
@@ -263,6 +280,7 @@ module top(
         //ports
         .clk             		( clk             		),
         .resetn           		( resetn           		),
+        .trap_flush_t_i         ( trap_flush_t_o        ),
         .rs2_e_i                ( rs2_e_o               ),
         .alu_result_e_i    		( aluResult_e_o    		),
         .alu_calculation_e_i    ( alu_calculation_e_o   ),
@@ -273,6 +291,8 @@ module top(
         .rd_idx_e_i        		( rdIdx_e_o        		),
         .result_src_e_i    		( resultSrc_e_o    		),
         .CSR_data_e_i           ( CSR_data_e_o          ),
+        .mret_e_i               ( mret_e_o              ),
+        .epc_source_e_i         ( epc_source_e_o        ),
         .mem_read_data_m_o  	( mem_read_data_m_o  	),
         .alu_result_m_o    		( alu_result_m_o    	),
         .extended_imm_m_o  		( extended_imm_m_o  	),
@@ -286,7 +306,9 @@ module top(
         .PLIC_wdata_m_o         ( PLIC_wdata            ),
         .PLIC_rdata_p_i         ( PLIC_rdata            ),
         .PLIC_wen_m_o           ( PLIC_wen              ),
-        .PLIC_ren_m_o           ( PLIC_ren              )
+        .PLIC_ren_m_o           ( PLIC_ren              ),
+        .mret_m_o               ( mret_m_o              ),
+        .epc_source_m_o         ( epc_source_m_o        )
     );
 
     // WB stage instance
@@ -320,6 +342,7 @@ module top(
         .r_dst                  ( r_dst_d_o             ),
         .r_src1                 ( r_src1_d_o            ),
         .r_src2                 ( r_src2_d_o            ),
+        .trap_flush_t_i         ( trap_flush_t_o        ),
         .src1_sel               ( src1_sel_d_i          ),
         .src2_sel               ( src2_sel_d_i          ),
         .f_cmiss                ( 1'b0                  ),
@@ -332,9 +355,11 @@ module top(
         .ptnt_e_i               ( ptnt_e_i              ),
         .rs1_depended_h_o       ( rs1_depended_h_o      ),
         .flush_o                ( flush_d_i             ),
+        .mret_d_i               ( mret_d_o              ),
         .rstn                   ( resetn                ),
         .clk                    ( clk                   )
     );
+    
 
     CSR csru(
         .raddr                  ( CSR_addr_d_o_w        ),
@@ -346,23 +371,23 @@ module top(
         
         .ex_happen              ( ex_happen             ),
         .intr_happen            ( intr_happen           ),
-        .trap_fin               ( trap_fin              ),
+        .trap_fin               ( trap_fin_t_o          ),
         .soft_pending           ( soft_pending          ),
         .time_pending           ( time_pending          ),
-        .ext_pending            ( ext_pending           ),   
-        .cause_input            ( trap_cause            ),
-        .wb_pc                  ( pc_plus4_m_o          ),
-        .mem_pc                 ( pcPlus4_e_o           ),
+        .ext_pending            ( eip_notif             ),   
+        .cause_input            ( trap_cause_t_o        ),
+        .wb_pc                  ( 32'b0 ),//epc_source_m_o        ),
+        .mem_pc                 ( epc_source_m_o        ),
         .inst_commit            ( 1'b1                  ),
         .extra_massage          ( 32'b0                 ),
         .event_happens          ( 32'b0                 ),
         .rdata                  ( CSR_data_c_o          ),
-        .trap_vector            (                       ),
-        .epc_ret                (                       ),
+        .trap_vector            ( trap_vector_c_o       ),
+        .epc_ret                ( epc_ret               ),
         .context_ptr            (                       ),
-        .mip                    ( mip                   ),
-        .mie                    ( mie                   ),
-        .mstatus                ( mstatus               )
+        .mip                    ( mip_c_o               ),
+        .mie                    ( mie_c_o               ),
+        .mstatus                ( mstatus_c_o           )
     );
 
     PLIC_top_unmod PLIC(
@@ -376,24 +401,22 @@ module top(
         .core_rdata             ( PLIC_rdata            ),
         .plic_notif             ( eip_notif             )
     );
-
+    
 
     htrap_handler th(
     .clk                        ( clk                   ),
     .resetn                     ( resetn                ),
-    .mie                        ( mie                   ),
-    .mip                        ( mip                   ),
-    .mstatus                    ( mstatus               ),
-    .PLIC_notif                 ( eip_notif             ),
-    .mret_commit                ( 1'b0                  ),
+    .mie                        ( mie_c_o               ),
+    .mip                        ( mip_c_o               ),
+    .mstatus                    ( mstatus_c_o           ),
+    .mret_commit                ( mret_m_o              ),
     .intr_happen                ( intr_happen           ),
     .ex_happen                  ( ex_happen             ),
-    .trap_cause                 ( trap_cause            ),
-    .ext_pending                ( ext_pending           ),
+    .trap_cause                 ( trap_cause_t_o        ),
     .time_pending               ( time_pending          ),
     .soft_pending               ( soft_pending          ),
-    .trap_fin                   ( trap_fin              ),
-    .trap_flush                 ( trap_flush            )
+    .trap_fin                   ( trap_fin_t_o          ),
+    .trap_flush                 ( trap_flush_t_o        )
 );
 
 

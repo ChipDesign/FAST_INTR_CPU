@@ -6,7 +6,7 @@ author: fujie
 time: 2023年 5月 5日 星期五 14时48分40秒 CST
 */
 `include "definitions.vh"
-`include "alu.v"
+`include "alu.v"//TODO pc_e_o<=flush?redirection_d_o?pc_plus4_d_i
 module pipelineEXE (
     input wire clk,
     input wire resetn, // no reset need in EXE stage
@@ -23,9 +23,12 @@ module pipelineEXE (
     input wire [31:0] prediction_pc_d_i, // sbp prediction pc 
     input wire        jalr_d_i,       // instruction is jalr
     input wire        btype_d_i,
+    input wire        mret_d_i,
+    input wire [31:0] epc_source_d_i,
 
     // TODO: Hazard must add some flush logic when EXE find ID is wrong
     input             flush_e_i,
+    input wire        trap_flush_t_i,
     // MEM stage signals
     input wire [ 3:0] dmem_type_d_i,      // load/store types
     // WB stage signals 
@@ -35,7 +38,6 @@ module pipelineEXE (
     input wire        instr_illegal_d_i,  // instruction illegal
     input wire        d_init_d_o,
     input wire        d_advance_d_o,
-    input wire        div_last_d_o,
     input wire [ 1:0] mul_state_d_o,
     //csr signals
     input wire [31:0] CSR_data_d_i,
@@ -52,6 +54,7 @@ module pipelineEXE (
     output reg [31:0] alu_result_e_o,   // alu calculation result
     output wire [31:0] alu_calculation_e_o,                                               
     output wire [ 3:0] dmem_type_e_o,      // load/store types
+    output reg         mret_e_o,
     // WB stage signals 
     output reg [31:0] extended_imm_e_o, // extended imm, for 'lui' instruction                                 ,
     output reg [31:0] pc_plus4_e_o,     // rd=pc+4, for `jal` instruction                                       
@@ -63,8 +66,9 @@ module pipelineEXE (
     output wire       real_taken_e_o,  
     output wire [31:0]      bypass_e_o,
     //csr signals
-    output reg [31:0]  CSR_data_e_o
+    output reg [31:0]  CSR_data_e_o,
    // output wire        CSR_wen_e_o
+    output reg [31:0]   epc_source_e_o
 );
 
 
@@ -89,7 +93,7 @@ module pipelineEXE (
     assign dmem_type_e_o=dmem_type_d_i;
     // pass through data to next stage
     always @(posedge clk ) begin 
-        if(~resetn || flush_e_i) begin
+        if(~resetn || flush_e_i||trap_flush_t_i) begin
             alu_result_e_o    <= 32'h0;
             extended_imm_e_o  <= 32'h0;
             pc_plus4_e_o      <= 32'h0;
@@ -98,6 +102,8 @@ module pipelineEXE (
             result_src_e_o    <= 5'b00000;
             instr_illegal_e_o <= 1'h0;
             CSR_data_e_o      <= 32'b0;
+            mret_e_o          <= 1'b0;
+            epc_source_e_o    <= 32'h80000000;
         end
         else if(st_e_i)
         begin
@@ -109,6 +115,8 @@ module pipelineEXE (
             result_src_e_o    <= result_src_e_o;
             instr_illegal_e_o <= instr_illegal_e_o;
             CSR_data_e_o      <= CSR_data_e_o ;
+            mret_e_o          <= mret_e_o;
+            epc_source_e_o    <= epc_source_e_o;
         end
         else begin
             alu_result_e_o    <= alu_calculation;  
@@ -119,6 +127,8 @@ module pipelineEXE (
             result_src_e_o    <= result_src_d_i;
             instr_illegal_e_o <= instr_illegal_d_i;
             CSR_data_e_o      <= CSR_data_d_i; 
+            mret_e_o          <= mret_d_i;
+            epc_source_e_o    <= epc_source_d_i;
         end
     end
 
@@ -143,9 +153,7 @@ module pipelineEXE (
         .bin          		( rs2_d_i         	),
         .ALUop        		( alu_op_d_i        ),
         .clk          		( clk          		),
-        .resetn       		( resetn       		),
         .mul_state          ( mul_state_d_o     ),
-        .div_last           ( div_last_d_o      ),
         .d_advance          ( d_advance_d_o     ),
         .d_init             ( d_init_d_o        ),
         .ALUout       		( alu_calculation   ),
