@@ -4,7 +4,8 @@ module PLIC_gateway(
     input wire int_sig,
     input wire int_end,
 
-    output wire int_req
+    output wire int_req,
+    output reg gateway_notif
 );
 
 
@@ -15,16 +16,24 @@ begin
     if(~rstn)
     begin
         pending<=1'b0;
+        gateway_notif<=1'b0;
     end
     else
     begin
         if(int_end)
         begin
             pending<=1'b0;
+            gateway_notif<=1'b0;
         end
         else if(int_sig)
         begin
             pending<=1'b1;
+            gateway_notif<=1'b1;
+        end
+        else
+        begin
+            pending<=pending;
+            gateway_notif<=1'b0;
         end
         
     end

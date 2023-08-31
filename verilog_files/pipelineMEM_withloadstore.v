@@ -21,6 +21,7 @@ module pipelineMEM_withloadstore (
     input wire [ 3:0] dmem_type_e_i, // load/store types
     input wire [31:0] rs2_e_i,       // memory write data
     input wire [31:0] CSR_data_e_i,
+    input wire        mret_e_i,
     // TODO: add D-memory write data, rs1[31:0]
     // WB stage signals
     input wire [31:0] extended_imm_e_i,  
@@ -28,6 +29,8 @@ module pipelineMEM_withloadstore (
     input wire        reg_write_en_e_i,         
     input wire [ 4:0] rd_idx_e_i,          
     input wire [ 4:0] result_src_e_i,   
+    input wire        trap_flush_t_i,
+    input wire [31:0] epc_source_e_i,
 
     /* signals to passed to WB stage */
     output reg [31:0] mem_read_data_m_o,  // data read from D-memory 
@@ -39,6 +42,7 @@ module pipelineMEM_withloadstore (
     output reg [ 4:0] result_src_m_o,    // select signal to choose one of the four inputs
     output wire [31:0] bypass_m_o,
     output reg [31:0] CSR_data_m_o,
+    output reg        mret_m_o,
     // PC passed to top
     // TODO: signals to communicate with Data Memory
     // TODO: add CSR Unit signals
@@ -48,7 +52,8 @@ module pipelineMEM_withloadstore (
     output wire [31:0] PLIC_wdata_m_o,
     output wire PLIC_wen_m_o,
     output wire PLIC_ren_m_o,
-    input wire [31:0] PLIC_rdata_p_i
+    input wire [31:0] PLIC_rdata_p_i,
+    output reg [31:0] epc_source_m_o
 );
 
 // =========================================================================
@@ -57,6 +62,7 @@ module pipelineMEM_withloadstore (
     // D-memory Store
     reg [ 3:0] byte_en;
     reg [31:0] dmem_write_data;
+    wire [31:0] dmem_write_data_f;
 
     // D-memory Load
     reg  [ 3:0] mem_op;
@@ -64,6 +70,7 @@ module pipelineMEM_withloadstore (
     wire [31:0] read_data_32;
     reg  [31:0] read_data;
     wire [31:0] dmem_read_data; // dmem output
+    reg         dmem_load;
 
     // D-memory instance
     wire [ 9:0] dmem_addr;
@@ -71,7 +78,7 @@ module pipelineMEM_withloadstore (
     wire        web;
 
     //PLIC load
-    wire plic_load;
+    reg plic_load;
     reg eb_r;
     
 
@@ -84,16 +91,22 @@ module pipelineMEM_withloadstore (
 
 //TODO: forbid dmem write when PLIC write
 
-    assign plic_load=(alu_calculation_e_i[31:22]==0)&(alu_calculation_e_i[21:20]!=0)&(web);
-    assign dmem_load=(alu_calculation_e_i[31:12]==0)&(web);
+    always@(posedge clk)
+    begin
+        plic_load<=(alu_calculation_e_i[31:22]==0)&(alu_calculation_e_i[21:20]!=0)&(web)&(~ceb);
+        dmem_load<=(alu_calculation_e_i[31:12]==0)&(web);
+    end
+
+    assign dmem_write_data_f={32{~trap_flush_t_i}}&dmem_write_data;
+    
 
     assign PLIC_addr_m_o={24{(alu_calculation_e_i[31:22]==0)&(alu_calculation_e_i[21:20]!=0)}}&(alu_calculation_e_i[23:0]-24'h100000);
-    assign PLIC_ren_m_o=plic_load;
+    assign PLIC_ren_m_o=(alu_calculation_e_i[31:22]==0)&(alu_calculation_e_i[21:20]!=0)&(web)&(~ceb);
     assign PLIC_wen_m_o=(alu_calculation_e_i[31:22]==0)&(alu_calculation_e_i[21:20]!=0)&(~web)&(~ceb);
-    assign PLIC_wdata_m_o=dmem_write_data;
+    assign PLIC_wdata_m_o=dmem_write_data_f;
 
     assign dmem_addr = {10{alu_calculation_e_i[31:12]==0}}&alu_calculation_e_i[11:2];
-    assign ceb =  dmem_type_e_i == `DMEM_NO;
+    assign ceb = (trap_flush_t_i)|(dmem_type_e_i == `DMEM_NO);
     assign web = (dmem_type_e_i == `DMEM_LB) |
                  (dmem_type_e_i == `DMEM_LH) |
                  (dmem_type_e_i == `DMEM_LBU)|
@@ -117,7 +130,7 @@ module pipelineMEM_withloadstore (
     //          PIPELINE OUT
     //*********************************
     always @(posedge clk ) begin 
-        if(~resetn) begin
+        if(~resetn||trap_flush_t_i) begin
             result_src_m_o    <= 5'b00000;
             alu_result_m_o    <= 32'h0;
             pc_plus_m_o       <= 32'h0;
@@ -125,6 +138,8 @@ module pipelineMEM_withloadstore (
             reg_write_en_m_o  <= 1'b0;
             rd_idx_m_o        <= 5'h0;
             CSR_data_m_o      <= 32'b0;
+            mret_m_o          <= 1'b0;
+            epc_source_m_o    <= 32'h80000000;
         end
         else begin
             // pass signals to MEM stage
@@ -135,6 +150,8 @@ module pipelineMEM_withloadstore (
             reg_write_en_m_o  <= reg_write_en_e_i;
             rd_idx_m_o        <= rd_idx_e_i;
             CSR_data_m_o      <= CSR_data_e_i;
+            mret_m_o          <= mret_e_i;
+            epc_source_m_o    <= epc_source_e_i;
         end
     end
 
@@ -208,9 +225,18 @@ module pipelineMEM_withloadstore (
     // D-memory read data is 1 cycle behind
     // flop mem_op and byte_addr 
     always@(posedge clk) begin
-        mem_op    <= dmem_type_e_i; 
-        byte_addr <= alu_result_e_i[1:0];
-        mem_read_data_m_o <= read_data;
+        if(trap_flush_t_i)
+        begin
+            mem_op    <= `DMEM_NO; 
+            byte_addr <= 2'b0;
+            mem_read_data_m_o <= 32'b0;
+        end
+        else
+        begin
+            mem_op    <= dmem_type_e_i; 
+            byte_addr <= alu_result_e_i[1:0];
+            mem_read_data_m_o <= read_data;
+        end
     end
     assign read_data_32={32{dmem_load}}&dmem_read_data
                         |{32{plic_load}}&PLIC_rdata_p_i;
@@ -270,7 +296,7 @@ module pipelineMEM_withloadstore (
         .web    		( web    		    ),
         .A      		( dmem_addr   	    ),
         .mask   		( byte_en   	    ),
-        .D      		( dmem_write_data   ),
+        .D      		( dmem_write_data_f ),
         .Q      		( dmem_read_data	)
     );
  

@@ -17,6 +17,7 @@ module CSR(
     input wire [31:0] cause_input,
     input wire [31:0] wb_pc,
     input wire [31:0] mem_pc,
+    input wire trap_flush_t_i,
     input wire [31:0] event_happens,
 
     output wire [31:0] rdata,
@@ -29,10 +30,40 @@ module CSR(
 );
 //TODO read write fence
 reg [31:0] CSRs [26:0];
-wire throughput;
+wire throughput,throughput1,throughput2;
+//TODO illegal write fence fo through put
+//delay the write to write back stage
+reg [31:0] wdata1,wdata2;
+reg [12:0] waddr1,waddr2;
+reg wen1,wen2;
+
 wire [4:0] windex,rindex;
 wire event_trig3;
 wire [63:0] cycle,instret;
+
+always@(posedge clk)
+begin
+    if(~resetn||trap_flush_t_i)
+    begin
+        wdata1<=32'b0;
+        wdata2<=32'b0;
+        wen1<=1'b0;
+        wen2<=1'b0;
+        waddr1<=12'b0;
+        waddr2<=12'b0;
+    end
+    else
+    begin
+        wdata1<=wdata;
+        wdata2<=wdata1;
+        wen1<=wen;
+        wen2<=wen1;
+        waddr1<=waddr;
+        waddr2<=waddr1;
+    end
+end
+
+
 //unchangable CSRs initialized as vender:ff, archid:cc, impid:ee, hartid:0,
 //isa: 40001104 for rv32imc
 always @(posedge clk)
@@ -53,16 +84,16 @@ always @(posedge clk)
 begin
    if(~resetn)
    begin
-        CSRs[5] <= 32'h8;//TODO: initialization
+        CSRs[5] <= 32'h1888;//TODO: initialization
 	CSRs[9] <= 32'b0;//statush
    end
-   else if(wen&waddr == 12'h300)
+   else if(wen2&waddr2 == 12'h300)
    begin
-	CSRs[5] <= wdata;
+	CSRs[5] <= wdata2;
    end
-   else if(wen&waddr == 12'h310)
+   else if(wen2&waddr2 == 12'h310)
    begin
-	CSRs[9] <= wdata;
+	CSRs[9] <= wdata2;
    end
    else if(intr_happen|ex_happen)
    begin
@@ -85,9 +116,9 @@ begin
     begin
 	CSRs[7] <= 32'h00000888;// initialized as all m-mode interrupt enable
     end
-    else if(wen&waddr == 12'h304)
+    else if(wen2&waddr2 == 12'h304)
     begin
-	CSRs[7] <= wdata&(32'h0000aaaa);
+	CSRs[7] <= wdata2&(32'h0000aaaa);
     end
 end
 
@@ -98,9 +129,9 @@ begin
     begin
 	CSRs[8] <= 32'b0;//initialized as zero, to be reset by booting software
     end
-    else if(wen&waddr == 12'h305)
+    else if(wen2&waddr2 == 12'h305)
     begin
-	CSRs[8] <= wdata;
+	CSRs[8] <= wdata2;
     end
 end
 
@@ -111,9 +142,9 @@ begin
     begin
 	CSRs[10] <= 32'b0;
     end
-    else if(wen&waddr ==12'h340)
+    else if(wen2&waddr2 ==12'h340)
     begin
-	CSRs[10] <= wdata;
+	CSRs[10] <= wdata2;
     end
 end
 
@@ -133,9 +164,9 @@ begin
     begin
 	CSRs[11] <= mem_pc;
     end
-    else if(wen&waddr== 12'h341)
+    else if(wen2&waddr2== 12'h341)
     begin
-	CSRs[11] <= wdata;
+	CSRs[11] <= wdata2;
     end
 end
 
@@ -151,9 +182,9 @@ begin
     begin
 	CSRs[12] <= cause_input;
     end
-    else if(wen&waddr ==12'h342)
+    else if(wen2&waddr2 ==12'h342)
     begin
-	CSRs[12] <= wdata;
+	CSRs[12] <= wdata2;
     end
 end
 
@@ -168,10 +199,17 @@ begin
     begin
         CSRs[13] <= extra_massage;
     end
-    else if(wen&waddr ==12'h343)
+    else if(wen2&waddr2 ==12'h343)
     begin
-        CSRs[13] <= wdata;
+        CSRs[13] <= wdata2;
     end
+end
+
+//TODO to figure out why it is need
+reg test_ext_pending;
+always@(*)
+begin
+    test_ext_pending<=ext_pending;
 end
 
 //mip
@@ -181,17 +219,11 @@ begin
     begin
         CSRs[14] <= 32'b0;
     end
-    else if(intr_happen&ex_happen)
-    begin
-        CSRs[14][3]<= (cause_input == 32'h80000003);
-      	CSRs[14][7]<= (cause_input == 32'h80000007);
-	    CSRs[14][11]<= (cause_input == 32'h8000000b);	
-    end
     else
     begin
 	    CSRs[14][3]<= soft_pending; 
       	CSRs[14][7]<= time_pending;
-	    CSRs[14][11]<= ext_pending;	
+	    CSRs[14][11]<= test_ext_pending;	
     end
     
 end
@@ -208,13 +240,13 @@ begin
         CSRs[15] <= 32'b0;
 	CSRs[18] <= 32'b0;
     end
-    else if(wen&waddr==12'hb00)
+    else if(wen2&waddr2==12'hb00)
     begin
-	CSRs[15] <= wdata;
+	CSRs[15] <= wdata2;
     end
-    else if(wen&waddr==12'hb80)
+    else if(wen2&waddr2==12'hb80)
     begin
-	CSRs[18] <= wdata;
+	CSRs[18] <= wdata2;
 	if(~CSRs[21][0])
 	begin
 	    CSRs[15] <= CSRs[15]+1;
@@ -236,13 +268,13 @@ begin
         CSRs[16] <= 32'b0;
 	CSRs[19] <= 32'b0;
     end
-    else if(wen&waddr==12'hb02)
+    else if(wen2&waddr2==12'hb02)
     begin
-	CSRs[16] <= wdata;
+	CSRs[16] <= wdata2;
     end
-    else if(wen&waddr==12'hb82)
+    else if(wen2&waddr2==12'hb82)
     begin
-	CSRs[19] <= wdata;
+	CSRs[19] <= wdata2;
 	if(inst_commit&~CSRs[21][2])
 	begin
 	    CSRs[16] <= CSRs[16]+1;
@@ -264,13 +296,13 @@ begin
         CSRs[17] <= 32'b0;
 	CSRs[20] <= 32'b0;
     end
-    else if(wen&waddr==12'hb03)
+    else if(wen2&waddr2==12'hb03)
     begin
-	CSRs[17] <= wdata;
+	CSRs[17] <= wdata2;
     end
-    else if(wen&waddr==12'hb83)
+    else if(wen2&waddr2==12'hb83)
     begin
-	CSRs[20] <= wdata;
+	CSRs[20] <= wdata2;
 	if(event_trig3&~CSRs[21][3])
 	begin
 	    CSRs[17] <= CSRs[17]+1;
@@ -292,9 +324,9 @@ begin
     begin
         CSRs[21] <= 32'h0;
     end
-    else if(wen&waddr==12'h320)
+    else if(wen2&waddr2==12'h320)
     begin
-	CSRs[21] <= wdata&32'hd;
+	CSRs[21] <= wdata2&32'hd;
     end
 end
 
@@ -306,11 +338,17 @@ begin
     begin
         CSRs[22] <= 32'h0;
     end
-    else if(wen&waddr==12'h323)
+    else if(wen2&waddr2==12'h323)
     begin
-	CSRs[22] <= wdata;
+	CSRs[22] <= wdata2;
     end
 end
+
+/*
+| id | ex | mem | wb |
+| r  | w  | w1  | w2 |
+
+*/
 
 assign mie=CSRs[7];
 assign mip=CSRs[14];
@@ -321,7 +359,12 @@ assign context_ptr =CSRs[10];
 assign epc_ret = CSRs[11];
 assign trap_vector =CSRs[8];
 assign throughput=(raddr==waddr)&wen;
-assign rdata=({32{throughput}}&wdata)|({32{~throughput}}&CSRs[rindex]);
+assign throughput1=(raddr==waddr1)&wen1;
+assign throughput2=(raddr==waddr2)&wen2;
+assign rdata=throughput ?wdata:
+                        (throughput1 ? wdata1:
+                                    (throughput2 ? wdata2:
+                                                    CSRs[rindex]));
 
 
 CSR_addr_trans rtrans(

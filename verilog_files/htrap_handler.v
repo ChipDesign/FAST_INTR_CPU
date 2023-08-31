@@ -11,8 +11,7 @@ module htrap_handler
     input wire [31:0] mip,
     input wire [31:0] mstatus,
 
-    //PLIC communication
-    input wire PLIC_notif,
+    
 
     //pipeline communication
     input wire mret_commit,
@@ -22,7 +21,6 @@ module htrap_handler
     output reg intr_happen,
     output reg ex_happen,
     output wire [31:0] trap_cause,
-    output wire ext_pending,
     output wire time_pending,
     output wire soft_pending,
     output wire trap_fin,
@@ -42,7 +40,6 @@ reg intr_triggered;
 
 assign trap_fin=mret_commit;
 assign trap_cause=cause;
-assign ext_pending=PLIC_notif;
 assign time_pending=1'b0;
 assign soft_pending=1'b0;
 

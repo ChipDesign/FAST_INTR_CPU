@@ -43,9 +43,13 @@ module pipelineID(
     input wire [1:0]  src1_sel_d_i,src2_sel_d_i,
     input wire [31:0] bypass_e_o,bypass_m_o,
     input wire        stall_i,
+    //input related to trap handling
+    input wire [31:0] trap_vector_c_i,
+    input wire trap_flush_t_i,
 
     //signals from csr
-    input wire [31:0] CSR_data_d_i,
+    input wire [31:0] CSR_data_c_i,
+    input wire [31:0] epc_c_i,
     /* redirection info passed back to IF stage */
     output wire [31:0] redirection_d_o,
     output wire        taken_d_o,
@@ -54,7 +58,6 @@ module pipelineID(
     /* signals passed to EXE stage */
     // EXE stage signals
     output reg [1:0]  mul_state_d_o,
-    output reg        div_last_d_o,
     output reg        d_advance_d_o,
     output reg        d_init_d_o,
     output reg        fin_d_o,
@@ -90,7 +93,11 @@ module pipelineID(
     output wire dst_en_d_o,
     output wire fin_w_d_o,
     output wire pre_taken_d_o,
-    output wire [4:0] r_dst_d_o,r_src1_d_o,r_src2_d_o
+    output wire [4:0] r_dst_d_o,r_src1_d_o,r_src2_d_o,
+    //output of special inst
+    output reg mret_d_o,
+    //output related to trap handling
+    output reg [31:0] epc_source_d_o
 );
 // =========================================================================
 // =============================   variables   =============================
@@ -128,11 +135,17 @@ module pipelineID(
     reg        taken_reg;
     reg  [31:0] pc_taken, pc_instr;
     wire [31:0] pc_next;
+    reg         trap_flush_delay;
 
     //csr variables
     wire [11:0] csr_addr_o;
     wire [31:0] csr_zimm_o;
     wire        csr_write_o;
+    wire        csr_no_cal_o;
+    wire        csr_op_inv_o,csr_zimm_en_o;
+
+    // special inst cariables
+    wire mret;
     
 
     //d&m veriables
@@ -161,7 +174,7 @@ module pipelineID(
 
     // ID stage pipeline register output
     always @(posedge clk ) begin 
-        if(~resetn || flush_i) begin
+        if(~resetn || flush_i || trap_flush_t_i|| trap_flush_delay) begin
             reg_write_en_d_o  <= 1'b0; 
             result_src_d_o    <= 5'b0;  
             extended_imm_d_o  <= 32'h0;
@@ -180,11 +193,11 @@ module pipelineID(
             mul_state_d_o     <= 2'b0;
             d_advance_d_o     <= 1'b0;
             d_init_d_o        <= 1'b0;
-            div_last_d_o      <= 1'b0;
             prediction_pc_d_o <= 32'h80000000;
             CSR_addr_d_o      <= 12'b0;
             CSR_data_d_o      <= 32'b0;
             CSR_wen_d_o       <= 1'b0;
+            mret_d_o          <= 1'b0;
         end
         else if(enable) begin
             reg_write_en_d_o  <= wb_en_mul_div; 
@@ -198,12 +211,12 @@ module pipelineID(
             mul_state_d_o     <= mul_state;
             d_advance_d_o     <= d_advance;
             d_init_d_o        <= d_init;
-            div_last_d_o      <= div_last;
             fin_d_o           <= fin;
             prediction_pc_d_o <= redirection_pc;
-            CSR_data_d_o      <= CSR_data_d_i;
+            CSR_data_d_o      <= CSR_data_c_i;
             CSR_addr_d_o      <= csr_addr_o;
             CSR_wen_d_o       <= csr_write_o;
+            mret_d_o          <= mret;
             // choose alu operand source
             if(csr_zimm_en_o)
             begin
@@ -222,7 +235,7 @@ module pipelineID(
                         ({32{src2_sel_d_i==2'b10}}&bypass_m_o); // alu operand2 from RF
             
             if (csr_read_o)
-                rs2_d_o <= CSR_data_d_i&{32{csr_no_cal_o}};
+                rs2_d_o <= CSR_data_c_i&{32{csr_no_cal_o}};
             else if(rs2_sel_o == `RS2SEL_RF) begin
                 rs2_d_o <= ({32{src2_sel_d_i==2'b0}}&rs2_data_o)|
                             ({32{src2_sel_d_i==2'b1}}&bypass_e_o)|
@@ -242,12 +255,32 @@ module pipelineID(
     end
     
     // calculate redirection pc to IF stage
-    assign taken_d_o       =  ~resetn_delay | ptnt_e_i | redirection_e_i | (~flush_i & taken );
+    assign taken_d_o       =  ~resetn_delay | ptnt_e_i | redirection_e_i | (~flush_i & taken )|trap_flush_t_i|(~flush_i&mret);
     assign redirection_d_o = ({32{~resetn_delay | flush_i}} & 32'h80000000)|//TODO 2 redirection select signal high in same time
                              ({32{ptnt_e_i & ~branchJAL_o}} & pc_next)| // sbp sbp_taken, alu not sbp_taken
                              ({32{ptnt_e_i &  branchJAL_o}} & redirection_pc)| // sbp sbp_taken, alu not sbp_taken, following by JAL 
                              ({32{ redirection_e_i}}  & redirection_pc_e_i)| // pc from EXE
-                             ({32{~redirection_e_i}}  & redirection_pc);  // pc from SBP
+                             ({32{~redirection_e_i}}  & redirection_pc)|  // pc from SBP
+                             ({32{trap_flush_t_i}}  &  (trap_vector_c_i & 32'hfffffffc))| //pc of trap handling
+                             ({32{~flush_i&mret}}  &  (epc_c_i));
+    
+    //epc_source generating
+    always@(posedge clk)
+    begin
+        if(~resetn)
+        begin
+            epc_source_d_o <= 32'h80000000;
+        end
+        else if(taken_d_o) begin
+            epc_source_d_o <= redirection_d_o;
+        end
+        else if(taken_reg) begin
+            epc_source_d_o <= pc_taken;    
+        end else begin
+            epc_source_d_o <= pc_next;    
+        end 
+
+    end
 
     // calculate instruction pc 
     always @(posedge clk ) begin 
@@ -279,11 +312,22 @@ module pipelineID(
         //compressed_d_o <= is_compressed_o;
     end
 
+    //trap flush delay 
+    always@(posedge clk) begin
+        if(~resetn)
+        begin
+            trap_flush_delay<=1'b0;
+        end
+        else begin
+            trap_flush_delay<=trap_flush_t_i;
+        end
+    end
+
     //mul&div control signals
     reg div_temp_last;
     always@(posedge clk)
     begin
-        if(~resetn)
+        if(~resetn||flush_i||trap_flush_t_i)
         begin
             mul_state<=2'b0;
             div_state<=4'b0;
@@ -400,7 +444,8 @@ module pipelineID(
         .csr_no_cal_o           ( csr_no_cal_o          ),
         .csr_zimm_en_o          ( csr_zimm_en_o         ),
         .csr_zimm_o             ( csr_zimm_o            ),
-        .csr_write_o            ( csr_write_o           )
+        .csr_write_o            ( csr_write_o           ),
+        .mret                   ( mret                  )
     );
 
     // compress decode instance

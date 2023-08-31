@@ -48,6 +48,8 @@ module decoder(
     output reg csr_zimm_en_o,
     output reg csr_write_o,
     output reg [31:0] csr_zimm_o,
+    //==========special instructions===========
+    output reg mret,
     // ========= illegal instruction =========
     output reg instr_illegal_o
 );
@@ -97,6 +99,8 @@ module decoder(
         csr_write_o=1'b0;
         csr_zimm_en_o=1'b0;
         csr_zimm_o=32'b0;
+        csr_no_cal_o=1'b0;
+        mret=1'b0;
         case(opcode) 
             `OPCODE_LOAD  : begin
                 imm_type_o = `IMM_I;
@@ -306,6 +310,14 @@ module decoder(
             `OPCODE_SYSTEM:
             begin
                 case(instruction_i[14:12])
+                3'b000: begin//special instructions
+                case(instruction_i[31:7])
+                    25'h0604000: begin//mret
+                    mret = 1'b1; end
+
+
+                endcase
+                end
                 3'b011: begin//csrrc
                     wb_en_o=1'b1;
                     wb_src_o=`WBSRC_CSR;

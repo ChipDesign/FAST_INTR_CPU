@@ -87,7 +87,7 @@ begin
         begin
             for(j=0;j<4;j=j+1)
             begin
-                pending[j] = (pending[j]|int_req[j]);
+                pending[j] <= (pending[j]|int_req[j]);
             end
         end
         if(claim_read)
@@ -156,13 +156,12 @@ begin
     
     else
     begin
+        claim<=32'b0;
         pending_clear <= 1'b0;
     end
 end
 
-wire [31:0] ID_temp,pri_temp;//TODO delete this temporary wire
-assign ID_temp= ID_sort[126];
-assign pri_temp= pri_sort[126];
+
 
 
 
@@ -189,7 +188,6 @@ begin
         int_end<=128'b0;
     end
 end
-
 
 
 
@@ -238,6 +236,7 @@ begin
     pri_winner=pri_sort[126];
 end
 
+
 integer bit;
 always@(*)
 begin
@@ -251,7 +250,7 @@ end
 
 //TODO reserved 0 address interrupt to be inplemented               
 
-always@(*)
+always@(posedge clk)
 begin
     if(reg_ren)
     begin
