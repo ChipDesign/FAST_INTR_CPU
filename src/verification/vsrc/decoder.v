@@ -20,7 +20,6 @@ time: 2023年 4月27日 星期四 09时09分22秒 CST
 */
 
 `include "definitions.vh"
-`include "definitions.vh"
 `ifdef DIFFTEST
 import "DPI-C" function void ebreak();
 `endif

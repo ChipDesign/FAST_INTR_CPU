@@ -6,7 +6,7 @@ author: fujie
 time: 2023年 5月 5日 星期五 14时48分40秒 CST
 */
 `include "definitions.vh"
-`include "alu.v"//TODO pc_e_o<=flush?redirection_d_o?pc_plus4_d_i
+`include "alu.v"
 module pipelineEXE (
     input wire clk,
     input wire resetn, // no reset need in EXE stage

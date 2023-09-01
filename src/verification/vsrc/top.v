@@ -211,9 +211,9 @@ module top(
         .taken_d_i       		( taken_d_o       		),
         .is_compress_d_i        (is_compress_d_i        ),
         .flush_i                ( flush_jal_d_o         ), // TODO: add flush from EXE
-        .instruction_f_o 		( instruction_f_o 		) /*,
+        .instruction_f_o 		( instruction_f_o 		),
         .imemory_output         ( instr[31:0]           ),
-        .imem_addr              ( imem_addr             )*/
+        .imem_addr              ( imem_addr             )
     );
 
     // ID stage instance
@@ -231,7 +231,7 @@ module top(
         .rd_idx_w_i        		( rd_idx_w_o       		),
         .write_back_data_w_i 	( write_back_data_w_o 	),
         .rs1_depended_h_i   	( rs1_depended_h_o   	),
-        .flush_i                ( flush_d_i             ), // TODO: temp flush, replaced by hazard flush
+        .flush_i                ( flush_d_i             ), 
         .src1_sel_d_i           ( src1_sel_d_i          ),
         .src2_sel_d_i           ( src2_sel_d_i          ),
         .stall_i                ( fd_st_f_i             ),
