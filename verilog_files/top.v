@@ -53,6 +53,7 @@ module top(
     wire fd_st_f_i;           
     wire de_st_d_i;            
     wire em_st_e_i; 
+    wire bnt1_h_o;
     // IF stage instance signals
     wire [31:0]	instruction_f_o;
     wire        is_compress_d_i;
@@ -91,6 +92,7 @@ module top(
     wire [11:0] CSR_addr_d_o_w;
     wire mret_d_o;
     wire [31:0] epc_source_d_o;
+    wire [31:0] epc_source_d_o_w;
     
     // EXE instance
     wire [31:0]	aluResult_e_o;
@@ -222,7 +224,8 @@ module top(
         .CSR_wen_d_o            ( CSR_wen_d_o           ),
         .epc_c_i                ( epc_ret               ),
         .mret_d_o               ( mret_d_o              ),
-        .epc_source_d_o         ( epc_source_d_o        )
+        .epc_source_d_o         ( epc_source_d_o        ),
+        .epc_source_d_o_w       ( epc_source_d_o_w      )
         
     );
 
@@ -256,6 +259,7 @@ module top(
         .CSR_data_d_i           ( CSR_data_d_o          ),
         .mret_d_i               ( mret_d_o              ),
         .epc_source_d_i         ( epc_source_d_o        ),
+        .epc_source_d_i_w       ( epc_source_d_o_w      ),
         //.CSR_wen_d_i            ( CSR_wen_d_o           ),
         .alu_result_e_o    		( aluResult_e_o    		),
         .alu_calculation_e_o    ( alu_calculation_e_o   ),
@@ -293,6 +297,8 @@ module top(
         .CSR_data_e_i           ( CSR_data_e_o          ),
         .mret_e_i               ( mret_e_o              ),
         .epc_source_e_i         ( epc_source_e_o        ),
+        .epc_source_d_i_w       ( epc_source_d_o_w      ),
+        .bnt1_h_i               ( bnt1_h_o              ),
         .mem_read_data_m_o  	( mem_read_data_m_o  	),
         .alu_result_m_o    		( alu_result_m_o    	),
         .extended_imm_m_o  		( extended_imm_m_o  	),
@@ -356,6 +362,7 @@ module top(
         .rs1_depended_h_o       ( rs1_depended_h_o      ),
         .flush_o                ( flush_d_i             ),
         .mret_d_i               ( mret_d_o              ),
+        .bnt1_h_o               ( bnt1_h_o              ),
         .rstn                   ( resetn                ),
         .clk                    ( clk                   )
     );
