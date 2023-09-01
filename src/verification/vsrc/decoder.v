@@ -41,8 +41,18 @@ module decoder(
     output reg [3:0] dmem_type_o, // data memory type
     // =========  =========
     // output reg regWriteEnD,
-    output reg [3:0] wb_src_o, // write back select
+    output reg [4:0] wb_src_o, // write back select
     output reg wb_en_o,  // write back enable
+    //========== CSR instruction ==========
+    output reg [11:0] csr_addr_o,
+    output reg csr_read_o,
+    output reg csr_op_inv_o,
+    output reg csr_no_cal_o,
+    output reg csr_zimm_en_o,
+    output reg csr_write_o,
+    output reg [31:0] csr_zimm_o,
+    //==========special instructions===========
+    output reg mret,
     // ========= illegal instruction =========
     output reg instr_illegal_o
 );
@@ -81,18 +91,26 @@ module decoder(
         branchBType_o = 1'b0;  
         branchJAL_o = 1'b0;
         branchJALR_o = 1'b0;
-        is_load_o = 1'b0;
+        is_load_o=1'b0;
         instr_illegal_o = 1'b0; // suppose instruction is legal by default.
         wb_src_o = `WBSRC_ALU;  // suppose write back source is from ALU 
         wb_en_o = 1'b0; // suppose write back is not enable 
-        dmem_type_o = `DMEM_NO;
+        dmem_type_o=`DMEM_NO;
+        csr_addr_o=instruction_i[31:20];
+        csr_op_inv_o=1'b0;
+        csr_read_o=1'b0;
+        csr_write_o=1'b0;
+        csr_zimm_en_o=1'b0;
+        csr_zimm_o=32'b0;
+        csr_no_cal_o=1'b0;
+        mret=1'b0;
         case(opcode) 
             `OPCODE_LOAD  : begin
                 imm_type_o = `IMM_I;
                 alu_calculation = `ALUOP_ADD;
                 wb_src_o = `WBSRC_MEM;
                 wb_en_o = 1'b1;
-                is_load_o = 1'b1;
+                is_load_o=1'b1;
                 case(funct3) 
                     3'b000: begin
                         dmem_type_o = `DMEM_LB;
@@ -119,7 +137,6 @@ module decoder(
                 case(funct3) 
                     3'b000: begin
                         alu_calculation = `ALUOP_ADD; // addi
-                        // alu_calculation = `ALUOP_SLL; // slli
                     end
                     3'b001: begin
                         alu_calculation = `ALUOP_SLL; // slli
@@ -292,6 +309,75 @@ module decoder(
                 alu_calculation = `ALUOP_ADD;
                 wb_src_o = `WBSRC_PC;
                 wb_en_o = 1'b1;
+            end
+            `OPCODE_SYSTEM:
+            begin
+                case(instruction_i[14:12])
+                3'b000: begin//special instructions
+                case(instruction_i[31:7])
+                    25'h0604000: begin//mret
+                    mret = 1'b1; end
+
+
+                endcase
+                end
+                3'b011: begin//csrrc
+                    wb_en_o=1'b1;
+                    wb_src_o=`WBSRC_CSR;
+                    alu_calculation=`ALUOP_AND;
+                    csr_op_inv_o=1'b1;
+                    csr_read_o=1'b1;
+                    csr_write_o=1'b1;
+                end
+                3'b111: begin//csrrci
+                    wb_en_o=1'b1;
+                    wb_src_o=`WBSRC_CSR;
+                    alu_calculation=`ALUOP_AND;
+                    csr_op_inv_o=1'b1;
+                    csr_read_o=1'b1;
+                    csr_write_o=1'b1;
+                    csr_zimm_en_o=1'b1;
+                    csr_zimm_o={27'b0,instruction_i};
+                end
+                3'b010: begin//csrrs
+                    wb_en_o=1'b1;
+                    wb_src_o=`WBSRC_CSR;
+                    alu_calculation=`ALUOP_OR;
+                    csr_op_inv_o=1'b0;
+                    csr_read_o=1'b1;
+                    csr_write_o=1'b1;
+                end
+                3'b110: begin//csrrsi
+                    wb_en_o=1'b1;
+                    wb_src_o=`WBSRC_CSR;
+                    alu_calculation=`ALUOP_OR;
+                    csr_op_inv_o=1'b0;
+                    csr_read_o=1'b1;
+                    csr_write_o=1'b1;
+                    csr_zimm_en_o=1'b1;
+                    csr_zimm_o={27'b0,instruction_i};
+                end
+                3'b001: begin//csrrw
+                    wb_en_o=1'b1;
+                    wb_src_o=`WBSRC_CSR;
+                    alu_calculation=`ALUOP_AND;
+                    csr_op_inv_o=1'b0;
+                    csr_read_o=1'b1;
+                    csr_write_o=1'b1;
+                    csr_no_cal_o=1'b1;
+                end
+                3'b101: begin//csrrwi
+                    wb_en_o=1'b1;
+                    wb_src_o=`WBSRC_CSR;
+                    alu_calculation=`ALUOP_AND;
+                    csr_op_inv_o=1'b0;
+                    csr_read_o=1'b1;
+                    csr_write_o=1'b1;
+                    csr_no_cal_o=1'b1;
+                    csr_zimm_en_o=1'b1;
+                    csr_zimm_o={27'b0,instruction_i};
+                end
+                endcase
             end
             default: instr_illegal_o = 1'b1;
         endcase

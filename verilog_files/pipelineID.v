@@ -97,7 +97,8 @@ module pipelineID(
     //output of special inst
     output reg mret_d_o,
     //output related to trap handling
-    output reg [31:0] epc_source_d_o
+    output wire [31:0] epc_source_d_o,
+    output wire [31:0] epc_source_d_o_w
 );
 // =========================================================================
 // =============================   variables   =============================
@@ -206,6 +207,7 @@ module pipelineID(
             rd_idx_d_o        <= rd_index; 
             alu_op_d_o        <= aluOperation_o;      
             jalr_d_o          <= branchJALR_o;
+            btype_d_o         <= branchBType_o;
             sbp_taken_d_o     <= taken;
             flush_jal_d_o     <= branchJAL_o;
             mul_state_d_o     <= mul_state;
@@ -257,30 +259,22 @@ module pipelineID(
     // calculate redirection pc to IF stage
     assign taken_d_o       =  ~resetn_delay | ptnt_e_i | redirection_e_i | (~flush_i & taken )|trap_flush_t_i|(~flush_i&mret);
     assign redirection_d_o = ({32{~resetn_delay | flush_i}} & 32'h80000000)|//TODO 2 redirection select signal high in same time
-                             ({32{ptnt_e_i & ~branchJAL_o}} & pc_next)| // sbp sbp_taken, alu not sbp_taken
+                             ({32{trap_flush_t_i}}  &  (trap_vector_c_i & 32'hfffffffc))| //pc of trap handling  
+                             ({32{~trap_flush_t_i}}&
+                             (({32{ptnt_e_i & ~branchJAL_o}} & pc_next)| // sbp sbp_taken, alu not sbp_taken
                              ({32{ptnt_e_i &  branchJAL_o}} & redirection_pc)| // sbp sbp_taken, alu not sbp_taken, following by JAL 
                              ({32{ redirection_e_i}}  & redirection_pc_e_i)| // pc from EXE
                              ({32{~redirection_e_i}}  & redirection_pc)|  // pc from SBP
                              ({32{trap_flush_t_i}}  &  (trap_vector_c_i & 32'hfffffffc))| //pc of trap handling
-                             ({32{~flush_i&mret}}  &  (epc_c_i));
+                             ({32{~flush_i&mret}}  &  (epc_c_i))));
     
     //epc_source generating
-    always@(posedge clk)
-    begin
-        if(~resetn)
-        begin
-            epc_source_d_o <= 32'h80000000;
-        end
-        else if(taken_d_o) begin
-            epc_source_d_o <= redirection_d_o;
-        end
-        else if(taken_reg) begin
-            epc_source_d_o <= pc_taken;    
-        end else begin
-            epc_source_d_o <= pc_next;    
-        end 
+    assign epc_source_d_o = pc_instr;  
+    assign epc_source_d_o_w = taken_reg?pc_taken:pc_next;
 
-    end
+    
+    
+
 
     // calculate instruction pc 
     always @(posedge clk ) begin 

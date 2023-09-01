@@ -31,6 +31,8 @@ module pipelineMEM_withloadstore (
     input wire [ 4:0] result_src_e_i,   
     input wire        trap_flush_t_i,
     input wire [31:0] epc_source_e_i,
+    input wire [31:0] epc_source_d_i_w,
+    input wire        bnt1_h_i,
 
     /* signals to passed to WB stage */
     output reg [31:0] mem_read_data_m_o,  // data read from D-memory 
@@ -151,7 +153,7 @@ module pipelineMEM_withloadstore (
             rd_idx_m_o        <= rd_idx_e_i;
             CSR_data_m_o      <= CSR_data_e_i;
             mret_m_o          <= mret_e_i;
-            epc_source_m_o    <= epc_source_e_i;
+            epc_source_m_o    <= bnt1_h_i?epc_source_d_i_w:epc_source_e_i;
         end
     end
 

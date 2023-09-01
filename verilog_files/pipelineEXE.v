@@ -25,7 +25,7 @@ module pipelineEXE (
     input wire        btype_d_i,
     input wire        mret_d_i,
     input wire [31:0] epc_source_d_i,
-
+    input wire [31:0] epc_source_d_i_w,
     // TODO: Hazard must add some flush logic when EXE find ID is wrong
     input             flush_e_i,
     input wire        trap_flush_t_i,
@@ -80,6 +80,7 @@ module pipelineEXE (
     //wire        is_branch;
     reg redirection_r;
     reg [31:0] redirection_pc_r;
+    reg epc_source_sel;
 // =========================================================================
 // ============================ implementation =============================
 // =========================================================================
@@ -128,8 +129,13 @@ module pipelineEXE (
             instr_illegal_e_o <= instr_illegal_d_i;
             CSR_data_e_o      <= CSR_data_d_i; 
             mret_e_o          <= mret_d_i;
-            epc_source_e_o    <= epc_source_d_i;
+            epc_source_e_o    <= epc_source_sel? epc_source_d_i:epc_source_d_i_w;
         end
+    end
+
+    always@(posedge clk)
+    begin
+        epc_source_sel <= (~btype_d_i) & (~real_taken_e_o^taken_d_i);
     end
 
     always@(posedge clk)

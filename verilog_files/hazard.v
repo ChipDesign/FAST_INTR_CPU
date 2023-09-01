@@ -10,7 +10,7 @@ f_cmiss,m_cmiss,
 f_arrival,m_arrival,
 fd_st,de_st,em_st,
 flush_o,mret_d_i,
-rs1_depended_h_o,ptnt_e_i,
+rs1_depended_h_o,ptnt_e_i,bnt1_h_o,
 rstn,clk);
 
 input is_b,is_j,is_load,dst_en,is_m,is_d;
@@ -28,6 +28,7 @@ output fd_st,de_st,em_st;
 output flush_o;
 output rs1_depended_h_o;
 output ptnt_e_i;
+output bnt1_h_o;
 
 
 reg[4:0] dst_1,dst_2;
@@ -152,14 +153,14 @@ begin
   end
   else
   begin
-    if(is_j&(~flush))// if jump-1 is also a jump, ingore latter one
+    if(is_j&(~(flush|trap_flush_t_i)))// if jump-1 is also a jump, ingore latter one
     begin
       jd1<=1'b1;
       jd_b1<=(|src1_sel[1:0])|(|src2_sel[1:0]);
       bpt<=1'b0;
       bnt<=1'b0;
     end
-    else if(is_b&(~flush))
+    else if(is_b&(~(flush|trap_flush_t_i)))
     begin
       if(pre_taken)
       begin
@@ -198,6 +199,6 @@ assign flush=jd1|jd_b2|bptnt|(bpt&real_taken)|bnt1|(bnt&real_taken)|mret_d_i;
 assign flush_o=flush;
 assign rs1_depended_h_o=|src1_sel;
 assign ptnt_e_i=bpt&~real_taken;
-
+assign bnt1_h_o=bnt1;
 endmodule
 `endif
