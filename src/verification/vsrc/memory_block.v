@@ -13,7 +13,7 @@ module memory_block
     input wire [DATA_WIDTH-1: 0] D,  // data write into memory
     output reg [DATA_WIDTH-1: 0] Q   // data read from memory
 );
-                               
+
 reg [ DATA_WIDTH-1:0] m_array[1023: 0]; // the memory is 816*32, each line in memory is 32 bits
 //-----------------------------
 

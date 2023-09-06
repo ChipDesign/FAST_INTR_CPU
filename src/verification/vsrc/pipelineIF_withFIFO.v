@@ -76,7 +76,8 @@ module pipelineIF_withFIFO
     reg [31:0] sram_output_reg;
     always @(posedge clk ) begin 
         // delay one cycle because I-Memory has 1 cycle read delay but c function don't has delay
-        sram_output_reg <= imemory_output; 
+        sram_output_reg <= imemory_output;
+        $display("--------imemory output :%x",imemory_output);
     end
     assign sram_output = {sram_output_reg[15:0], sram_output_reg[31:16]}; // read I-Memory through DPI-C, TOOD: fix this reorder
     assign imem_addr   = mem_addr;

@@ -6,7 +6,7 @@ file:   Data Memory in MEM Stage
 author: fujie
 time:   Fri May 26 09:22:03 CST 2023
 */
-module imemory( 
+module imemory(
     input  wire clk, 
     input  wire ceb,         // chip enable, if not enable, can't read from this memory 
     input  wire web,         // write/read, 0 for write, 1 for read

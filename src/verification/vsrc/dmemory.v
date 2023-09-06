@@ -73,6 +73,5 @@ module dmemory(
         .Q        		( read3    		)
     );
 
-    
 endmodule
 `endif
