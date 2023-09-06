@@ -34,7 +34,7 @@ demo/
 *.gtkw
 .nvim/*
 *.elf
-*.bin
+# *.bin
 *.metals
 src/verification/asm/generated/*
 src/verification/build/obj_dir/
