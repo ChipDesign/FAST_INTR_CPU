@@ -1,3 +1,5 @@
+`ifndef __PLIC_GATEWAY__
+`define __PLIC_GATEWAY__
 module PLIC_gateway(
     input wire rstn,
     input wire clk,
@@ -43,3 +45,4 @@ assign int_req=pending;
 
 
 endmodule
+`endif

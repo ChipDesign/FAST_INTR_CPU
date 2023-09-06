@@ -67,6 +67,7 @@ module top(
     wire de_st_d_i;            
     wire em_st_e_i; 
     wire bnt1_h_o;
+    wire bptnt_h_o,bptrt_h_o;
     // IF stage instance signals
     wire [31:0]	instruction_f_o;
     wire        is_compress_d_i;
@@ -322,6 +323,8 @@ module top(
         .mret_d_i               ( mret_d_o              ),
         .epc_source_d_i         ( epc_source_d_o        ),
         .epc_source_d_i_w       ( epc_source_d_o_w      ),
+        .bptnt_h_i              ( bptnt_h_o             ),
+        .bptrt_h_i              ( bptrt_h_o             ),
         //.CSR_wen_d_i            ( CSR_wen_d_o           ),
         .alu_result_e_o    		( aluResult_e_o    		),
         .alu_calculation_e_o    ( alu_calculation_e_o   ),
@@ -425,6 +428,8 @@ module top(
         .flush_o                ( flush_d_i             ),
         .mret_d_i               ( mret_d_o              ),
         .bnt1_h_o               ( bnt1_h_o              ),
+        .bptnt_h_o              ( bptnt_h_o             ),
+        .bptrt_h_o              ( bptrt_h_o             ),
         .rstn                   ( resetn                ),
         .clk                    ( clk                   )
     );
