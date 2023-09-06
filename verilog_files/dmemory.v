@@ -8,7 +8,6 @@ time:   Fri May 26 09:22:03 CST 2023
 */
 module dmemory( 
     input  wire clk, 
-    input  wire resetn,
     input  wire ceb,         // chip enable, if not enable, can't read from this memory 
     input  wire web,         // write/read, 0 for write, 1 for read
     input  wire [ 9:0] A,    // A for address 
@@ -33,7 +32,6 @@ module dmemory(
     memory_block u_memory_block0(
         //ports
         .clk      		( clk      		),
-        .resetn   		( resetn   		),
         .ceb      		( ceb      		),
         .web      		( web      		),
         .write_en 		( mask[0] 		),
@@ -45,7 +43,6 @@ module dmemory(
     memory_block u_memory_block1(
         //ports
         .clk      		( clk      		),
-        .resetn   		( resetn   		),
         .ceb      		( ceb      		),
         .web      		( web      		),
         .write_en 		( mask[1] 		),
@@ -57,7 +54,6 @@ module dmemory(
     memory_block u_memory_block2(
         //ports
         .clk      		( clk      		),
-        .resetn   		( resetn   		),
         .ceb      		( ceb      		),
         .web      		( web      		),
         .write_en 		( mask[2] 		),
@@ -69,7 +65,6 @@ module dmemory(
     memory_block u_memory_block3(
         //ports
         .clk      		( clk      		),
-        .resetn   		( resetn   		),
         .ceb      		( ceb      		),
         .web      		( web      		),
         .write_en 		( mask[3] 		),

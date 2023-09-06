@@ -42,6 +42,8 @@ module pipelineEXE (
     //csr signals
     input wire [31:0] CSR_data_d_i,
     //input wire        CSR_wen_d_i,
+    input wire bptnt_h_i,
+    input wire bptrt_h_i,
     
 
     input wire        st_e_i,
@@ -80,7 +82,7 @@ module pipelineEXE (
     //wire        is_branch;
     reg redirection_r;
     reg [31:0] redirection_pc_r;
-    reg epc_source_sel;
+    wire epc_source_sel;
 // =========================================================================
 // ============================ implementation =============================
 // =========================================================================
@@ -133,11 +135,8 @@ module pipelineEXE (
         end
     end
 
-    always@(posedge clk)
-    begin
-        epc_source_sel <= (~btype_d_i) & (~real_taken_e_o^taken_d_i);
-    end
 
+    assign epc_source_sel = ~(bptrt_h_i|bptnt_h_i);
     always@(posedge clk)
     begin
         redirection_r <= redirection_e_o;

@@ -293,7 +293,6 @@ module pipelineMEM_withloadstore (
     dmemory u_dmemory(
         //ports
         .clk    		( clk    		    ),
-        .resetn 		( resetn 		    ),
         .ceb    		( ceb    		    ),
         .web    		( web    		    ),
         .A      		( dmem_addr   	    ),

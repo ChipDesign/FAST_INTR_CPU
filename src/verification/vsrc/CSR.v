@@ -34,12 +34,12 @@ wire throughput,throughput1,throughput2;
 //TODO illegal write fence fo through put
 //delay the write to write back stage
 reg [31:0] wdata1,wdata2;
-reg [12:0] waddr1,waddr2;
+reg [11:0] waddr1,waddr2;
 reg wen1,wen2;
 
 wire [4:0] windex,rindex;
 wire event_trig3;
-wire [63:0] cycle,instret;
+wire [63:0] cycle,instret,hpmc3;
 
 always@(posedge clk)
 begin
@@ -209,7 +209,7 @@ end
 reg test_ext_pending;
 always@(*)
 begin
-    test_ext_pending<=ext_pending;
+    test_ext_pending=ext_pending;
 end
 
 //mip
@@ -310,8 +310,8 @@ begin
     end
     else if( event_trig3&~CSRs[21][2])
     begin
-	CSRs[17]<=instret[31:0];
-	CSRs[17]<=instret[63:32];
+	CSRs[17]<=hpmc3[31:0];
+	CSRs[17]<=hpmc3[63:32];
     end
 end
 

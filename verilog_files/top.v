@@ -35,6 +35,7 @@ module top(
     wire intr_happen,ex_happen,trap_fin;
     wire trap_flush_t_o;
     wire time_pending,soft_pending;
+    wire trap_fin_t_o;
     // hazard signals
     wire is_b_d_o;              
     wire is_j_d_o ;             
@@ -54,6 +55,7 @@ module top(
     wire de_st_d_i;            
     wire em_st_e_i; 
     wire bnt1_h_o;
+    wire bptnt_h_o,bptrt_h_o;
     // IF stage instance signals
     wire [31:0]	instruction_f_o;
     wire        is_compress_d_i;
@@ -63,7 +65,7 @@ module top(
     wire        ptnt_e_i;
     wire [31:0]	redirection_d_o;
     wire [31:0] prediction_pc_d_o;
-    
+    wire        CSR_wen_d_o;    
     wire 	taken_d_o;
     wire [20:0]	alu_op_d_o;
     wire [31:0]	rs1_d_o;
@@ -83,6 +85,7 @@ module top(
     wire    d_advance_d_o;
     wire    d_init_d_o;
     wire    div_last_d_o;
+    wire    btype_d_o;
     wire    flush_d_i; 
     wire    fin_d_o;
     wire    sbp_taken_d_o;
@@ -260,6 +263,8 @@ module top(
         .mret_d_i               ( mret_d_o              ),
         .epc_source_d_i         ( epc_source_d_o        ),
         .epc_source_d_i_w       ( epc_source_d_o_w      ),
+        .bptnt_h_i              ( bptnt_h_o             ),
+        .bptrt_h_i              ( bptrt_h_o             ),
         //.CSR_wen_d_i            ( CSR_wen_d_o           ),
         .alu_result_e_o    		( aluResult_e_o    		),
         .alu_calculation_e_o    ( alu_calculation_e_o   ),
@@ -363,6 +368,8 @@ module top(
         .flush_o                ( flush_d_i             ),
         .mret_d_i               ( mret_d_o              ),
         .bnt1_h_o               ( bnt1_h_o              ),
+        .bptnt_h_o              ( bptnt_h_o             ),
+        .bptrt_h_o              ( bptrt_h_o             ),
         .rstn                   ( resetn                ),
         .clk                    ( clk                   )
     );
@@ -375,7 +382,7 @@ module top(
         .resetn                 ( resetn                ),
         .clk                    ( clk                   ),
         .wen                    ( CSR_wen_d_o           ),
-        
+        .trap_flush_t_i         ( trap_flush_t_o        ),
         .ex_happen              ( ex_happen             ),
         .intr_happen            ( intr_happen           ),
         .trap_fin               ( trap_fin_t_o          ),

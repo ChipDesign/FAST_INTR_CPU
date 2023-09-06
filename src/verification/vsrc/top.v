@@ -47,6 +47,7 @@ module top(
     wire intr_happen,ex_happen,trap_fin;
     wire trap_flush_t_o;
     wire time_pending,soft_pending;
+    wire trap_fin_t_o;
     // hazard signals
     wire is_b_d_o;              
     wire is_j_d_o ;             
@@ -75,7 +76,7 @@ module top(
     wire        ptnt_e_i;
     wire [31:0]	redirection_d_o;
     wire [31:0] prediction_pc_d_o;
-    
+    wire        CSR_wen_d_o;
     wire 	taken_d_o;
     wire [20:0]	alu_op_d_o;
     wire [31:0]	rs1_d_o;
@@ -95,6 +96,7 @@ module top(
     wire    d_advance_d_o;
     wire    d_init_d_o;
     wire    div_last_d_o;
+    wire    btype_d_o;
     wire    flush_d_i; 
     wire    fin_d_o;
     wire    sbp_taken_d_o;
@@ -274,7 +276,7 @@ module top(
         .d_init_d_o             ( d_init_d_o            ),
         // DIFFTEST
         `ifdef DIFFTEST
-        .pc_instr_d_o           ( pc_instr_d_o          )
+        .pc_instr_d_o           ( pc_instr_d_o          ),
         `endif
         // DIFFTEST
         .CSR_data_c_i           ( CSR_data_c_o          ),
@@ -435,7 +437,7 @@ module top(
         .resetn                 ( resetn                ),
         .clk                    ( clk                   ),
         .wen                    ( CSR_wen_d_o           ),
-        
+        .trap_flush_t_i         ( trap_flush_t_o        ),
         .ex_happen              ( ex_happen             ),
         .intr_happen            ( intr_happen           ),
         .trap_fin               ( trap_fin_t_o          ),
