@@ -90,8 +90,8 @@ IMG ?=riscvtest/add.bin
 # IMG ?=riscvtest/rem.bin
 # IMG ?=riscvtest/remu.bin
 
-# ARGS_DIFF = --diff=so/riscv32-spike-so
-ARGS_DIFF = --diff=/home/fujie/Developer/git_repos/diff/demo2/nemu/tools/spike-diff/build/riscv32imc-spike-so
+ARGS_DIFF = --diff=so/riscv32-spike-so
+# ARGS_DIFF = --diff=/home/fujie/Developer/git_repos/diff/demo2/nemu/tools/spike-diff/build/riscv32imc-spike-so
 # ARGS_DIFF = --diff=/so/riscv64-spike-so
 
 $(BIN): $(VSRCS) $(CSRCS)
