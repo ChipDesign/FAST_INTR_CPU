@@ -144,6 +144,7 @@ module pipelineID(
     wire        csr_write_o;
     wire        csr_no_cal_o;
     wire        csr_op_inv_o,csr_zimm_en_o;
+    wire        csr_read_o;
 
     // special inst cariables
     wire mret;
@@ -352,14 +353,14 @@ module pipelineID(
             else if(div_state==4'b1111)
             begin
                 div_last<=1'b1;
-                fin=1'b1;
+                fin<=1'b1;
                 div_state<=div_next_state;
             end
             else if(div_state==4'b1110)
             begin
                 if(~div_temp_last)
                 begin
-                    div_temp_last=1'b1;
+                    div_temp_last<=1'b1;
                     fin<=1'b0;
                     div_state<=div_state;
                 end
@@ -367,7 +368,7 @@ module pipelineID(
                 begin
     	            div_state<=div_next_state; 
       	            fin<=1'b0;
-                    div_temp_last=1'b0;
+                    div_temp_last<=1'b0;
                 end
             end
             else 

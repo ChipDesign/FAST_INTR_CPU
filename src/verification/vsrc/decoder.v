@@ -318,7 +318,7 @@ module decoder(
                     25'h0604000: begin//mret
                     mret = 1'b1; end
 
-
+                    default: instr_illegal_o = 1'b1;
                 endcase
                 end
                 3'b011: begin//csrrc
@@ -337,7 +337,7 @@ module decoder(
                     csr_read_o=1'b1;
                     csr_write_o=1'b1;
                     csr_zimm_en_o=1'b1;
-                    csr_zimm_o={27'b0,instruction_i};
+                    csr_zimm_o={27'b0,instruction_i[19:15]};
                 end
                 3'b010: begin//csrrs
                     wb_en_o=1'b1;
@@ -355,7 +355,7 @@ module decoder(
                     csr_read_o=1'b1;
                     csr_write_o=1'b1;
                     csr_zimm_en_o=1'b1;
-                    csr_zimm_o={27'b0,instruction_i};
+                    csr_zimm_o={27'b0,instruction_i[19:15]};
                 end
                 3'b001: begin//csrrw
                     wb_en_o=1'b1;
@@ -375,8 +375,9 @@ module decoder(
                     csr_write_o=1'b1;
                     csr_no_cal_o=1'b1;
                     csr_zimm_en_o=1'b1;
-                    csr_zimm_o={27'b0,instruction_i};
+                    csr_zimm_o={27'b0,instruction_i[19:15]};
                 end
+                default: instr_illegal_o = 1'b1;
                 endcase
             end
             default: instr_illegal_o = 1'b1;

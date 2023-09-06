@@ -14,7 +14,7 @@ module PLIC_core(
 );
 
 wire [31:0] int_req [3:0];
-reg [31:0] priority [127:0];
+reg [31:0] intr_priority [127:0];
 reg [31:0] threshold,claim;
 reg pending_clear;
 reg gateway_notif1;
@@ -26,7 +26,7 @@ reg [31:0] enable [3:0];
 reg [31:0] pri_sort [126:0];
 reg [31:0] ID_sort [126:0];
 
-wire [9:0] priority_index;
+wire [6:0] priority_index;
 reg [31:0] claimed ; 
 wire claim_read;
 
@@ -47,9 +47,9 @@ assign int_req[3]=int_req_pack[127:96];
 
 integer i,j,k;
 
-// priority change
+// intr_priority change
 
-assign priority_index=reg_addr[11:2];
+assign priority_index=reg_addr[8:2];
 
 always@(posedge clk)
 begin
@@ -57,14 +57,14 @@ begin
     begin
         for(i=0;i<128;i=i+1)
         begin
-            priority[i] <= 32'b0;
+            intr_priority[i] <= 32'b0;
         end
     end
-    else if(reg_wen&(reg_addr[23:12]==12'b0))
+    else if(reg_wen&(reg_addr[23:9]==15'b0))
     begin
-        if((priority_index<128)&(priority_index!=0))
+        if(priority_index!=0)
         begin
-            priority[priority_index]<= reg_wdata;
+            intr_priority[priority_index]<= reg_wdata;
         end
     end
 
@@ -104,19 +104,16 @@ always@(posedge clk)
 begin
      if(~rstn)
     begin
-        for(k=0;k<32;k=k+1)
+        for(k=0;k<4;k=k+1)
         begin
             enable[k] <=32'b0;
         end
     end
     else if(reg_wen&(reg_addr[23:12]==12'h002))
     begin
-        for(k=0;k<4;k=k+1)
+        if(reg_addr[11:4]==0)
         begin
-            if(reg_addr[11:2]==k)
-            begin
-                enable[k]<=reg_wdata;
-            end
+            enable[reg_addr[3:2]]<=reg_wdata;
         end
     end
 end
@@ -165,7 +162,6 @@ end
 
 
 
-integer iend;
 
 always@(posedge clk)
 begin
@@ -175,13 +171,7 @@ begin
     end
     else if(reg_wen&(reg_addr==24'h200004))
     begin
-        for(iend=0;iend<128;iend=iend+1)
-        begin
-            if(reg_wdata[6:0]==iend)
-            begin
-                int_end[iend-:1]=1'b1;
-            end
-        end
+        int_end[reg_wdata[6:0]-:1]<=1'b1;
     end
     else
     begin
@@ -191,16 +181,16 @@ end
 
 
 
-//priority sorting
+//intr_priority sorting
 integer l0,l1,l2,l3,l4,l5;
 always @ (*)
 begin
     for(l0=0;l0<32;l0=l0+1)
     begin
-        pri_en[l0]=priority[l0]&{32{(pending[0][l0-:1])&(enable[0][l0-:1])}};
-        pri_en[l0+32]=priority[l0+32]&{32{(pending[0][l0-:1])&(enable[1][l0-:1])}};
-        pri_en[l0+64]=priority[l0+64]&{32{(pending[0][l0-:1])&(enable[2][l0-:1])}};
-        pri_en[l0+96]=priority[l0+96]&{32{(pending[0][l0-:1])&(enable[3][l0-:1])}};
+        pri_en[l0]=intr_priority[l0]&{32{(pending[0][l0-:1])&(enable[0][l0-:1])}};
+        pri_en[l0+32]=intr_priority[l0+32]&{32{(pending[0][l0-:1])&(enable[1][l0-:1])}};
+        pri_en[l0+64]=intr_priority[l0+64]&{32{(pending[0][l0-:1])&(enable[2][l0-:1])}};
+        pri_en[l0+96]=intr_priority[l0+96]&{32{(pending[0][l0-:1])&(enable[3][l0-:1])}};
     end
     for(l1=0;l1<64;l1=l1+1)
     begin
@@ -237,14 +227,12 @@ begin
 end
 
 
-integer bit;
 always@(*)
 begin
-    bit=ID_sort[126][4:0];
     claimed=0;
     if(pri_sort[126]>= threshold)
     begin
-        claimed[bit-:1]=1'b1;
+        claimed[ID_sort[126][4:0]-:1]=1'b1;
     end
 end
 
@@ -258,9 +246,9 @@ begin
         12'b0:
             if(reg_addr[11:9]==0)
             begin
-                if(reg_addr[8:2!=0])
+                if(reg_addr[8:2]!=0)
                 begin
-                reg_rdata <= priority[reg_addr[8:2]];
+                reg_rdata <= intr_priority[reg_addr[8:2]];
                 end
                 else
                 begin
