@@ -1,3 +1,6 @@
+`ifndef __PLIC_TOP__
+`define __PLIC_TOP__
+
 `include "PLIC_gateway.v"
 `include "PLIC_core.v"
 module PLIC_top_unmod(
@@ -61,3 +64,4 @@ PLIC_core plic_core(
 
 
 endmodule
+`endif

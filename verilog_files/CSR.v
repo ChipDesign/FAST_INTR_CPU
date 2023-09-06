@@ -1,3 +1,6 @@
+`ifndef __CSR__
+`define __CSR__
+
 `include"CSR_addr_trans.v"
 module CSR(
     input wire [11:0] raddr,
@@ -378,3 +381,4 @@ CSR_addr_trans rtrans(
 
 
 endmodule
+`endif

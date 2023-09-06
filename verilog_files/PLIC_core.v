@@ -1,3 +1,5 @@
+`ifndef __PLIC_CORE__
+`define __PLIC_CORE__
 module PLIC_core(
     input wire clk,
     input wire rstn,
@@ -294,3 +296,4 @@ end
 
 
 endmodule
+`endif

@@ -1,3 +1,6 @@
+`ifndef __HTRAP_HANDLER__
+`define __HTRAP_HANDLER__
+
 //this module is basically a package to handle PLIC's signal
 //actually it is not so necessary to use a independent module
 //But to keep the clear and well-organzed top module, it is implement here
@@ -106,3 +109,4 @@ end
 
 
 endmodule
+`endif

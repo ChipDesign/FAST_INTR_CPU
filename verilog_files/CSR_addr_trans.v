@@ -1,4 +1,5 @@
-
+`ifndef __CSR_ADDR_TRANS__
+`define __CSR_ADDR_TRANS__
 
 module CSR_addr_trans(
     input wire [11:0] csr_addr,
@@ -85,3 +86,4 @@ end
 
 
 endmodule
+`endif
