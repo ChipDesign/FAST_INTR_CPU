@@ -64,10 +64,9 @@ bool isa_difftest_checkregs(CPU_state *ref_r, uint64_t pc) {
     // if (1) {
     if (cpu.gpr[i] != (ref_r->gpr[i] & 0xffffffff)) {
       // printf("\nDIFFTEST at pc=0x%lx -> ref: 0x%lx != npc: ", pc, ref_r->gpr[i]);
-        printf("\n====DIFFTEST MISMATCH==== \n");
+        _Log("=== DIFFTEST MISMATCH AT 0x%lx ===\n", pc);
         display_gpr(i);
-        // printf("ref: 0x%lx != mcu: 0x%lx\n", ref_r->gpr[i], cpu.gpr[i]);
-        printf("====DIFFTEST MISMATCH==== \n");
+        _Log("REF: 0x%lx != DUT: 0x%lx\n", ref_r->gpr[i], cpu.gpr[i]);
         return false;
     }
   }
@@ -92,7 +91,7 @@ static void checkregs(CPU_state *ref, uint64_t pc) {
   if (!isa_difftest_checkregs(ref, pc) && npc_state.state != NPC_END) {
     npc_state.state = NPC_ABORT;
     npc_state.halt_pc = pc;
-    printf("!!!!!!!!! Miss Match !!!!!!!!!!\n");
+    // printf("!!!!!!!!! Miss Match !!!!!!!!!!\n");
     // printf("!!!!!!!!! Miss Match !!!!!!!!!!\n");
     // printf("!!!!!!!!! Miss Match !!!!!!!!!!\n");
   }

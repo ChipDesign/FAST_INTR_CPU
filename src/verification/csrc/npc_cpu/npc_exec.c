@@ -34,7 +34,7 @@ void dump_gpr() {
   }
 }
 void display_gpr(int i) {
-  printf("0x%lx  gpr[%d]  %s\n", cpu.gpr[i], i, regs[i]);
+  printf("%s:\tgpr[%d]:\t0x%lx\n", regs[i], i, cpu.gpr[i]);
   // printf("%s -> ",regs[i]);
 }
 
@@ -70,7 +70,7 @@ void reset() {
 void sim_init(){
   top = new Vtop;  // instantiating module top
   Verilated::traceEverOn(true);
-  printf("Enabling waves ...\n");
+  printf("# Enabling waves ...\n");
   tfp = new VerilatedVcdC;  //instantiating .vcd object
   top->trace(tfp, 1);  //trace 99 levels of hierarchy
   tfp->open("dump.vcd");
@@ -131,7 +131,7 @@ static void execute(uint64_t n) {
     // run difftest
     if(top->commit_en){
     // if(1){
-        // printf("run difftest,pc=0x%lx, because commit_en = %d\n",top->pc, top->commit_en);
+        _Log("- - - - run difftest,pc=0x%lx, because commit_en = %d\n",top->pc, top->commit_en);
         // difftest_step(0x80000000);
         difftest_step(top->pc);
     }
