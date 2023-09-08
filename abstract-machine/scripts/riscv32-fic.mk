@@ -24,3 +24,6 @@ image: $(IMAGE).elf
 
 run: image
 	$(MAKE) -C $(FIC_HOME) run ARGS="$(NEMUFLAGS)" IMG=$(IMAGE).bin
+
+runb: image
+	$(MAKE) -C $(FIC_HOME) run ARGS="$(NEMUFLAGS) -b" IMG=$(IMAGE).bin

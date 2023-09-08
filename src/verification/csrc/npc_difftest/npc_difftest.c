@@ -14,9 +14,6 @@ void init_difftest(char *ref_so_file, long img_size, int port) {
   assert(ref_so_file != NULL);
 
   // 打开传入的动态库文件ref_so_file.
-    printf("ref files is %s\n",ref_so_file);
-    printf("ref files is %s\n",ref_so_file);
-    printf("ref files is %s\n",ref_so_file);
   void *handle;
   handle = dlopen(ref_so_file, RTLD_LAZY);
   assert(handle);
@@ -36,8 +33,6 @@ void init_difftest(char *ref_so_file, long img_size, int port) {
 
   void (*ref_difftest_init)(int) = (void (*)(int))(dlsym(handle, "difftest_init"));
   assert(ref_difftest_init);
-
-  printf("ref_so_file: %s\n", ref_so_file);
 
   // 对REF的DIffTest功能进行初始化, 具体行为因REF而异.
   ref_difftest_init(port);
@@ -71,7 +66,7 @@ bool isa_difftest_checkregs(CPU_state *ref_r, uint64_t pc) {
       // printf("\nDIFFTEST at pc=0x%lx -> ref: 0x%lx != npc: ", pc, ref_r->gpr[i]);
         printf("\n====DIFFTEST MISMATCH==== \n");
         display_gpr(i);
-        printf("ref: 0x%lx != mcu: 0x%lx\n", ref_r->gpr[i], cpu.gpr[i]);
+        // printf("ref: 0x%lx != mcu: 0x%lx\n", ref_r->gpr[i], cpu.gpr[i]);
         printf("====DIFFTEST MISMATCH==== \n");
         return false;
     }
@@ -87,24 +82,25 @@ bool isa_difftest_checkregs(CPU_state *ref_r, uint64_t pc) {
 static void checkregs(CPU_state *ref, uint64_t pc) {
 // isa_difftest_checkregs(ref, pc);
     //printf ref regs
-    printf("Display Format: name, ref_value, mcu_value\n");
-    for(int i=0;i<32;i++){
-       display_gpr(i);
-       printf("gpr[%d] ==> ref: 0x%lx, mcu: 0x%lx\n", i, ref->gpr[i], cpu.gpr[i]);
-    }
+    // printf("Display Format: name, ref_value, mcu_value\n");
+    // for(int i=0;i<32;i++){
+    //    display_gpr(i);
+    //   //  printf("gpr[%d] ==> ref: 0x%lx, mcu: 0x%lx\n", i, ref->gpr[i], cpu.gpr[i]);
+    // }
 
     //printf ref regs
   if (!isa_difftest_checkregs(ref, pc) && npc_state.state != NPC_END) {
-    // npc_state.state = NPC_ABORT;
-    // npc_state.halt_pc = pc;
+    npc_state.state = NPC_ABORT;
+    npc_state.halt_pc = pc;
     printf("!!!!!!!!! Miss Match !!!!!!!!!!\n");
-    printf("!!!!!!!!! Miss Match !!!!!!!!!!\n");
-    printf("!!!!!!!!! Miss Match !!!!!!!!!!\n");
-  }else {
-    printf("!!!!!!!!! Match !!!!!!!!!!\n");
-    printf("!!!!!!!!! Match !!!!!!!!!!\n");
-    printf("!!!!!!!!! Match !!!!!!!!!!\n");
+    // printf("!!!!!!!!! Miss Match !!!!!!!!!!\n");
+    // printf("!!!!!!!!! Miss Match !!!!!!!!!!\n");
   }
+  // else {
+  //   printf("!!!!!!!!! Match !!!!!!!!!!\n");
+  //   printf("!!!!!!!!! Match !!!!!!!!!!\n");
+  //   printf("!!!!!!!!! Match !!!!!!!!!!\n");
+  // }
 }
 
 void difftest_step(uint64_t pc) {

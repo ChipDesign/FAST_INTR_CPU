@@ -35,7 +35,7 @@ static inline void host_write(void *addr, int len, uint64_t data) {
 // read data from I-Memory
 long long pmem_read(long long addr, int len) {
   long long ret = host_read(guest_to_host(addr), len);
-    printf("Read I-Memory:length= %d, addr = 0x%08x, ins= 0x%08x\n",len, addr, ret);
+    // printf("Read I-Memory:length= %d, addr = 0x%08x, ins= 0x%08x\n",len, addr, ret);
   return ret;
 }
 

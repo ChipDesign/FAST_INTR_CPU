@@ -7,13 +7,13 @@
 int main(int argc, char *argv[]) {
   sim_init();
   reset(); // 复位RTL部分的pc值
-  printf("finish reset MCU\n");
+  printf("# Finish reset MCU\n");
 
   init_monitor(argc, argv);
-  printf("pass init_monitor\n");
+  printf("# Pass init_monitor\n");
 
   sdb_mainloop();
-  printf("pass sdb_mainloop\n");
+  printf("# Pass sdb_mainloop\n");
 
   #ifdef TEST_ALL
   char *str = argv[2];

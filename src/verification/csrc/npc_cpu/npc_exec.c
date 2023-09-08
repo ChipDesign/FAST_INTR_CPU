@@ -34,8 +34,8 @@ void dump_gpr() {
   }
 }
 void display_gpr(int i) {
-  // printf("0x%lx  gpr[%d]  %s\n", cpu.gpr[i], i, regs[i]);
-  printf("%s -> ",regs[i]);
+  printf("0x%lx  gpr[%d]  %s\n", cpu.gpr[i], i, regs[i]);
+  // printf("%s -> ",regs[i]);
 }
 
 // Construct the Verilated model, from Vtop.h generated from Verilating "top.v"
@@ -52,7 +52,7 @@ vluint64_t clk_time=0;
 
 // posedge of clock
 void single_cycle() {
-    printf("DUT step one cycle, ID instr= 0x%x\n", top->id_instr);
+    // printf("DUT step one cycle, ID instr= 0x%x\n", top->id_instr);
     top->clk = 0; top->eval(); // Evaluate model
     tfp->dump(clk_time); clk_time++;  // waveform
     // printf("C-> 0-1\n");
@@ -109,7 +109,7 @@ void exec_once() {
   char logbuf[128];
   void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
   disassemble(logbuf, 96, top->pc, (uint8_t *)&top->instr, 4);
-  if(is_itrace_printf()) _Log("NO.%ld-> pc: 0x%x, instr: 0x%lx, asm: %s\n", g_nr_guest_inst, top->pc, top->instr, logbuf);
+  if(is_itrace_printf()) _Log("NO.%ld-> pc: 0x%x, instr: 0x%lx, asm: %s\n", g_nr_guest_inst, top->imem_addr, top->instr, logbuf);
   else _Lognoprintf("NO.%ld-> pc: 0x%x, instr: 0x%lx, asm: %s\n", g_nr_guest_inst, top->pc, top->instr, logbuf);
   /*itrace end*/
 
@@ -121,23 +121,23 @@ static void execute(uint64_t n) {
   for (;n > 0; n --) {
     g_nr_guest_inst ++;
 
-    printf("Top: resetn= %d, pc= 0x%x, instr = 0x%x\n",top->resetn, top->pc, top->instr);
+    // printf("Top: resetn= %d, pc= 0x%x, instr = 0x%x\n",top->resetn, top->pc, top->instr);
     exec_once(); // dut run one cycle
     /* difftest begin */
     cpu.pc = top->pc; // pc存入cpu结构体
     dump_gpr(); // 寄存器值存入cpu结构体
     // show dut registers
-    printf("dut regfiles after exec_once:\n");
+    // printf("dut regfiles after exec_once:\n");
     // run difftest
     if(top->commit_en){
     // if(1){
-        printf("run difftest,pc=0x%lx, because commit_en = %d\n",top->pc, top->commit_en);
+        // printf("run difftest,pc=0x%lx, because commit_en = %d\n",top->pc, top->commit_en);
         // difftest_step(0x80000000);
         difftest_step(top->pc);
     }
-    else {
-        printf("don't run difftest, because commit_en = %d\n",top->commit_en);
-    }
+    // else {
+    //     printf("don't run difftest, because commit_en = %d\n",top->commit_en);
+    // }
     if (npc_state.state != NPC_RUNNING) break;
   }
 }

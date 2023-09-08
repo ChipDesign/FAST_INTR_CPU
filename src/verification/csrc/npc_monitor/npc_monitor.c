@@ -24,10 +24,10 @@ static long load_img() {
   fseek(fp, 0, SEEK_SET); // 查找文件的开头,偏移0个指针
   int ret = fread(guest_to_host(0x80000000), size, 1, fp);
   assert(ret == 1);
-    printf("first 20 bits of Image is loaded:\n");
-    for(int j= 0; j<40; j++){
-        printf("image[%d] = 0x%02x\n",j, *(guest_to_host(0x80000000+j)));
-    }
+    // printf("first 20 bits of Image is loaded:\n");
+    // for(int j= 0; j<40; j++){
+    //     printf("image[%d] = 0x%02x\n",j, *(guest_to_host(0x80000000+j)));
+    // }
 
   fclose(fp);
   return size;
@@ -90,7 +90,7 @@ void init_monitor(int argc, char *argv[]) {
 
   /* Load the image to memory. This will overwrite the built-in image. */
   long img_size = load_img();
-    printf("pass load image\n");
+    printf("# Pass load image\n");
 
   /* Initialize differential testing. */
   init_difftest(diff_so_file, img_size, difftest_port);
