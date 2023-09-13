@@ -10,6 +10,8 @@ time: 2023年 5月 5日 星期五 11时27分51秒 CST
 */
 `include "definitions.vh"
 `include "dmemory.v"
+import "DPI-C" function void pmem_write32(input int waddr, input int wdata, input byte wmask);
+import "DPI-C" function void pmem_read32(input int raddr, output int rdata);
 module pipelineMEM_withloadstore (
     input wire clk,
     input wire resetn, // no reset need in MEM stage
@@ -109,7 +111,7 @@ module pipelineMEM_withloadstore (
     //*********************************
     always@(*) begin
         // DEFAULTS
-        dmem_write_data   = 32'b0; 
+        dmem_write_data   = 32'b0;
         byte_en          = 4'b0;
 
         case(dmem_type_e_i)
@@ -167,7 +169,7 @@ module pipelineMEM_withloadstore (
     // D-memory read data is 1 cycle behind
     // flop mem_op and byte_addr 
     always@(posedge clk) begin
-        mem_op    <= dmem_type_e_i; 
+        mem_op    <= dmem_type_e_i;
         byte_addr <= alu_result_e_i[1:0];
         mem_read_data_m_o <= read_data;
     end
@@ -218,16 +220,38 @@ module pipelineMEM_withloadstore (
     //       D-memory instance 
     //*********************************
 
-    dmemory u_dmemory(
-        //ports
-        .clk    		( clk    		    ),
-        .ceb    		( ceb    		    ),
-        .web    		( web    		    ),
-        .A      		( dmem_addr   	    ),
-        .mask   		( byte_en   	    ),
-        .D      		( dmem_write_data   ),
-        .Q      		( dmem_read_data	)
-    );
+    // dmemory u_dmemory(
+    //     //ports
+    //     .clk    		( clk    		    ),
+    //     .ceb    		( ceb    		    ),
+    //     .web    		( web    		    ),
+    //     .A      		( dmem_addr   	    ),
+    //     .mask   		( byte_en   	    ),
+    //     .D      		( dmem_write_data   ),
+    //     .Q      		( dmem_read_data	)
+    // );
+ 
+always @(posedge clk) begin
+  if (~ceb & web) begin
+    pmem_read32(alu_calculation_e_i, dmem_read_data);
+  end
+end
+
+always @(posedge clk) begin
+  if (~web & ~ceb) begin
+    pmem_write32(alu_calculation_e_i, rs2_e_i, {4'b0, WriteOP});
+  end
+end
+
+reg [3:0] WriteOP;
+always @(*) begin
+    case(dmem_type_e_i)
+        `DMEM_SW: WriteOP = 4'b0001;
+        `DMEM_SB: WriteOP = 4'b0010;
+        `DMEM_SH: WriteOP = 4'b0100;
+        default:  WriteOP = 4'b0000;
+    endcase
+end
  
 endmodule
 `endif
