@@ -4,7 +4,8 @@
 #include <npc_monitor.h>
 #include <stdio.h>
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
   sim_init();
   reset(); // 复位RTL部分的pc值
   printf("# Finish reset MCU\n");
@@ -15,7 +16,7 @@ int main(int argc, char *argv[]) {
   sdb_mainloop();
   printf("# Pass sdb_mainloop\n");
 
-  #ifdef TEST_ALL
+#ifdef TEST_ALL
   char *str = argv[2];
   char *token = strtok(str, "/");
   char *pre;
@@ -23,7 +24,8 @@ int main(int argc, char *argv[]) {
 
   // Keep printing tokens while one of the
   // delimiters present in str[].
-  while (token != NULL) {
+  while (token != NULL)
+  {
     pre = token;
     token = strtok(NULL, "/");
   }
@@ -35,12 +37,15 @@ int main(int argc, char *argv[]) {
   fp = fopen("result.log", "a+");
   if (fp == NULL)
     return -1;
-  if (npc_state.state==NPC_END) {
+  if (npc_state.state == NPC_END)
+  {
     fprintf(fp, "PASS: %s\n", name);
-  } else if(npc_state.state==NPC_ABORT) {
+  }
+  else if (npc_state.state == NPC_ABORT)
+  {
     fprintf(fp, "FAIL: %s\n", name);
   }
   fclose(fp);
-  #endif
+#endif
   return is_exit_status_bad();
 }

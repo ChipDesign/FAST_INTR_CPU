@@ -71,11 +71,6 @@ bool isa_difftest_checkregs(CPU_state *ref_r, uint64_t pc) {
     }
   }
   return true;
-    // for(int i=1;i<32;i++){
-    //     display_gpr(i);
-    //     printf("ref_reg[%d] = 0x%lx\n",i, ref_r->gpr[i]);
-    // }
-    // return true;
 }
 
 static void checkregs(CPU_state *ref, uint64_t pc) {
