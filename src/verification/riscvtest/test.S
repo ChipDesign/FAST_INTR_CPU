@@ -23,7 +23,8 @@ _end:
    nop
    nop
    nop
-   ecall
+   ebreak
+   ; ecall
 
 _one:
    li x4, 4 
