@@ -12,6 +12,7 @@ void (*ref_difftest_raise_intr)(uint64_t NO) = NULL;
 
 void init_difftest(char *ref_so_file, long img_size, int port) {
   assert(ref_so_file != NULL);
+  printf("model so is %s\n", ref_so_file);
 
   // 打开传入的动态库文件ref_so_file.
   void *handle;
@@ -76,25 +77,25 @@ bool isa_difftest_checkregs(CPU_state *ref_r, uint64_t pc) {
 static void checkregs(CPU_state *ref, uint64_t pc) {
 // isa_difftest_checkregs(ref, pc);
     //printf ref regs
-    // printf("Display Format: name, ref_value, mcu_value\n");
-    // for(int i=0;i<32;i++){
-    //    display_gpr(i);
-    //   //  printf("gpr[%d] ==> ref: 0x%lx, mcu: 0x%lx\n", i, ref->gpr[i], cpu.gpr[i]);
-    // }
+    printf("Display Format: name, ref_value, mcu_value\n");
+    for(int i=0;i<32;i++){
+       display_gpr(i); // display_gpr gpr name
+       printf("gpr[%d] ==> ref: 0x%lx, mcu: 0x%lx\n",i, ref->gpr[i], cpu.gpr[i]);
+    }
 
     //printf ref regs
   if (!isa_difftest_checkregs(ref, pc) && npc_state.state != NPC_END) {
     npc_state.state = NPC_ABORT;
     npc_state.halt_pc = pc;
-    // printf("!!!!!!!!! Miss Match !!!!!!!!!!\n");
-    // printf("!!!!!!!!! Miss Match !!!!!!!!!!\n");
-    // printf("!!!!!!!!! Miss Match !!!!!!!!!!\n");
+    printf("!!!!!!!!! Miss Match !!!!!!!!!!\n");
+    printf("!!!!!!!!! Miss Match !!!!!!!!!!\n");
+    printf("!!!!!!!!! Miss Match !!!!!!!!!!\n");
   }
-  // else {
-  //   printf("!!!!!!!!! Match !!!!!!!!!!\n");
-  //   printf("!!!!!!!!! Match !!!!!!!!!!\n");
-  //   printf("!!!!!!!!! Match !!!!!!!!!!\n");
-  // }
+  else {
+    printf("!!!!!!!!! Match !!!!!!!!!!\n");
+    printf("!!!!!!!!! Match !!!!!!!!!!\n");
+    printf("!!!!!!!!! Match !!!!!!!!!!\n");
+  }
 }
 
 void difftest_step(uint64_t pc) {
@@ -102,4 +103,10 @@ void difftest_step(uint64_t pc) {
   ref_difftest_exec(1);
   ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT); // 从ref中拷贝寄存器状态
   checkregs(&ref_r, pc);
+}
+
+void difftest_interrupt(uint64_t pc){
+  // ref_difftest_exec(1);
+  ref_difftest_raise_intr(1); 
+  printf("inside difftest_interrupt\n");
 }

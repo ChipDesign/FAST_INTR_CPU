@@ -34,7 +34,7 @@ void dump_gpr() {
   }
 }
 void display_gpr(int i) {
-  printf("%s:\tgpr[%d]:\t0x%lx\n", regs[i], i, cpu.gpr[i]);
+  printf("%s->", regs[i]);
   // printf("%s -> ",regs[i]);
 }
 
@@ -86,6 +86,10 @@ void ebreak() {
     npc_state.state = NPC_END;
     npc_state.halt_pc = top->pc;
   }
+  // test interrupt
+  printf("enter insterrupt\n");
+  difftest_interrupt(top->pc);
+  printf("pass insterrupt\n");
 }
 void unknow() {
   if (top->pc != 0x0) {

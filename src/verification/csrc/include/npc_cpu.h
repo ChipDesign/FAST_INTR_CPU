@@ -18,6 +18,7 @@ typedef struct {
   // uint64_t gpr[32];
   // uint64_t pc;
   uint32_t gpr[32];
+  uint32_t csr[2048]; // add csr registers in CPU_state
   uint32_t pc;
 } CPU_state;
 extern CPU_state cpu; // cpu是一个状态机，由pc和寄存器的值可以唯一确定一个cpu的状态

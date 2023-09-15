@@ -36,7 +36,7 @@ enum { DIFFTEST_TO_DUT, DIFFTEST_TO_REF };
 
 void init_difftest(char *ref_so_file, long img_size, int port);
 void difftest_step(uint64_t pc);
-
+void difftest_interrupt(uint64_t pc);
 // ----------- log -----------
 
 #define ANSI_FG_BLACK   "\33[1;30m"
