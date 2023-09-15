@@ -3,15 +3,15 @@
 `include "long_div.v"
 `include "multi.v"
 `include "shifter32.v"
-module alu(clk,resetn,ain,bin,ALUout,ALUop,branch_taken,
-mul_state,d_init,div_last,d_advance
+module alu(clk,ain,bin,ALUout,ALUop,branch_taken,
+mul_state,d_init,d_advance
 );
 
 input[31:0] ain,bin;
 input[20:0] ALUop;
 input[1:0] mul_state;
-input d_init, div_last,d_advance;
-input clk,resetn;
+input d_init,d_advance;
+input clk;
 
 output[31:0] ALUout;
 output branch_taken;
@@ -41,8 +41,8 @@ assign slt_op=		ALUop[8];
 assign sltu_op= 	ALUop[9];
 assign mul_op=		ALUop[10];
 assign mulh_op= 	ALUop[11];
-assign mulhu_op=	ALUop[12];
-assign mulhsu_op=	ALUop[13];
+assign mulhsu_op=	ALUop[12];
+assign mulhu_op=	ALUop[13];
 assign div_op=		ALUop[14];
 assign divu_op=	ALUop[15];
 assign rem_op=		ALUop[16];
@@ -58,7 +58,7 @@ assign ALUout=  ({32{sub_op|add_op}}&add_ans[31:0])|
 		({32{rem_op|remu_op}}&rem_ans)|
 		({32{div_op|divu_op}}&div_ans) |
 		({32{mul_op}}&mul_low) |
-		({32{mulh_op|mulhsu_op|mulhu_op}}&mul_high) | // bug fix: choose msb, not lsb
+		({32{mulh_op|mulhsu_op|mulhu_op}}&mul_low) |
 		({32{or_op|and_op|xor_op}}&log_ans) |
 		({32{sll_op|srl_op|sra_op}}&sft_ans) |
 		({32{sltu_op|slt_op}}&{31'b0,add_ans[32]});
@@ -73,7 +73,6 @@ long_div  div(
           .unsign(remu_op|divu_op), 
           .d_init(d_init), 
           .e_advance(d_advance), 
-          .e_last(div_last), 
           .quot(div_ans), 
           .remd(rem_ans)
           );

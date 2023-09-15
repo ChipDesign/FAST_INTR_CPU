@@ -3,15 +3,15 @@
 `include "long_div.v"
 `include "multi.v"
 `include "shifter32.v"
-module alu(clk,resetn,ain,bin,ALUout,ALUop,branch_taken,
-mul_state,d_init,div_last,d_advance
+module alu(clk,ain,bin,ALUout,ALUop,branch_taken,
+mul_state,d_init,d_advance
 );
 
 input[31:0] ain,bin;
 input[20:0] ALUop;
 input[1:0] mul_state;
-input d_init, div_last,d_advance;
-input clk,resetn;
+input d_init,d_advance;
+input clk;
 
 output[31:0] ALUout;
 output branch_taken;
@@ -73,7 +73,6 @@ long_div  div(
           .unsign(remu_op|divu_op), 
           .d_init(d_init), 
           .e_advance(d_advance), 
-          .e_last(div_last), 
           .quot(div_ans), 
           .remd(rem_ans)
           );
