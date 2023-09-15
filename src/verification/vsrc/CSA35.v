@@ -1,5 +1,5 @@
-`ifndef __CSA32__
-`define __CSA32__
+`ifndef __CSA35__
+`define __CSA35__
 `include "full_adder.v"
 
 module CSA35(ain,bin,cin,sout,cout);

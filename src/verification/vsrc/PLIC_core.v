@@ -59,14 +59,14 @@ begin
     begin
         for(i=0;i<128;i=i+1)
         begin
-            intr_priority[i] <= 32'b0;
+            intr_priority[i] = 32'b0;
         end
     end
     else if(reg_wen&(reg_addr[23:9]==15'b0))
     begin
         if(priority_index!=0)
         begin
-            intr_priority[priority_index]<= reg_wdata;
+            intr_priority[priority_index]= reg_wdata;
         end
     end
 
@@ -94,7 +94,7 @@ begin
         end
         if(claim_read)
         begin
-            pending[claim[6:5]]=pending[claim[6:5]]&(~claimed);
+            pending[claim[6:5]]<=pending[claim[6:5]]&(~claimed);
         end
     end
 

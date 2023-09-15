@@ -38,7 +38,6 @@ module imemory(
     memory_block #(.DATA_WIDTH(16)) u_memory_block0(
         //ports
         .clk      		( clk      		),
-        .resetn   		( resetn   		),
         .ceb      		( ceb      		),
         .web      		( web      		),
         .write_en 		( 1'b0   		),
@@ -50,7 +49,6 @@ module imemory(
     memory_block #(.DATA_WIDTH(16)) u_memory_block1(
         //ports
         .clk      		( clk      		),
-        .resetn   		( resetn   		),
         .ceb      		( ceb      		),
         .web      		( web      		),
         .write_en 		( 1'b0   		),
