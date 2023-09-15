@@ -35,6 +35,7 @@ module pipelineIF_withFIFO
     reg         taken_d_delay1;
     wire [ 1:0] drain_cnt;
     wire        instru_valid;
+    reg         flush_delay;
 
     // =========================================================================
     // ============================ implementation =============================
@@ -62,6 +63,10 @@ module pipelineIF_withFIFO
     assign re_addr = redirection_d_i;
 
     // if not enable, to redirection pc, don't read from FIFO
+    always @(posedge clk ) begin 
+        flush_delay <= flush_i;
+    end
+    
     assign drain_cnt = ({2{enable & resetn & resetn_delay1 & resetn_delay2 & ~taken_d_delay1}}) & 
                        (({2{is_compress_d_i}} & 2'b01)|({2{~is_compress_d_i}}&2'b10));
 

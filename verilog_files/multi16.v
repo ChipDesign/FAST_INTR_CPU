@@ -1,3 +1,5 @@
+`ifndef __MULTI16__
+`define __MULTI16__
 `include "booth16.v"
 `include "comp42.v"
 `include "full_adder.v"
@@ -308,9 +310,10 @@ half_adder 	ha30_2_0(.ain(c29_1_0), .bin(s30_1_0), .sout(ans1[30]), .cout(c30_2_
 assign ans={1'b0,ans1}+{1'b0,ans2};
 assign prod[31]=adder8[15]^(~sign[7])^c30_0_0^c30_1_0^c30_2_0^ans[31];
 assign prod[30:0]=ans[30:0];
-assign sign_out=(ss&(ain[15]^bin[15])) |
+assign sign_out= (ain==0 | bin ==0) ? 0 :(ss&(ain[15]^bin[15])) |
 		(su&ain[15]) 		|
 		(us&bin[15]);
 
 
 endmodule
+`endif
