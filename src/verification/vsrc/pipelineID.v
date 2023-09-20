@@ -302,9 +302,15 @@ module pipelineID(
         end
         else if(taken_reg) begin
             pc_instr <= pc_taken;    
-        end else begin
-            pc_instr <= pc_next;    
+        end else if(~stall_i ) begin
+            pc_instr <= pc_next;  // Bus fix: pc shouldn't increase when stall
         end
+        else begin
+            pc_instr <= pc_instr;    
+        end
+        // end else begin
+        //     pc_instr <= pc_next;    
+        // end
     end
 
     // calculate pc to EXE stage, used to calculate pc_next_next
