@@ -264,8 +264,21 @@ module pipelineID(
     end
     
     // calculate redirection pc to IF stage
-    assign taken_d_o       =  ~resetn_delay | ptnt_e_i | redirection_e_i | (~flush_i & taken )|trap_flush_t_i|(~flush_i&mret);
-    assign redirection_d_o = ({32{~resetn_delay | flush_i}} & 32'h80000000)|//TODO 2 redirection select signal high in same time
+    // assign taken_d_o       =  ~resetn_delay | ptnt_e_i | redirection_e_i | (~flush_i & taken )|trap_flush_t_i|(~flush_i&mret);
+    // assign redirection_d_o = ({32{~resetn_delay | flush_i}} & 32'h80000000)|//TODO 2 redirection select signal high in same time
+    //                          ({32{trap_flush_t_i}}  &  (trap_vector_c_i & 32'hfffffffc))| //pc of trap handling  
+    //                          ({32{~trap_flush_t_i}}&
+    //                          (({32{ptnt_e_i & ~branchJAL_o}} & pc_next)| // sbp sbp_taken, alu not sbp_taken
+    //                          ({32{ptnt_e_i &  branchJAL_o}} & redirection_pc)| // sbp sbp_taken, alu not sbp_taken, following by JAL 
+    //                          ({32{ redirection_e_i}}  & redirection_pc_e_i)| // pc from EXE
+    //                          ({32{~redirection_e_i}}  & redirection_pc)|  // pc from SBP
+    //                          ({32{trap_flush_t_i}}  &  (trap_vector_c_i & 32'hfffffffc))| //pc of trap handling
+    //                          ({32{~flush_i&mret}}  &  (epc_c_i))));
+    
+    wire is_ecall = instruction_f_i==32'h00000073;
+    assign taken_d_o       =  ~resetn_delay | ptnt_e_i | redirection_e_i | (~flush_i & taken )|trap_flush_t_i|(~flush_i&mret)| is_ecall;
+    assign redirection_d_o = ({32{is_ecall}} & 32'h80000090) | 
+                             ({32{~resetn_delay | flush_i}} & 32'h80000000)|//TODO 2 redirection select signal high in same time
                              ({32{trap_flush_t_i}}  &  (trap_vector_c_i & 32'hfffffffc))| //pc of trap handling  
                              ({32{~trap_flush_t_i}}&
                              (({32{ptnt_e_i & ~branchJAL_o}} & pc_next)| // sbp sbp_taken, alu not sbp_taken
@@ -274,7 +287,6 @@ module pipelineID(
                              ({32{~redirection_e_i}}  & redirection_pc)|  // pc from SBP
                              ({32{trap_flush_t_i}}  &  (trap_vector_c_i & 32'hfffffffc))| //pc of trap handling
                              ({32{~flush_i&mret}}  &  (epc_c_i))));
-    
     //epc_source generating
     assign epc_source_d_o = pc_instr;  
     assign epc_source_d_o_w = taken_reg?pc_taken:pc_next;
