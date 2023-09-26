@@ -385,7 +385,8 @@ module decoder(
     end
 `ifdef DIFFTEST
 wire inst_ebreak;
-assign inst_ebreak = instruction_i == 32'h0010_0073;
+assign inst_ebreak = instruction_i == 32'h0000_0073;
+// assign inst_ebreak = instruction_i == 32'h0010_0073;
 
 always @(*) begin
   if (inst_ebreak) ebreak();

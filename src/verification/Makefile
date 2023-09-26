@@ -39,7 +39,7 @@ LDFLAGS += -ldl
 # ARGS ?=/home/fujie/Developer/git_repos/diff/demo2/npc/build/top
 
 # Command to execute NPC
-IMG ?=riscvtest/test.bin
+# IMG ?=riscvtest/test.bin
 # IMG ?=riscvtest/addi.bin
 # IMG ?=riscvtest/slti.bin
 # IMG ?=riscvtest/sltiu.bin
@@ -72,7 +72,7 @@ IMG ?=riscvtest/test.bin
 # IMG ?=riscvtest/bltu.bin
 # IMG ?=riscvtest/bgeu.bin
 
-# IMG ?=riscvtest/lb.bin
+IMG ?=riscvtest/lb.bin
 # IMG ?=riscvtest/lh.bin
 # IMG ?=riscvtest/lw.bin
 # IMG ?=riscvtest/lbu.bin
@@ -127,10 +127,11 @@ ${BIN_ALL}: $(VSRCS) $(CSRCS)
 		$(addprefix -LIBS, $(LIBS)) \
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN_ALL))
 
-asm = addi slti sltiu xori ori andi slli srli srai auipc lui \
-      add sub slt slt xor or and sll srl sra \
-      jalr jal beq bne blt bge bltu bgeu \
-      lb lh lw lbu lhu sb sh sw \
+# asm = addi slti sltiu xori ori andi slli srli srai auipc lui \
+#       add sub slt slt xor or and sll srl sra \
+#       jalr jal beq bne blt bge bltu bgeu \
+
+  asm = lb lh lw lbu lhu sb sh sw \
 	  
 # div divu mul mulh mulhsu mulhu rem remu
 #       rvc

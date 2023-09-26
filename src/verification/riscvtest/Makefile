@@ -1,4 +1,4 @@
-EXEC = test
+# EXEC = test
 # EXEC = fence_i
 # EXEC = andi
 # EXEC = ori
@@ -31,7 +31,7 @@ EXEC = test
 # EXEC = bltu
 # EXEC = bgeu
 
-# EXEC = lb
+EXEC = lb
 # EXEC = lh
 # EXEC = lw
 # EXEC = lbu
