@@ -71,17 +71,26 @@ bool isa_difftest_checkregs(CPU_state *ref_r, uint64_t pc) {
         return false;
     }
   }
+
+  // compare CSR regesters
+  if((cpu.csr[ 5] != ref_r->csr[300] ) || // compare MSTATUS
+     (cpu.csr[ 8] != ref_r->csr[305] ) || // compare MTVEC
+     (cpu.csr[11] != ref_r->csr[341] ) || // compare MEPC
+     (cpu.csr[12] != ref_r->csr[342] )){  // compare MCAUSE
+    _Log("CSR MISMATCH\n");
+    return false;
+  }
   return true;
 }
 
 static void checkregs(CPU_state *ref, uint64_t pc) {
 // isa_difftest_checkregs(ref, pc);
     //printf ref regs
-    printf("Display Format: name, ref_value, mcu_value\n");
-    for(int i=0;i<32;i++){
-       display_gpr(i); // display_gpr gpr name
-       printf("gpr[%d] ==> ref: 0x%lx, mcu: 0x%lx\n",i, ref->gpr[i], cpu.gpr[i]);
-    }
+    // printf("Display Format: name, ref_value, mcu_value\n");
+    // for(int i=0;i<32;i++){
+    //    display_gpr(i); // display_gpr gpr name
+    //    printf("gpr[%d] ==> ref: 0x%lx, mcu: 0x%lx\n",i, ref->gpr[i], cpu.gpr[i]);
+    // }
 
     //printf ref regs
   if (!isa_difftest_checkregs(ref, pc) && npc_state.state != NPC_END) {

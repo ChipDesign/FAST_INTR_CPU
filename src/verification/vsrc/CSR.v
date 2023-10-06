@@ -378,6 +378,8 @@ CSR_addr_trans rtrans(
 
 
 
+import "DPI-C" function void set_csr_ptr(input logic [31:0] a []); // add DPI-C function
+initial set_csr_ptr(CSRs);
 
 
 endmodule

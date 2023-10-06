@@ -15,8 +15,6 @@ typedef struct {
 extern NPCState npc_state;
 
 typedef struct {
-  // uint64_t gpr[32];
-  // uint64_t pc;
   uint32_t gpr[32];
   uint32_t csr[2048]; // add csr registers in CPU_state
   uint32_t pc;
