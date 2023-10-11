@@ -127,11 +127,12 @@ ${BIN_ALL}: $(VSRCS) $(CSRCS)
 		$(addprefix -LIBS, $(LIBS)) \
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN_ALL))
 
-# asm = addi slti sltiu xori ori andi slli srli srai auipc lui \
-#       add sub slt slt xor or and sll srl sra \
-#       jalr jal beq bne blt bge bltu bgeu \
+asm = addi slti sltiu xori ori andi slli srli srai auipc lui \
+      add sub slt slt xor or and sll srl sra \
+      jalr jal beq bne blt bge bltu bgeu \
+      lb lh lw lbu lhu sb sh sw
 
-  asm = lb lh lw lbu lhu sb sh sw \
+  # asm = lb lh lw lbu lhu sb sh sw \
 	  
 # div divu mul mulh mulhsu mulhu rem remu
 #       rvc
