@@ -292,37 +292,37 @@ module pipelineMEM_withloadstore (
     //       D-memory instance 
     //*********************************
 
-    dmemory u_dmemory(
-        //ports
-        .clk    		( clk    		    ),
-        .ceb    		( ceb    		    ),
-        .web    		( web    		    ),
-        .A      		( dmem_addr   	    ),
-        .mask   		( byte_en   	    ),
-        .D      		( dmem_write_data   ),
-        .Q      		( dmem_read_data	)
-    );
+    // dmemory u_dmemory(
+    //     //ports
+    //     .clk    		( clk    		    ),
+    //     .ceb    		( ceb    		    ),
+    //     .web    		( web    		    ),
+    //     .A      		( dmem_addr   	    ),
+    //     .mask   		( byte_en   	    ),
+    //     .D      		( dmem_write_data   ),
+    //     .Q      		( dmem_read_data	)
+    // );
  
-// always @(posedge clk) begin
-//   if (~ceb & web) begin
-//     pmem_read32(alu_calculation_e_i, dmem_read_data);
-//   end
-// end
+always @(posedge clk) begin
+  if (~ceb & web) begin
+    pmem_read32(alu_calculation_e_i, dmem_read_data);
+  end
+end
 
-// always @(posedge clk) begin
-//   if (~web & ~ceb) begin
-//     pmem_write32(alu_calculation_e_i, rs2_e_i, {4'b0, WriteOP});
-//   end
-// end
+always @(posedge clk) begin
+  if (~web & ~ceb) begin
+    pmem_write32(alu_calculation_e_i, rs2_e_i, {4'b0, WriteOP});
+  end
+end
 
-// reg [3:0] WriteOP;
-// always @(*) begin
-//     case(dmem_type_e_i)
-//         `DMEM_SW: WriteOP = 4'b0001;
-//         `DMEM_SB: WriteOP = 4'b0010;
-//         `DMEM_SH: WriteOP = 4'b0100;
-//         default:  WriteOP = 4'b0000;
-//     endcase
-// end
+reg [3:0] WriteOP;
+always @(*) begin
+    case(dmem_type_e_i)
+        `DMEM_SW: WriteOP = 4'b0001;
+        `DMEM_SB: WriteOP = 4'b0010;
+        `DMEM_SH: WriteOP = 4'b0100;
+        default:  WriteOP = 4'b0000;
+    endcase
+end
 endmodule
 `endif

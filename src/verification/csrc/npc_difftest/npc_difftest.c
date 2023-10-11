@@ -84,17 +84,17 @@ static void checkregs(CPU_state *ref, uint64_t pc) {
 
     //printf ref regs
   if (!isa_difftest_checkregs(ref, pc) && npc_state.state != NPC_END) {
-    // npc_state.state = NPC_ABORT;
-    // npc_state.halt_pc = pc;
-    // printf("!!!!!!!!! Miss Match !!!!!!!!!!\n");
-    // printf("!!!!!!!!! Miss Match !!!!!!!!!!\n");
-    // printf("!!!!!!!!! Miss Match !!!!!!!!!!\n");
+    npc_state.state = NPC_ABORT;
+    npc_state.halt_pc = pc;
+    printf("!!!!!!!!! Miss Match !!!!!!!!!!\n");
+    printf("!!!!!!!!! Miss Match !!!!!!!!!!\n");
+    printf("!!!!!!!!! Miss Match !!!!!!!!!!\n");
   }
-  // else {
-  //   printf("!!!!!!!!! Match !!!!!!!!!!\n");
-  //   printf("!!!!!!!!! Match !!!!!!!!!!\n");
-  //   printf("!!!!!!!!! Match !!!!!!!!!!\n");
-  // }
+  else {
+    printf("!!!!!!!!! Match !!!!!!!!!!\n");
+    printf("!!!!!!!!! Match !!!!!!!!!!\n");
+    printf("!!!!!!!!! Match !!!!!!!!!!\n");
+  }
 }
 
 void difftest_step(uint64_t pc) {

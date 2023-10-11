@@ -41,6 +41,8 @@ int pmem_read(int addr, int len) {
 
 // 总是读取地址为`raddr & ~0x7ull`的4字节返回给`rdata`
 void pmem_read32(int raddr, int *rdata) {
+  printf("\nread 32 bits data from D-Memory\n");
+  printf("waddr=0x%x, wdata=0x%x\n\n", raddr, *rdata);
   if(raddr<0x80000000) raddr+=0x80000000;
   #ifdef CONFIG_MTRACE
     printf("C-> pmem_read32 raddr:%x, rdata:%x\n",raddr, rdata);
@@ -73,6 +75,8 @@ void pmem_read16(int raddr, int *rdata) {
 // 如`wmask = 0x3`代表只写入最低2个字节, 内存中的其它字节保持不变
 
 void pmem_write32(int waddr, int wdata, char wmask) {
+  printf("\nwrite 32 bits data into D-Memory\n");
+  printf("waddr=0x%x, wdata=0x%x\n\n", waddr, wdata);
   if(waddr<0x80000000) waddr+=0x80000000;
 
   #ifdef CONFIG_MTRACE
