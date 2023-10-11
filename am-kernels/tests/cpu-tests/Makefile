@@ -35,6 +35,5 @@ gdb: all
 
 clean:
 	rm -rf Makefile.* build/
-	rm -rf /home/s/ysyx-workbench/npc/build
 
 latest:

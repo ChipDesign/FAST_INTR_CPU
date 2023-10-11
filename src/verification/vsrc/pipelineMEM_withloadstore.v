@@ -98,7 +98,7 @@ module pipelineMEM_withloadstore (
     always@(posedge clk)
     begin
         plic_load<=(alu_calculation_e_i[31:22]==0)&(alu_calculation_e_i[21:20]!=0)&(web)&(~ceb);
-        dmem_load<=(alu_calculation_e_i[31:12]==0)&(web);
+        dmem_load<=(alu_calculation_e_i[30:17]==0)&(web);
     end
 
     assign dmem_write_data_f={32{~trap_flush_t_i}}&dmem_write_data;
@@ -306,6 +306,7 @@ module pipelineMEM_withloadstore (
 always @(posedge clk) begin
   if (~ceb & web) begin
     pmem_read32(alu_calculation_e_i, dmem_read_data);
+    $display("V-> Load raddr:%x, rdata:%x\n",alu_calculation_e_i, dmem_read_data);
   end
 end
 
@@ -324,6 +325,6 @@ always @(*) begin
         default:  WriteOP = 4'b0000;
     endcase
 end
- 
+
 endmodule
 `endif

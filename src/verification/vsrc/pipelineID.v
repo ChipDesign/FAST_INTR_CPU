@@ -211,7 +211,7 @@ module pipelineID(
             reg_write_en_d_o  <= wb_en_mul_div; 
             result_src_d_o    <= wb_src_o;  
             extended_imm_d_o  <= imm_o;
-            rd_idx_d_o        <= rd_index; 
+            rd_idx_d_o        <= rd_index;
             alu_op_d_o        <= aluOperation_o;      
             jalr_d_o          <= branchJALR_o;
             btype_d_o         <= branchBType_o;

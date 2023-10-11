@@ -15,6 +15,7 @@
 #include <npc_cpu.h>
 #include <npc_utils.h>
 #include <stdio.h>
+#include <npc_config.h>
 
 const char *regs[] = {
   "$0", "ra", "sp", "gp", "tp", "t0", "t1", "t2",
@@ -113,6 +114,11 @@ void exec_once() {
   else _Lognoprintf("NO.%ld-> pc: 0x%x, instr: 0x%lx, asm: %s\n", g_nr_guest_inst, top->pc, top->instr, logbuf);
   /*itrace end*/
 
+  #ifdef CONFIG_RTRACE
+  display_gpr(14);
+  display_gpr(15);
+  #endif
+
   // 译码 + 执行
   single_cycle();
 }
@@ -129,12 +135,14 @@ static void execute(uint64_t n) {
     // show dut registers
     // printf("dut regfiles after exec_once:\n");
     // run difftest
-    if(top->commit_en){
-    // if(1){
-        _Log("- - - - run difftest,pc=0x%lx, because commit_en = %d\n",top->pc, top->commit_en);
-        // difftest_step(0x80000000);
-        difftest_step(top->pc);
-    }
+    #ifdef CONFIG_DIFF
+      if(top->commit_en){
+        #ifdef CONFIG_DTRACE
+          _Log("- - - - run difftest,pc=0x%lx, because commit_en = %d\n",top->pc, top->commit_en);
+        #endif
+          difftest_step(top->pc);
+      }
+    #endif
     // else {
     //     printf("don't run difftest, because commit_en = %d\n",top->commit_en);
     // }

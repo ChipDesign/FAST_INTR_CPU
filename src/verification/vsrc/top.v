@@ -201,7 +201,6 @@ module top(
         end
     end
     `endif
-
     
     // pipeline resetn signals
     // IF stage instance
