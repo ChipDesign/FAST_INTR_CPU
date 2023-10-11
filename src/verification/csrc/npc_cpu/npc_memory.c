@@ -5,6 +5,7 @@
 #include <npc_common.h>
 #include <npc_memory.h>
 #include <stdio.h>
+#include <npc_config.h>
 
 static uint8_t pmem[0x8000000] = {};
 
@@ -40,8 +41,10 @@ int pmem_read(int addr, int len) {
 
 // 总是读取地址为`raddr & ~0x7ull`的4字节返回给`rdata`
 void pmem_read32(int raddr, int *rdata) {
-  // printf("pmem_read32 raddr:%x, rdata:%x\n",raddr, rdata);
   if(raddr<0x80000000) raddr+=0x80000000;
+  #ifdef CONFIG_MTRACE
+    printf("C-> pmem_read32 raddr:%x, rdata:%x\n",raddr, rdata);
+  #endif
   if (in_pmem(raddr)) {
     // printf("read data from D-Memory\n");
     *rdata = pmem_read(raddr, 4);
@@ -72,11 +75,13 @@ void pmem_read16(int raddr, int *rdata) {
 void pmem_write32(int waddr, int wdata, char wmask) {
   if(waddr<0x80000000) waddr+=0x80000000;
 
-  // printf("C-> pmem_write32 waddr:%x, wdata:%x, wmack:%d\n",waddr, wdata, wmask);
+  #ifdef CONFIG_MTRACE
+    printf("C-> pmem_write32 waddr:%x, wdata:%x, wmack:%d\n",waddr, wdata, wmask);
+  #endif
 
-  if (waddr>=0x80000000 && waddr<=0x88000000) {
+  if (in_pmem(waddr)) {
     // printf("C-> pmem_write %lx: 0x%lx\n", waddr, wdata);
     host_write(guest_to_host(waddr), wmask, wdata);
   }
-  else if (waddr == 0xa00003f8) putchar(wdata);
+  else if (waddr == 0xa00003f8) putchar(wdata); // uart
 }
