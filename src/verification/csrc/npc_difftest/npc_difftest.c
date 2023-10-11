@@ -76,11 +76,11 @@ bool isa_difftest_checkregs(CPU_state *ref_r, uint64_t pc) {
 static void checkregs(CPU_state *ref, uint64_t pc) {
 // isa_difftest_checkregs(ref, pc);
     //printf ref regs
-    printf("Display Format: name, ref_value, mcu_value\n");
-    for(int i=0;i<32;i++){
-       // display_gpr(i);
-       printf("gpr[%d] ==> ref: 0x%lx, mcu: 0x%lx\n", i, ref->gpr[i], cpu.gpr[i]);
-    }
+    // printf("Display Format: name, ref_value, mcu_value\n");
+    // for(int i=0;i<32;i++){
+    //    // display_gpr(i);
+    //    printf("gpr[%d] ==> ref: 0x%lx, mcu: 0x%lx\n", i, ref->gpr[i], cpu.gpr[i]);
+    // }
 
     //printf ref regs
   if (!isa_difftest_checkregs(ref, pc) && npc_state.state != NPC_END) {
@@ -90,11 +90,11 @@ static void checkregs(CPU_state *ref, uint64_t pc) {
     printf("!!!!!!!!! Miss Match !!!!!!!!!!\n");
     printf("!!!!!!!!! Miss Match !!!!!!!!!!\n");
   }
-  else {
-    printf("!!!!!!!!! Match !!!!!!!!!!\n");
-    printf("!!!!!!!!! Match !!!!!!!!!!\n");
-    printf("!!!!!!!!! Match !!!!!!!!!!\n");
-  }
+  // else {
+  //   printf("!!!!!!!!! Match !!!!!!!!!!\n");
+  //   printf("!!!!!!!!! Match !!!!!!!!!!\n");
+  //   printf("!!!!!!!!! Match !!!!!!!!!!\n");
+  // }
 }
 
 void difftest_step(uint64_t pc) {

@@ -36,7 +36,6 @@ void dump_gpr() {
 }
 void display_gpr(int i) {
   printf("%s:\tgpr[%d]:\t0x%lx\n", regs[i], i, cpu.gpr[i]);
-  // printf("%s -> ",regs[i]);
 }
 
 // Construct the Verilated model, from Vtop.h generated from Verilating "top.v"

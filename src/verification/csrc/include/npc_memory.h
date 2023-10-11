@@ -17,7 +17,6 @@ uint32_t host_to_guest(uint8_t *haddr);
 // }
 
 int pmem_read(int addr, int len);
-
 void pmem_write(int addr, int len, int data);
 
 static inline bool in_pmem(uint32_t addr) {
