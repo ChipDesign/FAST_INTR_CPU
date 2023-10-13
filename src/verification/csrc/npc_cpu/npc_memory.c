@@ -48,7 +48,7 @@ void pmem_read32(int raddr, int *rdata) {
     *rdata = 0;
   }
   #ifdef CONFIG_MTRACE
-    printf("CCCCCC-> pmem_read32 raddr:%x, rdata:%x\n",raddr, *rdata);
+    printf("\nCCCCCC-> pmem_read32 raddr:%x, rdata:%x\n",raddr, *rdata);
   #endif
 }
 
@@ -79,6 +79,6 @@ void pmem_write32(int waddr, int wdata, char wmask) {
   else if (waddr == 0xa00003f8) putchar(wdata); // uart
 
   #ifdef CONFIG_MTRACE
-    printf("CCCCCC-> pmem_write32 waddr:%x, wdata:%x, wmack:%d\n",waddr, wdata, wmask);
+    printf("\nCCCCCC-> pmem_write32 waddr:%x, wdata:%x, wmack:%d\n",waddr, wdata, wmask);
   #endif
 }

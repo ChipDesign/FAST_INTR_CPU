@@ -57,6 +57,7 @@ begin
   end
 end
 
+reg ld_hazst1;
 always@(posedge clk)//bypass
 begin
 
@@ -65,20 +66,22 @@ begin
     dst_1<=5'b0;
     dst_2<=5'b0;
     ld_dst1<=1'b0;
+    ld_hazst1<=1'b0;
   end
   else
   begin
     dst_1<=r_dst&{5{dst_en&~(flush)}};
     dst_2<=dst_1;
     ld_dst1<=is_load;
+    ld_hazst1<=Ldhaz_st;
   end  
 
 end
 
-assign src1_sel[0]=(~(r_src1==0))&(dst_1==r_src1);
-assign src1_sel[1]=(~(r_src1==0))&(~(dst_1==dst_2))&(dst_2==r_src1);
-assign src2_sel[0]=(~(r_src2==0))&(dst_1==r_src2);
-assign src2_sel[1]=(~(r_src2==0))&(~(dst_1==dst_2))&(dst_2==r_src2);
+assign src1_sel[0]=(~(r_src1==0))&(dst_1==r_src1)&(~ld_hazst1);
+assign src1_sel[1]=(~(r_src1==0))&(~(dst_1==dst_2)|(ld_hazst1))&(dst_2==r_src1);
+assign src2_sel[0]=(~(r_src2==0))&(dst_1==r_src2)&(~ld_hazst1);
+assign src2_sel[1]=(~(r_src2==0))&((~(dst_1==dst_2))|(ld_hazst1))&(dst_2==r_src2);
 
 //stall
 
