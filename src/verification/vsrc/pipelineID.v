@@ -101,7 +101,8 @@ module pipelineID(
     output reg mret_d_o,
     //output related to trap handling
     output wire [31:0] epc_source_d_o,
-    output wire [31:0] epc_source_d_o_w
+    output wire [31:0] epc_source_d_o_w,
+    output wire        inst_ecall
 );
 // =========================================================================
 // =============================   variables   =============================
@@ -458,7 +459,8 @@ module pipelineID(
         .csr_zimm_en_o          ( csr_zimm_en_o         ),
         .csr_zimm_o             ( csr_zimm_o            ),
         .csr_write_o            ( csr_write_o           ),
-        .mret                   ( mret                  )
+        .mret                   ( mret                  ),
+        .inst_ecall             ( inst_ecall            )
     );
 
     // compress decode instance

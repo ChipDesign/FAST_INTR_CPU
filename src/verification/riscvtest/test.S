@@ -11,25 +11,18 @@
 
 
 _start:
-   li x1, 1 
-   li x2, 2 
-   beq x1, x0, _end
-   bne x1, x0, _end
-   bne x1, x0, _one # should be flushed
-
-_end:
-   beq x1, x0, _start # sbp taken, alu not 
-   li x3, 3 
    nop
    nop
    nop
-   ebreak
-   ; ecall
-
-_one:
-   li x4, 4 
+   csrw	mtvec, a5
    nop
    nop
    nop
 
-    .end
+_ISR:
+   addi x2, x0, 1 
+   addi x2, x2, 1 
+   addi x2, x2, 1 
+   addi x2, x2, 1 
+   addi x2, x2, 1 
+   mret

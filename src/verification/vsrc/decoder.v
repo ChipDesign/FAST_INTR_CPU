@@ -54,7 +54,8 @@ module decoder(
     //==========special instructions===========
     output reg mret,
     // ========= illegal instruction =========
-    output reg instr_illegal_o
+    output reg instr_illegal_o,
+    output wire inst_ecall // ecall instruction
 );
 
 // =========================================================================
@@ -314,12 +315,12 @@ module decoder(
             begin
                 case(instruction_i[14:12])
                 3'b000: begin//special instructions
-                case(instruction_i[31:7])
-                    25'h0604000: begin//mret
-                    mret = 1'b1; end
-
-                    default: instr_illegal_o = 1'b1;
-                endcase
+                    case(instruction_i[31:7])
+                        25'h0604000: begin//mret
+                            mret = 1'b1; 
+                        end
+                        default: instr_illegal_o = 1'b1;
+                    endcase
                 end
                 3'b011: begin//csrrc
                     wb_en_o=1'b1;
@@ -386,7 +387,9 @@ module decoder(
 `ifdef DIFFTEST
 wire inst_ebreak;
 assign inst_ebreak = instruction_i == 32'h0010_0073;
+                     // instruction_i == 32'h3020_0073;
 
+assign inst_ecall = instruction_i == 32'h0000_0073;
 always @(*) begin
   if (inst_ebreak) ebreak();
 end

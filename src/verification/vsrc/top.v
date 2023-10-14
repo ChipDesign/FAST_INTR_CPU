@@ -219,6 +219,7 @@ module top(
         .imem_addr              ( imem_addr             )
     );
 
+    wire inst_ecall;
     // ID stage instance
     pipelineID u_pipelineID(
         //ports
@@ -288,7 +289,8 @@ module top(
         .epc_c_i                ( epc_ret               ),
         .mret_d_o               ( mret_d_o              ),
         .epc_source_d_o         ( epc_source_d_o        ),
-        .epc_source_d_o_w       ( epc_source_d_o_w      )
+        .epc_source_d_o_w       ( epc_source_d_o_w      ),
+        .inst_ecall             ( inst_ecall)
         
     );
 
@@ -484,6 +486,7 @@ module top(
     .mip                        ( mip_c_o               ),
     .mstatus                    ( mstatus_c_o           ),
     .mret_commit                ( mret_m_o              ),
+    .inst_ecall                 ( inst_ecall            ),
     .intr_happen                ( intr_happen           ),
     .ex_happen                  ( ex_happen             ),
     .trap_cause                 ( trap_cause_t_o        ),

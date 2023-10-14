@@ -20,7 +20,8 @@ SRCS_ASM = \
 	trap.S \
 	test.S
 
-OBJS = $(SRCS_ASM:.S=.o)
+# OBJS = $(SRCS_ASM:.S=.o)
+OBJS = test.S
 
 # start.o must be the first in dependency!
 # ${CC} ${CFLAGS} -o os.elf $^
