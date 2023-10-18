@@ -130,7 +130,7 @@ always @(posedge clk)
 begin
     if(~resetn)
     begin
-	CSRs[8] <= 32'b0;//initialized as zero, to be reset by booting software
+	CSRs[8] <= 32'h80000000;//initialized as zero, to be reset by booting software
     end
     else if(wen2&waddr2 == 12'h305)
     begin
@@ -224,7 +224,7 @@ begin
     end
     else
     begin
-	    CSRs[14][3]<= soft_pending; 
+	    CSRs[14][3]<= soft_pending;  //TODO: fix this
       	CSRs[14][7]<= time_pending;
 	    CSRs[14][11]<= test_ext_pending;	
     end

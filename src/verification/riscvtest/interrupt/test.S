@@ -42,7 +42,7 @@ _start:
    nop
    la a5, _ISR
    csrw	mtvec, a5
-   # ecall
+   ecall
    nop
    nop
    nop

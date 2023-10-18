@@ -26,7 +26,8 @@ module htrap_handler
     output reg ex_happen,
     output wire [31:0] trap_cause,
     output wire time_pending,
-    output reg soft_pending,
+    output wire soft_pending,
+    // output reg soft_pending,
     output wire trap_fin,
 
     //PLIC communication
@@ -45,14 +46,7 @@ reg intr_triggered;
 assign trap_fin=mret_commit;
 assign trap_cause=cause;
 assign time_pending=1'b0;
-// assign soft_pending=1'b0;
-always @(posedge clk ) begin 
-    if(~resetn) begin
-        soft_pending <= 1'b0;
-    end else begin
-        soft_pending <= inst_ecall;
-    end
-end
+assign soft_pending= inst_ecall;
 
 always@(posedge clk)
 begin
