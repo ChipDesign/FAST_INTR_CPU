@@ -289,7 +289,7 @@ module pipelineID(
     //                          ({32{trap_flush_t_i}}  &  (trap_vector_c_i & 32'hfffffffc))| //pc of trap handling
     //                          ({32{~flush_i&mret}}  &  (epc_c_i))));
     //epc_source generating
-    assign epc_source_d_o = pc_instr;  
+    assign epc_source_d_o =inst_ecall ? pc_next: pc_instr; // TODO: change inst_ecall to interrupt
     assign epc_source_d_o_w = taken_reg?pc_taken:pc_next;
 
     

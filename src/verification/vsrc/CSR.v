@@ -132,9 +132,10 @@ begin
     begin
 	CSRs[8] <= 32'h80000000;//initialized as zero, to be reset by booting software
     end
-    else if(wen2&waddr2 == 12'h305)
+    else if(wen1&waddr1 == 12'h305)
+    // else if(wen2&waddr2 == 12'h305)
     begin
-	CSRs[8] <= wdata2;
+	CSRs[8] <= wdata1;
     end
 end
 

@@ -43,19 +43,20 @@ _start:
    la a5, _ISR
    csrw	mtvec, a5
    ecall
-   nop
-   nop
-   nop
+   li x1, 1 
+   li x2, 2 
+   li x3, 3 
+   li x4, 4 
+   li x5, 5 
+   ebreak
 
 _ISR:
-#   ebreak
-   addi x2, x0, 1 
-   addi x2, x2, 1 
-   addi x2, x2, 1 
-   addi x2, x2, 1 
-   addi x2, x2, 1 
-   # mret
-   # ebreak; 
+   li x1, 11 
+   li x2, 12 
+   li x3, 13 
+   li x4, 14 
+   li x5, 15 
+   mret
    nop
    nop
    nop
