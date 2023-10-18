@@ -54,8 +54,8 @@ _ISR:
    addi x2, x2, 1 
    addi x2, x2, 1 
    addi x2, x2, 1 
-   #mret
-   ebreak; 
+   # mret
+   # ebreak; 
    nop
    nop
    nop
