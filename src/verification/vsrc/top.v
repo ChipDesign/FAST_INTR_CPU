@@ -166,7 +166,23 @@ module top(
         resetn_d_d <= resetn_d;
     end
 
-    assign commit_en_id = ~flush_d_i & resetn_d_d & ~fd_st_f_i;
+    reg ecall_1d, ecall_2d, ecall_3d;
+
+    always @(posedge clk ) begin 
+        if(~resetn) begin
+            ecall_1d <= 1'b0;    
+            ecall_2d <= 1'b0;    
+            ecall_3d <= 1'b0;    
+        end
+        else begin
+            ecall_1d <= inst_ecall;    
+            ecall_2d <= ecall_1d;    
+            ecall_3d <= ecall_2d;    
+        end
+    end
+    
+    assign commit_en_id = ~flush_d_i & resetn_d_d & ~fd_st_f_i &~ecall_1d &~ecall_2d &~ecall_3d;
+    // assign commit_en_id = ~flush_d_i & resetn_d_d & ~fd_st_f_i;
     assign commit_en    = commit_en_delay;
     always @(posedge clk ) begin 
         if(~resetn) begin

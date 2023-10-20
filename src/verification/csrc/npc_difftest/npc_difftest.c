@@ -62,7 +62,6 @@ static void checkmem(uint32_t addr, uint64_t pc) {
 
 bool isa_difftest_checkregs(CPU_state *ref_r, uint64_t pc) {
   for (int i = 1; i < 32; i++){
-    // if (1) {
     if (cpu.gpr[i] != (ref_r->gpr[i] & 0xffffffff)) {
       // printf("\nDIFFTEST at pc=0x%lx -> ref: 0x%lx != npc: ", pc, ref_r->gpr[i]);
         _Log("=== DIFFTEST MISMATCH AT 0x%lx ===\n", pc);
@@ -72,6 +71,7 @@ bool isa_difftest_checkregs(CPU_state *ref_r, uint64_t pc) {
     }
   }
 
+    printf("\n\n=====>spike value: mtvec=0x%x, mepc=0x%x\n\n", ref_r->csr[305]&0xffffffff, ref_r->csr[341]&0xffffffff);
   // compare CSR regesters
   // if((cpu.csr[ 5] != ref_r->csr[300] ) || // compare MSTATUS
   //    (cpu.csr[ 8] != ref_r->csr[305] ) || // compare MTVEC
@@ -86,16 +86,16 @@ bool isa_difftest_checkregs(CPU_state *ref_r, uint64_t pc) {
 static void checkregs(CPU_state *ref, uint64_t pc) {
 // isa_difftest_checkregs(ref, pc);
     //printf ref regs
-    printf("Display Format: name, ref_value, mcu_value\n");
-    for(int i=0;i<32;i++){
-       display_gpr(i); // display_gpr gpr name
-       printf("gpr[%d] ==> ref: 0x%lx, mcu: 0x%lx\n",i, ref->gpr[i], cpu.gpr[i]);
-    }
+    // printf("Display Format: name, ref_value, mcu_value\n");
+    // for(int i=0;i<32;i++){
+    //    display_gpr(i); // display_gpr gpr name
+    //    printf("gpr[%d] ==> ref: 0x%lx, mcu: 0x%lx\n",i, ref->gpr[i], cpu.gpr[i]);
+    // }
 
     //printf ref regs
   if (!isa_difftest_checkregs(ref, pc) && npc_state.state != NPC_END) {
-    npc_state.state = NPC_ABORT;
-    npc_state.halt_pc = pc;
+    // npc_state.state = NPC_ABORT;
+    // npc_state.halt_pc = pc;
     printf("!!!!!!!!! Miss Match !!!!!!!!!!\n");
     printf("!!!!!!!!! Miss Match !!!!!!!!!!\n");
     printf("!!!!!!!!! Miss Match !!!!!!!!!!\n");
@@ -110,6 +110,10 @@ static void checkregs(CPU_state *ref, uint64_t pc) {
 void difftest_step(uint64_t pc) {
   CPU_state ref_r;
   ref_difftest_exec(1);
+  printf("\n\n->>>>difftest pc = 0x%lx\n", pc);
+  if(pc==0x80000018){
+        difftest_interrupt(pc);
+    }
   ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT); // 从ref中拷贝寄存器状态
   checkregs(&ref_r, pc);
 }

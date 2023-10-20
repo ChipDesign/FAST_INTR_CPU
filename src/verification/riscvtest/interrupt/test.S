@@ -48,6 +48,10 @@ _start:
    li x3, 3 
    li x4, 4 
    li x5, 5 
+   nop
+   nop
+   nop
+   nop
    ebreak
 
 _ISR:
