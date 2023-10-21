@@ -139,27 +139,12 @@ void exec_once() {
 static void execute(uint64_t n) {
   for (; n > 0; n--) {
     g_nr_guest_inst++;
-
-    // printf("Top: resetn= %d, pc= 0x%x, instr = 0x%x\n",top->resetn, top->pc,
-    // top->instr);
-    exec_once(); // dut run one cycle
-    /* difftest begin */
+    exec_once(); // dut run 1 cycle
     cpu.pc = top->pc; // pc存入cpu结构体
     dump_gpr();       // 寄存器值存入cpu结构体
-    // show dut registers
-    // printf("dut regfiles after exec_once:\n");
-    // run difftest
     if (top->commit_en) {
-      // if(1){
-      _Log("- - - - run difftest,pc=0x%lx, because commit_en = %d\n", top->pc,
-           top->commit_en);
-      // difftest_step(0x80000000);
-      difftest_step(top->pc);
+      difftest_step(top->pc, top->ext_interrupt); // spike run 1 cycle
     }
-    // else {
-    //     printf("don't run difftest, because commit_en =
-    //     %d\n",top->commit_en);
-    // }
     if (npc_state.state != NPC_RUNNING)
       break;
   }

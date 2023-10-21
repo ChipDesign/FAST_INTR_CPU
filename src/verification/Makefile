@@ -92,8 +92,8 @@ IMG ?=riscvtest/interrupt/os.bin
 # IMG ?=riscvtest/remu.bin
 
 # ARGS_DIFF = --diff=so/riscv32-spike-so
-# ARGS_DIFF = --diff=so/riscv32-spike-interrupt-so
-ARGS_DIFF = --diff=so/spike-so-new
+ARGS_DIFF = --diff=so/riscv32-spike-interrupt-so
+# ARGS_DIFF = --diff=so/spike-so-new
 # ARGS_DIFF = --diff=/home/fujie/Developer/git_repos/diff/demo2/nemu/tools/spike-diff/build/riscv32imc-spike-so
 # ARGS_DIFF = --diff=/so/riscv64-spike-so
 

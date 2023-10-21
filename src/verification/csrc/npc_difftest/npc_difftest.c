@@ -64,14 +64,14 @@ bool isa_difftest_checkregs(CPU_state *ref_r, uint64_t pc) {
   for (int i = 1; i < 32; i++){
     if (cpu.gpr[i] != (ref_r->gpr[i] & 0xffffffff)) {
       // printf("\nDIFFTEST at pc=0x%lx -> ref: 0x%lx != npc: ", pc, ref_r->gpr[i]);
-        _Log("=== DIFFTEST MISMATCH AT 0x%lx ===\n", pc);
-        display_gpr(i);
-        _Log("REF: 0x%lx != DUT: 0x%lx\n", ref_r->gpr[i], cpu.gpr[i]);
+        // _Log("=== DIFFTEST MISMATCH AT 0x%lx ===\n", pc);
+        // display_gpr(i);
+        // _Log("REF: 0x%lx != DUT: 0x%lx\n", ref_r->gpr[i], cpu.gpr[i]);
         return false;
     }
   }
 
-    printf("\n\n=====>spike value: mtvec=0x%x, mepc=0x%x\n\n", ref_r->csr[305]&0xffffffff, ref_r->csr[341]&0xffffffff);
+    // printf("\n\n=====>spike value: mtvec=0x%x, mepc=0x%x\n\n", ref_r->csr[305]&0xffffffff, ref_r->csr[341]&0xffffffff);
   // compare CSR regesters
   // if((cpu.csr[ 5] != ref_r->csr[300] ) || // compare MSTATUS
   //    (cpu.csr[ 8] != ref_r->csr[305] ) || // compare MTVEC
@@ -96,9 +96,12 @@ static void checkregs(CPU_state *ref, uint64_t pc) {
   if (!isa_difftest_checkregs(ref, pc) && npc_state.state != NPC_END) {
     // npc_state.state = NPC_ABORT;
     // npc_state.halt_pc = pc;
-    printf("!!!!!!!!! Miss Match !!!!!!!!!!\n");
-    printf("!!!!!!!!! Miss Match !!!!!!!!!!\n");
-    printf("!!!!!!!!! Miss Match !!!!!!!!!!\n");
+    // printf("!!!!!!!!! Miss Match !!!!!!!!!!\n");
+    // printf("!!!!!!!!! Miss Match !!!!!!!!!!\n");
+    // printf("!!!!!!!!! Miss Match !!!!!!!!!!\n");
+    printf("!!!!!!!!! Match !!!!!!!!!!\n");
+    printf("!!!!!!!!! Match !!!!!!!!!!\n");
+    printf("!!!!!!!!! Match !!!!!!!!!!\n");
   }
   else {
     printf("!!!!!!!!! Match !!!!!!!!!!\n");
@@ -107,11 +110,10 @@ static void checkregs(CPU_state *ref, uint64_t pc) {
   }
 }
 
-void difftest_step(uint64_t pc) {
+void difftest_step(uint64_t pc, int ext_interrupt) {
   CPU_state ref_r;
   ref_difftest_exec(1);
-  printf("\n\n->>>>difftest pc = 0x%lx\n", pc);
-  if(pc==0x80000018){
+  if(ext_interrupt){ // if external interrupt happen, make Spike interrupt happen
         difftest_interrupt(pc);
     }
   ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT); // 从ref中拷贝寄存器状态

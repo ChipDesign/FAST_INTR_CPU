@@ -32,6 +32,7 @@ module top(
     output wire [31:0] id_instr,
     output wire [31:0] imem_addr,
     output wire        commit_en,
+    output wire        ext_interrupt,
     `endif
     // signals used by difftest
     input wire [127:0] test_input_intr_bundle
@@ -159,6 +160,7 @@ module top(
     reg commit_en_exe, commit_en_mem, commit_en_wb, commit_en_delay;
     wire commit_en_id;
     assign id_instr=instruction_f_o;
+    assign ext_interrupt = eip_notif;
     // TODO: add stall logic consideration for instruction commit
 
     always @(posedge clk ) begin 
