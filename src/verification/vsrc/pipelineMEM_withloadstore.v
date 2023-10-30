@@ -318,9 +318,9 @@ end
 reg [3:0] WriteOP;
 always @(*) begin
     case(dmem_type_e_i)
-        `DMEM_SW: WriteOP = 4'b0001;
-        `DMEM_SB: WriteOP = 4'b0010;
-        `DMEM_SH: WriteOP = 4'b0100;
+        `DMEM_SB: WriteOP = 4'b0001; // 8
+        `DMEM_SH: WriteOP = 4'b0010; // 16
+        `DMEM_SW: WriteOP = 4'b0100; // 32
         default:  WriteOP = 4'b0000;
     endcase
 end
