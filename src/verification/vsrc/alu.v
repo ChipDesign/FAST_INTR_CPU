@@ -63,7 +63,8 @@ assign ALUout=  ({32{sub_op|add_op}}&add_ans[31:0])|
 		({32{sll_op|srl_op|sra_op}}&sft_ans) |
 		({32{sltu_op|slt_op}}&{31'b0,add_ans[32]});
 		
-assign branch_taken=branch&((sub_op&(~beq^(add_ans===0)))|	((slt_op|sltu_op)&(~blt^(add_ans[32]))));
+assign branch_taken=branch&((sub_op&(~beq^(add_ans==0)))|	((slt_op|sltu_op)&(~blt^(add_ans[32]))));
+// assign branch_taken=branch&((sub_op&(~beq^(add_ans===0)))|	((slt_op|sltu_op)&(~blt^(add_ans[32]))));
 
 
 long_div  div(
