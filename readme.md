@@ -1,4 +1,5 @@
-![5StagePipeline-with-Hazard-Control](./pictures/5-Stage-Pipeline-with-Hazard-Control.svg)
+<!-- ![5StagePipeline-with-Hazard-Control](./pictures/5-Stage-Pipeline-with-Hazard-Control.svg) -->
+![](https://s2.loli.net/2023/11/17/oQ6JimbasRgplHC.png)
 
 > 一款专门用于5G基带芯片加速器调度的RISC-V MCU，满足快速响应的需求并且能够自主可控
 
