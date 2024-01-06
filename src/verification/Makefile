@@ -39,9 +39,9 @@ LDFLAGS += -ldl
 # ARGS ?=/home/fujie/Developer/git_repos/diff/demo2/npc/build/top
 
 # Command to execute NPC
-IMG ?=riscvtest/interrupt/os.bin
+# IMG ?=riscvtest/interrupt/os.bin
 # IMG ?=riscvtest/test.bin
-# IMG ?=riscvtest/addi.bin
+IMG ?=riscvtest/addi.bin
 # IMG ?=riscvtest/slti.bin
 # IMG ?=riscvtest/sltiu.bin
 # IMG ?=riscvtest/xori.bin
