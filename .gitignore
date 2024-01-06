@@ -40,3 +40,4 @@ src/verification/asm/generated/*
 src/verification/build/obj_dir/
 src/verification/build/*
 *.bkp
+*.dtmp
