@@ -54,7 +54,9 @@ module decoder(
     //==========special instructions===========
     output reg mret,
     // ========= illegal instruction =========
-    output reg instr_illegal_o
+    output reg instr_illegal_o,
+    // dma coprocessor
+    output reg dma_o
 );
 
 // =========================================================================
@@ -104,6 +106,7 @@ module decoder(
         csr_zimm_o=32'b0;
         csr_no_cal_o=1'b0;
         mret=1'b0;
+        dma_o = 0;
         case(opcode) 
             `OPCODE_LOAD  : begin
                 imm_type_o = `IMM_I;
@@ -265,6 +268,13 @@ module decoder(
                 alu_calculation = `ALUOP_ADD;
                 wb_src_o = `WBSRC_IMM;
                 wb_en_o = 1'b1;
+            end
+            `OPCODE_CUSTOM : begin
+                alu_calculation = `ALUOP_ADD;
+                wb_en_o = 1'b0;
+                rs1_sel_o = `RS1SEL_RF;
+                rs2_sel_o = `RS2SEL_RF;
+                dma_o = 1'b1;
             end
             `OPCODE_BRANCH: begin
                 imm_type_o = `IMM_B;

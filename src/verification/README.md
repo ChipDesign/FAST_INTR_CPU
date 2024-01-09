@@ -1,4 +1,4 @@
-> Verification 使用说明.
+> Verification 使用说明
 
 # 目录结构介绍
 

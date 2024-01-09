@@ -39,6 +39,8 @@ LDFLAGS += -ldl
 # ARGS ?=/home/fujie/Developer/git_repos/diff/demo2/npc/build/top
 
 # Command to execute NPC
+# IMG ?=riscvtest/os.bin
+IMG ?=/home/fujie/Developer/git_repos/riscv-operating-system-mooc/code/os/00-bootstrap/os.bin
 # IMG ?=riscvtest/test.bin
 # IMG ?=riscvtest/addi.bin
 # IMG ?=riscvtest/slti.bin
@@ -72,7 +74,7 @@ LDFLAGS += -ldl
 # IMG ?=riscvtest/bltu.bin
 # IMG ?=riscvtest/bgeu.bin
 
-IMG ?=riscvtest/lb.bin
+# IMG ?=riscvtest/lb.bin
 # IMG ?=riscvtest/lh.bin
 # IMG ?=riscvtest/lw.bin
 # IMG ?=riscvtest/lbu.bin

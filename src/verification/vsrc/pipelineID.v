@@ -430,6 +430,7 @@ module pipelineID(
 
 
     // decode instance
+    wire dma_o;
     decoder u_decoder(
         //ports
         .instruction_i  		( instru_32bits  	),
@@ -452,7 +453,8 @@ module pipelineID(
         .csr_zimm_en_o          ( csr_zimm_en_o         ),
         .csr_zimm_o             ( csr_zimm_o            ),
         .csr_write_o            ( csr_write_o           ),
-        .mret                   ( mret                  )
+        .mret                   ( mret                  ),
+        .dma_o                  ( dma_o                 )
     );
 
     // compress decode instance
