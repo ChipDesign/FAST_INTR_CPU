@@ -1,7 +1,8 @@
 TOPNAME = top
 INC_PATH ?=
 
-VERILATOR = verilator
+# VERILATOR = verilator
+VERILATOR = ~/Developer/git_repos/chipDesign/verilator/bin/verilator
 # VERILATOR_CFLAGS += -Wall --trace # write by myself
 VERILATOR_CFLAGS +=  --trace # enable waveform 
 VERILATOR_CFLAGS += -MMD --build -cc --trace\
@@ -40,9 +41,9 @@ LDFLAGS += -ldl
 
 # Command to execute NPC
 # IMG ?=riscvtest/os.bin
-IMG ?=/home/fujie/Developer/git_repos/riscv-operating-system-mooc/code/os/00-bootstrap/os.bin
+# IMG ?=/home/fujie/Developer/git_repos/riscv-operating-system-mooc/code/os/00-bootstrap/os.bin
 # IMG ?=riscvtest/test.bin
-# IMG ?=riscvtest/addi.bin
+IMG ?=riscvtest/addi.bin
 # IMG ?=riscvtest/slti.bin
 # IMG ?=riscvtest/sltiu.bin
 # IMG ?=riscvtest/xori.bin

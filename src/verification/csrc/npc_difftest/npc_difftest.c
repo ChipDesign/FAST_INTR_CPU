@@ -52,12 +52,12 @@ bool isa_difftest_checkmem(uint32_t addr) {
   return true;
 }
 
-static void checkmem(uint32_t addr, uint64_t pc) {
-  if (!isa_difftest_checkmem(addr) && npc_state.state != NPC_END) {
-    npc_state.state = NPC_ABORT;
-    npc_state.halt_pc = pc;
-  }
-}
+// static void checkmem(uint32_t addr, uint64_t pc) {
+//   if (!isa_difftest_checkmem(addr) && npc_state.state != NPC_END) {
+//     npc_state.state = NPC_ABORT;
+//     npc_state.halt_pc = pc;
+//   }
+// }
 
 bool isa_difftest_checkregs(CPU_state *ref_r, uint64_t pc) {
   for (int i = 1; i < 32; i++){
@@ -66,7 +66,8 @@ bool isa_difftest_checkregs(CPU_state *ref_r, uint64_t pc) {
       // printf("\nDIFFTEST at pc=0x%lx -> ref: 0x%lx != npc: ", pc, ref_r->gpr[i]);
         _Log("=== DIFFTEST MISMATCH AT 0x%lx ===\n", pc);
         display_gpr(i);
-        _Log("REF: 0x%lx != DUT: 0x%lx\n", ref_r->gpr[i], cpu.gpr[i]);
+        // _Log("REF: 0x%lx != DUT: 0x%lx\n", ref_r->gpr[i], cpu.gpr[i]);
+        _Log("REF: 0x%x != DUT: 0x%x\n", ref_r->gpr[i], cpu.gpr[i]);
         return false;
     }
   }
@@ -90,11 +91,11 @@ static void checkregs(CPU_state *ref, uint64_t pc) {
     printf("!!!!!!!!! Miss Match !!!!!!!!!!\n");
     printf("!!!!!!!!! Miss Match !!!!!!!!!!\n");
   }
-  // else {
-  //   printf("!!!!!!!!! Match !!!!!!!!!!\n");
-  //   printf("!!!!!!!!! Match !!!!!!!!!!\n");
-  //   printf("!!!!!!!!! Match !!!!!!!!!!\n");
-  // }
+  else {
+    printf("!!!!!!!!! Match !!!!!!!!!!\n");
+    printf("!!!!!!!!! Match !!!!!!!!!!\n");
+    printf("!!!!!!!!! Match !!!!!!!!!!\n");
+  }
 }
 
 void difftest_step(uint64_t pc) {

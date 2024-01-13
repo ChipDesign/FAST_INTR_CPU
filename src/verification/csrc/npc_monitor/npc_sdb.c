@@ -84,7 +84,8 @@ static int cmd_x(char *args) {
   unsigned int EXPR;
   sscanf(arg2,"%x",&EXPR); // 16进制字符串转16进制int整型
   for (int i = 0; i < N; i++){
-    printf("0x%x: 0x%llx\n", EXPR, pmem_read(EXPR, 4));
+    printf("0x%x: 0x%x\n", EXPR, pmem_read(EXPR, 4));
+    // printf("0x%x: 0x%llx\n", EXPR, pmem_read(EXPR, 4));
     EXPR = EXPR + 4;
   }
   return 0;

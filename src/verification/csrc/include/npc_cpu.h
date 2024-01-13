@@ -9,8 +9,8 @@ enum { NPC_RUNNING, NPC_STOP, NPC_END, NPC_ABORT, NPC_QUIT };
 
 typedef struct {
   int state;
-  uint64_t halt_pc;
-  uint32_t halt_ret;
+  uint64_t halt_pc=0x80000000;
+  uint32_t halt_ret=0x80000000;
 } NPCState;
 extern NPCState npc_state;
 
